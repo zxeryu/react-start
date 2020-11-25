@@ -1,4 +1,3 @@
-const path = require("path");
 module.exports = {
   entry: {
     app: "./src/index.tsx",
@@ -20,7 +19,7 @@ module.exports = {
     ],
   },
   devServer: {
-    contentBase: path.join(__dirname, "public"),
+    contentBase: "./public",
     compress: true,
     port: 3000,
   },
