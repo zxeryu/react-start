@@ -10,9 +10,14 @@
     "@react-start/*"
   ],
   "scripts": {
-    "start": "webpack serve"
+    "start": "webpack serve",
+    "l-install": "lerna bootstrap",
+    "l-prepare": "tsc && lerna run build",
+    "l-release": "lerna version --conventional-commits",
+    "l-publish": "lerna publish from-git"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.3",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
   },
