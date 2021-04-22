@@ -1,8 +1,8 @@
 import React, { CSSProperties, useContext } from "react";
 import { createContext, ReactNode } from "react";
-import { Grid, GridTypeMap } from "@material-ui/core";
+import { FormHelperText, Grid, GridTypeMap } from "@material-ui/core";
 
-import { BaseForm, BaseFormItem, IBaseFormContext, IBaseFormProps, useBaseForm } from "./BaseForm";
+import { BaseForm, BaseFormItem, IBaseFormContext, IBaseFormProps, useBaseForm, useItemProps } from "./BaseForm";
 
 export type TMode = "horizontal" | "vertical" | "inline";
 
@@ -68,34 +68,50 @@ export const FormItem = ({
   "mode" | "labelStyle" | "inputStyle"
 >) => {
   const formContext = useForm();
+  const { error, errorMsg } = useItemProps(name);
 
   const realMode = mode || formContext.mode;
-
+  // mode !== "vertical" ? "center" : undefined
   return (
-    <Grid
-      style={{ ...(realMode === "inline" ? { width: "auto" } : null) }}
-      container
-      item
-      direction={realMode === "vertical" ? "column" : "row"}>
+    <>
       <Grid
-        item
         style={{
-          marginRight: 10,
-          ...formContext.labelStyle,
-          ...labelStyle,
-        }}>
-        {label}
-        {label && "："}
+          ...(realMode === "inline" ? { width: "auto" } : null),
+        }}
+        container
+        item
+        direction={realMode === "vertical" ? "column" : "row"}
+        alignItems={realMode !== "vertical" ? "center" : "flex-start"}>
+        <Grid
+          item
+          style={{
+            marginRight: 10,
+            ...formContext.labelStyle,
+            ...labelStyle,
+          }}>
+          {label}
+          {label && "："}
+        </Grid>
+        <Grid item style={{ ...formContext.inputStyle, ...inputStyle }}>
+          {name ? (
+            <BaseFormItem name={name} fullWidth directChange={directChange} showHelperText={false}>
+              {children}
+            </BaseFormItem>
+          ) : (
+            children
+          )}
+        </Grid>
       </Grid>
-      <Grid item style={{ ...formContext.inputStyle, ...inputStyle }}>
-        {name ? (
-          <BaseFormItem name={name} fullWidth directChange={directChange}>
-            {children}
-          </BaseFormItem>
-        ) : (
-          children
-        )}
-      </Grid>
-    </Grid>
+      {realMode !== "inline" && (
+        <Grid container item>
+          {realMode === "horizontal" && (
+            <Grid item style={{ marginRight: 10, ...formContext.labelStyle, ...labelStyle }} />
+          )}
+          <Grid item>
+            <FormHelperText error={error}>{error ? errorMsg || " " : " "}</FormHelperText>
+          </Grid>
+        </Grid>
+      )}
+    </>
   );
 };

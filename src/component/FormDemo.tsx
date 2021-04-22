@@ -75,16 +75,14 @@ const RecommendFormDemo = () => {
   const { labelStyle, inputStyle } = useMemo(() => {
     if (mode === "inline") {
       return {
-        labelStyle: {
-          lineHeight: "32px",
-        },
+        labelStyle: {},
         inputStyle: {
           minWidth: "6em",
         },
       };
     } else if (mode === "horizontal") {
       return {
-        labelStyle: { width: "8em", textAlign: "right", lineHeight: "32px" },
+        labelStyle: { width: "8em", textAlign: "right" },
         inputStyle: { width: "20em" },
       };
     }

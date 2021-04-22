@@ -124,10 +124,30 @@ export const BaseForm = ({ formRef, children, initialValues, onSubmit, ...formik
   );
 };
 
+export const useItemProps = (name?: string) => {
+  const { form } = useBaseForm();
+
+  const error = useMemo(() => {
+    if (!name) return true;
+    if (form.submitCount > 0) {
+      return Boolean(get(form.errors, name));
+    }
+    return get(form.touched, name) && Boolean(get(form.errors, name));
+  }, [form.touched, form.errors, form.submitCount]);
+
+  return {
+    error,
+    errorMsg: name ? get(form.errors, name) : "",
+  };
+};
+
 export interface IBaseFormItemProps {
   children: ReactNode;
+  //
   name?: string;
   directChange?: boolean;
+  showHelperText?: boolean;
+  //style
   fullWidth?: boolean;
   style?: CSSProperties;
   helperTextStyle?: CSSProperties;
@@ -135,21 +155,18 @@ export interface IBaseFormItemProps {
 
 export const BaseFormItem = ({
   children,
+  //
   name,
   directChange,
+  showHelperText = true,
+  //
   fullWidth,
   style,
   helperTextStyle,
 }: IBaseFormItemProps) => {
   const { form } = useBaseForm();
 
-  const error = useMemo(() => {
-    if (!name) return false;
-    if (form.submitCount > 0) {
-      return Boolean(get(form.errors, name));
-    }
-    return get(form.touched, name) && Boolean(get(form.errors, name));
-  }, [form.touched, form.errors, form.submitCount]);
+  const { error, errorMsg } = useItemProps(name);
 
   const handleChange = useCallback((e: any) => {
     if (directChange) {
@@ -177,7 +194,7 @@ export const BaseFormItem = ({
         value: get(form.values, name),
         onChange: handleChange,
       })}
-      <FormHelperText style={helperTextStyle}>{error ? get(form.errors, name, " ") : " "}</FormHelperText>
+      {showHelperText && <FormHelperText style={helperTextStyle}>{error ? errorMsg || " " : " "}</FormHelperText>}
     </FormControl>
   );
 };
