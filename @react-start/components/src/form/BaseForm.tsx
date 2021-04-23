@@ -21,7 +21,7 @@ import React, {
 import { FormControl, FormHelperText } from "@material-ui/core";
 import { get } from "lodash";
 
-type Values = FormikValues;
+export type Values = FormikValues;
 
 export interface IFormik {
   initialValues: Values;

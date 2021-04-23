@@ -8,6 +8,8 @@ import {
   IFormik,
   TMode,
   useBaseForm,
+  SearchForm,
+  SimpleSearchForm,
 } from "@react-start/components";
 import { Button, FormControlLabel, MenuItem, Radio, RadioGroup, Select, Switch, TextField } from "@material-ui/core";
 import * as yup from "yup";
@@ -173,11 +175,66 @@ const RecommendFormDemo = () => {
   );
 };
 
+export const SearchFormDemo = () => {
+  const [state, setState] = useState();
+  console.log("@@@@@@@@", state);
+  return (
+    <div>
+      SearchForm
+      <SearchForm
+        initialValues={{ select: "", search: "" }}
+        state={state}
+        setFilter={setState}
+        debounceKeys={["search"]}>
+        <FormItem name={"search"} label={"输入框"}>
+          <TextField />
+        </FormItem>
+        <FormItem name={"select"} label={"选择框"}>
+          <Select>
+            <MenuItem value={10}>Ten</MenuItem>
+            <MenuItem value={20}>Twenty</MenuItem>
+            <MenuItem value={30}>Thirty</MenuItem>
+          </Select>
+        </FormItem>
+      </SearchForm>
+    </div>
+  );
+};
+
+export const SimpleSearchFormDemo = () => {
+  const [state, setState] = useState();
+  console.log("@@@@@@@@simple=", state);
+  return (
+    <div>
+      SimpleSearchForm
+      <SimpleSearchForm state={state} setFilter={setState} debounceKeys={["search"]}>
+        <TextField
+          key={"search"}
+          data-form={{
+            label: "输入框",
+          }}
+        />
+        <Select
+          key={"select"}
+          data-form={{
+            label: "选择框",
+          }}>
+          <MenuItem value={10}>Ten</MenuItem>
+          <MenuItem value={20}>Twenty</MenuItem>
+          <MenuItem value={30}>Thirty</MenuItem>
+        </Select>
+      </SimpleSearchForm>
+    </div>
+  );
+};
+
 export const FormDemo = () => {
   return (
     <>
       <BaseFormDemo />
       <RecommendFormDemo />
+      <SearchFormDemo />
+      <SimpleSearchFormDemo />
     </>
   );
 };

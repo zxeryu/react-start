@@ -14,12 +14,17 @@ interface IFormContext extends IBaseFormContext {
 
 const FormContext = createContext<IFormContext>({} as any);
 
-const useForm = () => useContext(FormContext);
+export const useForm = () => useContext(FormContext);
 
 const ContextProvider = ({ children, ...other }: Omit<IFormContext, "form"> & { children?: ReactNode }) => {
   const { form } = useBaseForm();
   return <FormContext.Provider value={{ form, ...other }}>{children}</FormContext.Provider>;
 };
+
+export interface IFormProps extends IBaseFormProps, Omit<IFormContext, "form"> {
+  style?: CSSProperties;
+  rootProps?: GridTypeMap["props"];
+}
 
 export const Form = ({
   children,
@@ -32,11 +37,7 @@ export const Form = ({
   inputStyle,
   //
   ...formProps
-}: IBaseFormProps &
-  Omit<IFormContext, "form"> & {
-    style?: CSSProperties;
-    rootProps?: GridTypeMap["props"];
-  }) => {
+}: IFormProps) => {
   return (
     <BaseForm {...formProps}>
       <ContextProvider mode={mode} inputStyle={inputStyle} labelStyle={labelStyle}>
@@ -53,6 +54,13 @@ export const Form = ({
   );
 };
 
+export interface IFormItemProps extends Pick<IFormContext, "mode" | "labelStyle" | "inputStyle"> {
+  children: ReactNode;
+  name?: string;
+  label?: ReactNode;
+  directChange?: boolean;
+}
+
 export const FormItem = ({
   children,
   name,
@@ -63,10 +71,7 @@ export const FormItem = ({
   inputStyle,
   //
   directChange,
-}: { children: ReactNode; name?: string; label?: ReactNode; directChange?: boolean } & Pick<
-  IFormContext,
-  "mode" | "labelStyle" | "inputStyle"
->) => {
+}: IFormItemProps) => {
   const formContext = useForm();
   const { error, errorMsg } = useItemProps(name);
 
@@ -85,7 +90,7 @@ export const FormItem = ({
         <Grid
           item
           style={{
-            marginRight: 10,
+            marginRight: 1,
             ...formContext.labelStyle,
             ...labelStyle,
           }}>
@@ -105,7 +110,7 @@ export const FormItem = ({
       {realMode !== "inline" && (
         <Grid container item>
           {realMode === "horizontal" && (
-            <Grid item style={{ marginRight: 10, ...formContext.labelStyle, ...labelStyle }} />
+            <Grid item style={{ marginRight: 1, ...formContext.labelStyle, ...labelStyle }} />
           )}
           <Grid item>
             <FormHelperText error={error}>{error ? errorMsg || " " : " "}</FormHelperText>
