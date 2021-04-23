@@ -5,7 +5,11 @@ import React from "react";
 import { TOptions } from "../type";
 import { map } from "lodash";
 
-export const Select = ({ options, ...otherProps }: SelectProps & { options?: TOptions }) => {
+export interface ISelectProps extends SelectProps {
+  options?: TOptions;
+}
+
+export const Select = ({ options, ...otherProps }: ISelectProps) => {
   return (
     <SelectOrigin
       MenuProps={{
