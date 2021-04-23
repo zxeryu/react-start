@@ -1,13 +1,7 @@
 import { FormGroup, Checkbox, FormControlLabel } from "@material-ui/core";
-import React, { ReactElement, ReactNode, useCallback, useRef } from "react";
+import React, { ReactElement, useCallback, useRef } from "react";
 import { map, indexOf, filter } from "lodash";
-
-type TValue = string | number;
-
-export interface IOptions {
-  label?: ReactNode;
-  value: TValue;
-}
+import { TOptions, TValue } from "../type";
 
 export const CheckboxGroup = ({
   row,
@@ -17,7 +11,7 @@ export const CheckboxGroup = ({
   onChange,
 }: {
   row?: boolean;
-  options: IOptions[];
+  options: TOptions;
   control?: ReactElement;
   value?: TValue[];
   onChange?: (e: TValue[]) => void;

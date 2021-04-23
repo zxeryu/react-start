@@ -1,2 +1,2 @@
 export * from "./form";
-export * from "./CheckboxGroup";
+export * from "./input";
