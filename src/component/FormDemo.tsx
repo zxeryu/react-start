@@ -10,8 +10,9 @@ import {
   useBaseForm,
   SearchForm,
   SimpleSearchForm,
+  RadioGroup,
 } from "@react-start/components";
-import { Button, FormControlLabel, MenuItem, Radio, RadioGroup, Select, Switch, TextField } from "@material-ui/core";
+import { Button, MenuItem, Select, Switch, TextField } from "@material-ui/core";
 import * as yup from "yup";
 import { Rating } from "@material-ui/lab";
 
@@ -99,14 +100,16 @@ const RecommendFormDemo = () => {
       FormDemo
       <RadioGroup
         row
+        options={[
+          { label: "horizontal", value: "horizontal" },
+          { label: "vertical", value: "vertical" },
+          { label: "inline", value: "inline" },
+        ]}
         value={mode}
         onChange={(e) => {
           setMode(e.target.value as TMode);
-        }}>
-        <FormControlLabel control={<Radio />} label={"horizontal"} value={"horizontal"} />
-        <FormControlLabel control={<Radio />} label={"vertical"} value={"vertical"} />
-        <FormControlLabel control={<Radio />} label={"inline"} value={"inline"} />
-      </RadioGroup>
+        }}
+      />
       <Form
         mode={mode}
         labelStyle={labelStyle as any}
@@ -146,11 +149,14 @@ const RecommendFormDemo = () => {
           <Switch />
         </FormItem>
         <FormItem name={"radio"} label={"radio"}>
-          <RadioGroup row>
-            <FormControlLabel value={"one"} control={<Radio />} label={"one"} />
-            <FormControlLabel value={"two"} control={<Radio />} label={"two"} />
-            <FormControlLabel value={"three"} control={<Radio />} label={"three"} />
-          </RadioGroup>
+          <RadioGroup
+            row
+            options={[
+              { label: "one", value: "one" },
+              { label: "two", value: "two" },
+              { label: "three", value: "three" },
+            ]}
+          />
         </FormItem>
         <FormItem name={"checkbox"} label={"checkbox"} directChange>
           <CheckboxGroup
