@@ -1,21 +1,23 @@
-import { FormGroup, Checkbox, FormControlLabel } from "@material-ui/core";
+import { FormGroup, Checkbox, FormControlLabel, FormGroupProps } from "@material-ui/core";
 import React, { ReactElement, useCallback, useRef } from "react";
 import { map, indexOf, filter } from "lodash";
 import { TOptions, TValue } from "../type";
 
-export const CheckboxGroup = ({
-  row,
-  options,
-  control = <Checkbox />,
-  value,
-  onChange,
-}: {
-  row?: boolean;
-  options: TOptions;
+export interface ICheckboxGroupProps extends Omit<FormGroupProps, "value" | "onChange"> {
+  options?: TOptions;
   control?: ReactElement;
   value?: TValue[];
   onChange?: (e: TValue[]) => void;
-}) => {
+}
+
+export const CheckboxGroup = ({
+  options,
+  control = <Checkbox />,
+  children,
+  value,
+  onChange,
+  ...groupProps
+}: ICheckboxGroupProps) => {
   //无状态下存储
   const valueRef = useRef<TValue[]>([]);
 
@@ -30,7 +32,7 @@ export const CheckboxGroup = ({
   );
 
   return (
-    <FormGroup row={row}>
+    <FormGroup {...groupProps}>
       {map(options || [], (o) => (
         <FormControlLabel
           key={o.value}
@@ -57,6 +59,7 @@ export const CheckboxGroup = ({
           }}
         />
       ))}
+      {children}
     </FormGroup>
   );
 };
