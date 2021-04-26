@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { map, get } from "lodash";
 import { FormDemo } from "./component/FormDemo";
 import { FormHighDemo } from "./component/FormHighDemo";
+import { DragOperatorDemo } from "./component/DragOperatorDemo";
 
 const Routes = {
   FormDemo: FormDemo,
   FormHighDemo: FormHighDemo,
+  DragOperatorDemo: DragOperatorDemo,
 };
 
 export const App = () => {
@@ -15,9 +17,18 @@ export const App = () => {
 
   return (
     <div>
-      <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          paddingBottom: 10,
+          borderBottom: "1px solid rgba(0,0,0,0.2)",
+          marginBottom: 10,
+        }}>
         {map(Routes, (_, k) => (
           <span
+            key={k}
             style={{ margin: "0 .3em", cursor: "pointer", color: current === k ? "blue" : "#666" }}
             onClick={() => {
               history.pushState(null, k, `/${k}`);
