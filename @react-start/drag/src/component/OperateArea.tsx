@@ -1,8 +1,8 @@
-import React, { cloneElement, isValidElement, useCallback, useEffect, useState } from "react";
+import React, { cloneElement, isValidElement, useCallback, useEffect, useMemo, useState } from "react";
 import { useOperator } from "./Compose";
 import { Box } from "@material-ui/core";
 import { useDrag, useDrop } from "@react-start/hooks";
-import { map, get, debounce } from "lodash";
+import { map, get, debounce, last } from "lodash";
 
 export const OperateArea = () => {
   const { currentElementID, data, operator } = useOperator();
@@ -21,24 +21,18 @@ export const OperateArea = () => {
 
   //内部拖动调整位置 id
   const [currentOElementID, setCurrentOElementID] = useState<string>();
-  useEffect(() => {
-    if (currentElementID) {
-      return;
-    }
-    if (currentOElementID && locOID) {
-      operator.arrayMoveById(currentOElementID, locOID);
-    }
-  }, [currentOElementID, locOID, currentElementID]);
 
   const [dropProps] = useDrop<string>({
     onDom: (id) => {
-      operator.addItem(id, locOID);
+      if (currentOElementID) {
+        operator.arrayMoveById(currentOElementID, locOID ? locOID : last(data)!.oid);
+      } else {
+        operator.addItem(id, locOID);
+      }
     },
     onDragOver: (e) => {
       const oid = get(e.target, ["dataset", "oid"]);
-      if (oid) {
-        debounceSetLocOID(oid);
-      }
+      debounceSetLocOID(oid);
     },
   });
 
@@ -52,11 +46,8 @@ export const OperateArea = () => {
     },
   });
 
-  const showBorder = useCallback(
+  const showTopBorder = useCallback(
     (oid: string) => {
-      if (currentOElementID) {
-        return currentOElementID === oid;
-      }
       if (locOID) {
         return locOID === oid;
       }
@@ -65,24 +56,39 @@ export const OperateArea = () => {
     [currentOElementID, locOID],
   );
 
+  const showBottomBorder = useMemo(() => {
+    if ((currentElementID || currentOElementID) && !locOID) {
+      return true;
+    }
+    return false;
+  }, [currentElementID, locOID, currentOElementID]);
+
   return (
     <Box {...dropProps} style={{ width: "100%", paddingBottom: 100, backgroundColor: "pink" }}>
       {map(data, (el) => {
         if (!isValidElement(el.showElement)) {
           return null;
         }
-        return cloneElement(el.showElement, {
-          key: el.oid,
-          "data-oid": el.oid,
-          ...getDragProps(el.oid),
-          style: { cursor: "move", borderTop: showBorder(el.oid) ? "2px solid blue" : "none" },
-        });
+        return (
+          <React.Fragment key={el.oid}>
+            {/*{showTopBorder(el.oid) && <Box style={{ height: 2, backgroundColor: "blue" }} />}*/}
+            {cloneElement(el.showElement, {
+              "data-oid": el.oid,
+              ...getDragProps(el.oid),
+              style: {
+                cursor: "move",
+                borderTop: showTopBorder(el.oid) ? "2px solid blue" : "none",
+              },
+            })}
+          </React.Fragment>
+        );
         // return (
         //   <Box key={el.oid} data-oid={el.oid} style={{ borderTop: locOID === el.oid ? "2px solid blue" : "none" }}>
         //     {}
         //   </Box>
         // );
       })}
+      {showBottomBorder && <Box style={{ height: 2, backgroundColor: "blue" }} />}
     </Box>
   );
 };
