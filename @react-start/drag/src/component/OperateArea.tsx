@@ -52,12 +52,14 @@ export const OperateArea = () => {
   }, [dragElement, currentOElementID, locOID]);
 
   const [dropProps] = useDrop<string>({
-    onDom: (id) => {
+    onDom: (id, e) => {
+      e?.stopPropagation();
       if (dragElement) {
         operator.addElementById(id, locOID);
       }
     },
     onDragOver: (e) => {
+      e.stopPropagation();
       const oid = get(e.target, ["dataset", "oid"]);
       debounceSetLocOID(oid);
     },

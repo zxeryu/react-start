@@ -16,6 +16,8 @@ interface DropProps {
 export interface DropAreaOptions<TData> {
   onDom?: (data: TData, event?: DragEvent) => void;
   onDragOver?: DragEventHandler;
+  onDragEnter?: DragEventHandler;
+  onDragLeave?: DragEventHandler;
 }
 
 export const useDrop = <TData>(options: DropAreaOptions<TData> = {}): [DropProps, DropAreaState] => {
@@ -45,9 +47,12 @@ export const useDrop = <TData>(options: DropAreaOptions<TData> = {}): [DropProps
       onDragEnter: (e) => {
         e.preventDefault();
         setIsHovering(true);
+        optionsRef.current.onDragEnter && optionsRef.current.onDragEnter(e);
       },
-      onDragLeave: () => {
+      onDragLeave: (e) => {
+        e.preventDefault();
         setIsHovering(false);
+        optionsRef.current.onDragLeave && optionsRef.current.onDragLeave(e);
       },
       onDrop: (e) => {
         e.preventDefault();
