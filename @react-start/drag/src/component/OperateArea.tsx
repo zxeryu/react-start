@@ -1,11 +1,24 @@
-import React, { cloneElement, isValidElement, useCallback, useEffect, useMemo, useState } from "react";
+import React, { cloneElement, isValidElement, useCallback, useEffect, useState } from "react";
 import { useOperator } from "./Compose";
-import { Box } from "@material-ui/core";
+import { Box, BoxProps } from "@material-ui/core";
 import { useDrag, useDrop } from "@react-start/hooks";
-import { map, get, debounce, last } from "lodash";
+import { map, get, debounce } from "lodash";
+import { IOperateElementItem } from "../types";
+
+const PlaceholderOID = "placeholder";
+
+const Placeholder = ({ style, ...props }: BoxProps) => (
+  <Box {...props} style={{ borderTop: "2px solid blue", ...style }} />
+);
+
+const PlaceholderElement: IOperateElementItem = {
+  showElement: <Placeholder />,
+  id: PlaceholderOID,
+  oid: PlaceholderOID,
+};
 
 export const OperateArea = () => {
-  const { currentElementID, data, operator } = useOperator();
+  const { dragElement, data, operator } = useOperator();
 
   //左侧拖动添加
   const [locOID, setLocOID] = useState<string>();
@@ -16,18 +29,32 @@ export const OperateArea = () => {
     [],
   );
   useEffect(() => {
-    !currentElementID && setLocOID(undefined);
-  }, [currentElementID]);
+    if (dragElement) {
+      operator.addElement(PlaceholderElement);
+    } else {
+      operator.removeElement(PlaceholderOID);
+      setLocOID(undefined);
+    }
+  }, [dragElement]);
 
   //内部拖动调整位置 id
   const [currentOElementID, setCurrentOElementID] = useState<string>();
 
+  useEffect(() => {
+    if (dragElement && locOID) {
+      operator.arrayMoveById(PlaceholderOID, locOID);
+      return;
+    }
+    if (currentOElementID && locOID) {
+      // operator.arrayMoveById(currentOElementID, locOID ? locOID : last(data)!.oid);
+      operator.arrayMoveById(currentOElementID, locOID);
+    }
+  }, [dragElement, currentOElementID, locOID]);
+
   const [dropProps] = useDrop<string>({
     onDom: (id) => {
-      if (currentOElementID) {
-        operator.arrayMoveById(currentOElementID, locOID ? locOID : last(data)!.oid);
-      } else {
-        operator.addItem(id, locOID);
+      if (dragElement) {
+        operator.addElementById(id, locOID);
       }
     },
     onDragOver: (e) => {
@@ -46,49 +73,32 @@ export const OperateArea = () => {
     },
   });
 
-  const showTopBorder = useCallback(
-    (oid: string) => {
-      if (locOID) {
-        return locOID === oid;
-      }
-      return false;
-    },
-    [currentOElementID, locOID],
-  );
-
-  const showBottomBorder = useMemo(() => {
-    if ((currentElementID || currentOElementID) && !locOID) {
-      return true;
-    }
-    return false;
-  }, [currentElementID, locOID, currentOElementID]);
-
   return (
     <Box {...dropProps} style={{ width: "100%", paddingBottom: 100, backgroundColor: "pink" }}>
       {map(data, (el) => {
         if (!isValidElement(el.showElement)) {
           return null;
         }
+        if (el.oid === PlaceholderOID) {
+          return cloneElement(el.showElement, {
+            key: el.oid,
+            "data-oid": el.oid,
+            children: dragElement?.name,
+          });
+        }
         return (
           <React.Fragment key={el.oid}>
-            {/*{showTopBorder(el.oid) && <Box style={{ height: 2, backgroundColor: "blue" }} />}*/}
             {cloneElement(el.showElement, {
               "data-oid": el.oid,
               ...getDragProps(el.oid),
               style: {
                 cursor: "move",
-                borderTop: showTopBorder(el.oid) ? "2px solid blue" : "none",
+                borderTop: currentOElementID === el.oid ? "2px solid blue" : "none",
               },
             })}
           </React.Fragment>
         );
-        // return (
-        //   <Box key={el.oid} data-oid={el.oid} style={{ borderTop: locOID === el.oid ? "2px solid blue" : "none" }}>
-        //     {}
-        //   </Box>
-        // );
       })}
-      {showBottomBorder && <Box style={{ height: 2, backgroundColor: "blue" }} />}
     </Box>
   );
 };
