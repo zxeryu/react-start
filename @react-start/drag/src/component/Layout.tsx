@@ -1,36 +1,36 @@
-import { IElementItem } from "../types";
+import { IElementItem, IOperateElementItem } from "../types";
 import { Grid, GridTypeMap } from "@material-ui/core";
 import React, { ElementType } from "react";
 import { OverrideProps } from "@material-ui/core/OverridableComponent";
-import { useDrop } from "@react-start/hooks";
+import { useDrag, useDrop } from "@react-start/hooks";
 import { useOperator } from "./Compose";
-import { get } from "lodash";
+import { get, map } from "lodash";
+import { OperateItem } from "./OperateArea";
 
-const GridLayout = ({ style, children, ...otherProps }: OverrideProps<GridTypeMap, ElementType>) => {
+export const GridLayout = ({ style, ...otherProps }: OverrideProps<GridTypeMap, ElementType>) => {
   const { operator } = useOperator();
   const oid = get(otherProps, ["data-oid"]);
+  const elements = get(otherProps, ["elements"]);
 
   const [dropProps, { isHovering }] = useDrop<string>({
-    onDom: (id, e) => {
-      e?.preventDefault();
-      e?.stopPropagation();
-
+    onDom: (id) => {
       if (oid && id) {
-        operator.addLayoutElement(id, oid);
+        operator.addElementById(id, undefined, oid);
       }
     },
     onDragOver: (e) => {
-      e?.preventDefault();
-      e?.stopPropagation();
+      console.log(e);
     },
   });
 
-  // console.log("@@@@@@@@@@", isHovering, otherProps);
+  const getDragProps = useDrag<string>();
 
   return (
     <Grid {...dropProps} {...otherProps} style={{ ...style, padding: isHovering ? 20 : 0 }}>
-      {!children && "布局容器"}
-      {children}
+      {"布局容器"}
+      {map(elements as IOperateElementItem[], (el) => {
+        return <OperateItem key={el.oid} el={el} getDragProps={getDragProps} current={false} />;
+      })}
     </Grid>
   );
 };

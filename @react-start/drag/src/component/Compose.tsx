@@ -16,12 +16,11 @@ const OperateContext = createContext<{
   dragElement?: IElementItem;
   //operators
   operator: {
-    addElement: (el: IOperateElementItem, locElOID?: string) => void;
-    addElementById: (elID: string, locElOID?: string) => void;
-    removeElement: (oid: string) => void;
-    addLayoutElement: (id: string, oid: string) => void;
+    addElement: (el: IOperateElementItem, locElOID?: string, targetOID?: string) => void;
+    addElementById: (elID: string, locElOID?: string, targetOID?: string) => void;
+    removeElement: (oid: string, targetOID?: string) => void;
+    arrayMoveById: (oid: string, toOID: string, targetOID?: string) => void;
     setDragElementID: (id?: string) => void;
-    arrayMoveById: (oid: string, toOID: string) => void;
   };
 }>({} as any);
 
@@ -59,46 +58,60 @@ export const DragOperator = ({ elements }: { elements: IElementItem[] }) => {
     setDragElement(el);
   }, []);
 
-  const addElement = useCallback((el: IOperateElementItem, locOID?: string) => {
-    const arr = addItem(dataRef.current, el, locOID);
-    setData(arr);
+  //operator methods
+
+  const addElement = useCallback((el: IOperateElementItem, locOID?: string, targetOID?: string) => {
+    //操作第一层级
+    if (!targetOID) {
+      setData(addItem(dataRef.current, el, locOID));
+      return;
+    }
+    setData((prevState) => {
+      return map(prevState, (item) => {
+        if (item.oid === targetOID) {
+          item.elementList = addItem(item.elementList || [], el, locOID);
+        }
+        return item;
+      });
+    });
   }, []);
 
-  const addElementById = useCallback((elID: string, locElOID?: string) => {
+  const addElementById = useCallback((elID: string, locElOID?: string, targetOID?: string) => {
     const el = getElement(elID);
     if (!el) {
       return;
     }
-    addElement({ ...el, oid: generateId() }, locElOID);
+    addElement({ ...el, oid: generateId() }, locElOID, targetOID);
   }, []);
 
-  const removeElement = useCallback((oid: string) => {
-    const arr = removeItem(dataRef.current, oid);
-    setData(arr);
-  }, []);
-
-  const arrayMoveById = useCallback((oid: string, toOID: string) => {
-    const arr = moveItemById(dataRef.current, oid, toOID);
-    setData(arr);
-  }, []);
-
-  const addLayoutElement = useCallback((id: string, oid: string) => {
-    const el = getElement(id);
-    if (el) {
-      setData((prevState) => {
-        return map(prevState, (item) => {
-          if (item.oid === oid) {
-            const newItem: IOperateElementItem = { ...el, oid: generateId() };
-            if (item.children) {
-              item.children.push(newItem);
-            } else {
-              item.children = [newItem];
-            }
-          }
-          return item;
-        });
-      });
+  const removeElement = useCallback((oid: string, targetOID?: string) => {
+    if (!targetOID) {
+      setData(removeItem(dataRef.current, oid));
+      return;
     }
+    setData((prevState) => {
+      return map(prevState, (item) => {
+        if (item.oid === targetOID) {
+          item.elementList = removeItem(item.elementList || [], oid);
+        }
+        return item;
+      });
+    });
+  }, []);
+
+  const arrayMoveById = useCallback((oid: string, toOID: string, targetOID?: string) => {
+    if (!targetOID) {
+      setData(moveItemById(dataRef.current, oid, toOID));
+      return;
+    }
+    setData((prevState) => {
+      return map(prevState, (item) => {
+        if (item.oid === targetOID && item.elementList) {
+          item.elementList = moveItemById(item.elementList, oid, toOID);
+        }
+        return item;
+      });
+    });
   }, []);
 
   return (
@@ -113,7 +126,6 @@ export const DragOperator = ({ elements }: { elements: IElementItem[] }) => {
           removeElement,
           setDragElementID,
           arrayMoveById,
-          addLayoutElement,
         },
       }}>
       <Grid container direction={"row"}>

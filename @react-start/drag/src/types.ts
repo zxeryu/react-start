@@ -25,5 +25,5 @@ export interface IElementItem {
 export interface IOperateElementItem extends IElementItem {
   oid: string;
   //
-  children?: IElementItem[];
+  elementList?: IOperateElementItem[];
 }
