@@ -2,41 +2,41 @@ import { IElementItem, IOperateElementItem } from "../types";
 import { Grid, GridTypeMap } from "@material-ui/core";
 import React, { ElementType } from "react";
 import { OverrideProps } from "@material-ui/core/OverridableComponent";
-import { useDrag, useDrop } from "@react-start/hooks";
-import { useOperator } from "./Compose";
 import { get, map } from "lodash";
 import { OperateItem } from "./OperateArea";
+import { useOperator } from "./Compose";
 
-export const GridLayout = ({ style, ...otherProps }: OverrideProps<GridTypeMap, ElementType>) => {
-  const { operator } = useOperator();
-  const oid = get(otherProps, ["data-oid"]);
-  const elements = get(otherProps, ["elements"]);
-
-  const [dropProps, { isHovering }] = useDrop<string>({
-    onDom: (id) => {
-      if (oid && id) {
-        operator.addElementById(id, undefined, oid);
-      }
-    },
-    onDragOver: (e) => {
-      console.log(e);
-    },
-  });
-
-  const getDragProps = useDrag<string>();
+export const GridLayout = ({
+  style,
+  elements,
+  getDragProps,
+  ...otherProps
+}: OverrideProps<GridTypeMap, ElementType> & {
+  elements?: IOperateElementItem[];
+  getDragProps?: any;
+}) => {
+  const { currentOElementID } = useOperator();
+  const currentOID = get(otherProps, ["data-oid"]);
 
   return (
-    <Grid {...dropProps} {...otherProps} style={{ ...style, padding: isHovering ? 20 : 0 }}>
-      {"布局容器"}
-      {map(elements as IOperateElementItem[], (el) => {
-        return <OperateItem key={el.oid} el={el} getDragProps={getDragProps} current={false} />;
-      })}
+    <Grid {...otherProps} style={{ ...style, margin: 30 }}>
+      {`布局容器${currentOID}`}
+
+      {currentOElementID === currentOID ? (
+        <div>拖动...</div>
+      ) : (
+        map(elements as IOperateElementItem[], (el) => {
+          return <OperateItem key={el.oid} el={el} />;
+        })
+      )}
     </Grid>
   );
 };
 
+export const GridLayoutID = "grid-layout";
+
 export const GridElement: IElementItem = {
-  id: "grid-layout",
+  id: GridLayoutID,
   showElement: <GridLayout />,
   setProps: {
     alignContent: {

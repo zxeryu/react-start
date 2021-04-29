@@ -1,9 +1,10 @@
-import React, { cloneElement, isValidElement, useCallback, useEffect, useState } from "react";
+import React, { cloneElement, isValidElement, useCallback, useEffect, useRef, useState } from "react";
 import { useOperator } from "./Compose";
 import { Box, BoxProps } from "@material-ui/core";
-import { useDrag, useDrop } from "@react-start/hooks";
+import { useDrop } from "@react-start/hooks";
 import { map, get, debounce } from "lodash";
 import { IOperateElementItem } from "../types";
+import { GridLayoutID } from "./Layout";
 
 const PlaceholderOID = "placeholder";
 
@@ -17,16 +18,8 @@ const PlaceholderElement: IOperateElementItem = {
   oid: PlaceholderOID,
 };
 
-export const OperateItem = ({
-  el,
-  getDragProps,
-  current,
-}: {
-  el: IOperateElementItem;
-  getDragProps: any;
-  current: boolean;
-}) => {
-  const { dragElement } = useOperator();
+export const OperateItem = ({ el }: { el: IOperateElementItem }) => {
+  const { dragElement, getDragProps, currentOElementID } = useOperator();
 
   if (!isValidElement(el.showElement)) {
     return null;
@@ -40,35 +33,47 @@ export const OperateItem = ({
   }
   return cloneElement(el.showElement, {
     "data-oid": el.oid,
+    "data-id": el.id,
     elements: el.elementList,
     ...getDragProps(el.oid),
     style: {
       cursor: "move",
-      borderTop: current ? "2px solid blue" : "none",
+      borderTop: currentOElementID === el.oid ? "2px solid blue" : "none",
     },
   });
 };
 
 export const OperateArea = () => {
-  const { dragElement, data, operator } = useOperator();
+  const { dragElement, currentOElementID, data, operator } = useOperator();
 
   const [locOID, setLocOID] = useState<string>();
+  const locIDRef = useRef<string>();
   const debounceSetLocOID = useCallback(
     debounce((oid: string) => {
       setLocOID(oid);
-    }, 10),
+    }, 20),
     [],
   );
 
   const [dropProps, { isHovering }] = useDrop<string>({
     onDom: (id) => {
       if (dragElement) {
-        operator.addElementById(id, locOID);
+        if (locIDRef.current === GridLayoutID) {
+          operator.addElementById(id, undefined, locOID);
+        } else {
+          operator.addElementById(id, locOID);
+        }
       }
     },
     onDragOver: (e) => {
+      const id = get(e.target, ["dataset", "id"]);
       const oid = get(e.target, ["dataset", "oid"]);
-      debounceSetLocOID(oid);
+
+      if (oid === PlaceholderOID) {
+        return;
+      }
+      oid && debounceSetLocOID(oid);
+      id && (locIDRef.current = id);
     },
   });
 
@@ -81,9 +86,6 @@ export const OperateArea = () => {
       setLocOID(undefined);
     }
   }, [dragElement, isHovering]);
-
-  //内部拖动调整位置 id
-  const [currentOElementID, setCurrentOElementID] = useState<string>();
 
   //移动元素
   useEffect(() => {
@@ -100,21 +102,23 @@ export const OperateArea = () => {
     }
   }, [dragElement, currentOElementID, locOID, isHovering]);
 
-  const getDragProps = useDrag<string>({
-    onDragStart: (_, oid) => {
-      oid && setCurrentOElementID(oid);
-    },
-    onDragEnd: () => {
-      setCurrentOElementID(undefined);
-      setLocOID(undefined);
-    },
-  });
+  // return (
+  //   <GridLayout {...dropProps} elements={data} style={{ width: "100%", paddingBottom: 100, backgroundColor: "pink" }} />
+  // );
+
+  // console.log("data=", data);
 
   return (
     <Box {...dropProps} style={{ width: "100%", paddingBottom: 100, backgroundColor: "pink" }}>
       {map(data, (el) => {
-        return <OperateItem key={el.oid} el={el} getDragProps={getDragProps} current={currentOElementID === el.oid} />;
+        return <OperateItem key={el.oid} el={el} />;
       })}
     </Box>
   );
 };
+
+// export const OperateArea = () => {
+//   const { data } = useOperator();
+//
+//   return <GridLayout elements={data} style={{ width: "100%", paddingBottom: 100, backgroundColor: "pink" }} />;
+// };

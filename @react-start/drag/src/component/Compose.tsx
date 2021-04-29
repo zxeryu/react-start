@@ -6,20 +6,25 @@ import { OperateArea } from "./OperateArea";
 import { map, find } from "lodash";
 import { addItem, generateId, moveItemById, removeItem } from "../util";
 import { GridElement } from "./Layout";
+import { PropFun, useDrag } from "@react-start/hooks";
 
 const OperateContext = createContext<{
   //注册的elements
   elements: IElementItem[];
   //操作的elements
   data: IOperateElementItem[];
-  //当前拖动的Element
+  //当前拖动的Element from：left
   dragElement?: IElementItem;
+  //当前内部拖动元素 oid
+  currentOElementID?: string;
+  //可拖动的方法
+  getDragProps: PropFun<string>;
   //operators
   operator: {
     addElement: (el: IOperateElementItem, locElOID?: string, targetOID?: string) => void;
     addElementById: (elID: string, locElOID?: string, targetOID?: string) => void;
-    removeElement: (oid: string, targetOID?: string) => void;
-    arrayMoveById: (oid: string, toOID: string, targetOID?: string) => void;
+    removeElement: (oid: string) => void;
+    arrayMoveById: (oid: string, toOID: string) => void;
     setDragElementID: (id?: string) => void;
   };
 }>({} as any);
@@ -58,22 +63,25 @@ export const DragOperator = ({ elements }: { elements: IElementItem[] }) => {
     setDragElement(el);
   }, []);
 
+  //内部拖动调整位置 id
+  const [currentOElementID, setCurrentOElementID] = useState<string>();
+
+  //拖动事件注册方法
+  const getDragProps = useDrag<string>({
+    onDragStart: (e, oid) => {
+      e.stopPropagation();
+      oid && setCurrentOElementID(oid);
+    },
+    onDragEnd: (e) => {
+      e.stopPropagation();
+      setCurrentOElementID(undefined);
+    },
+  });
+
   //operator methods
 
   const addElement = useCallback((el: IOperateElementItem, locOID?: string, targetOID?: string) => {
-    //操作第一层级
-    if (!targetOID) {
-      setData(addItem(dataRef.current, el, locOID));
-      return;
-    }
-    setData((prevState) => {
-      return map(prevState, (item) => {
-        if (item.oid === targetOID) {
-          item.elementList = addItem(item.elementList || [], el, locOID);
-        }
-        return item;
-      });
-    });
+    setData(addItem(dataRef.current, el, locOID, targetOID));
   }, []);
 
   const addElementById = useCallback((elID: string, locElOID?: string, targetOID?: string) => {
@@ -84,34 +92,15 @@ export const DragOperator = ({ elements }: { elements: IElementItem[] }) => {
     addElement({ ...el, oid: generateId() }, locElOID, targetOID);
   }, []);
 
-  const removeElement = useCallback((oid: string, targetOID?: string) => {
-    if (!targetOID) {
-      setData(removeItem(dataRef.current, oid));
-      return;
-    }
-    setData((prevState) => {
-      return map(prevState, (item) => {
-        if (item.oid === targetOID) {
-          item.elementList = removeItem(item.elementList || [], oid);
-        }
-        return item;
-      });
-    });
+  const removeElement = useCallback((oid: string) => {
+    setData(removeItem(dataRef.current, oid));
   }, []);
 
-  const arrayMoveById = useCallback((oid: string, toOID: string, targetOID?: string) => {
-    if (!targetOID) {
-      setData(moveItemById(dataRef.current, oid, toOID));
+  const arrayMoveById = useCallback((oid: string, toOID: string) => {
+    if (oid === toOID) {
       return;
     }
-    setData((prevState) => {
-      return map(prevState, (item) => {
-        if (item.oid === targetOID && item.elementList) {
-          item.elementList = moveItemById(item.elementList, oid, toOID);
-        }
-        return item;
-      });
-    });
+    setData(moveItemById(dataRef.current, oid, toOID));
   }, []);
 
   return (
@@ -120,6 +109,8 @@ export const DragOperator = ({ elements }: { elements: IElementItem[] }) => {
         elements: idElements,
         dragElement,
         data,
+        currentOElementID,
+        getDragProps,
         operator: {
           addElement,
           addElementById,

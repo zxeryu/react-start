@@ -2,7 +2,7 @@ import { useCallback } from "react";
 
 const DataKey = "custom-data";
 
-type PropFun<TData> = (
+export type PropFun<TData> = (
   data?: TData,
 ) => {
   draggable: "true";
