@@ -49,8 +49,9 @@ export const OperateArea = () => {
   const [locOID, setLocOID] = useState<string>();
   const locIDRef = useRef<string>();
   const debounceSetLocOID = useCallback(
-    debounce((oid: string) => {
+    debounce((oid: string, id: string) => {
       setLocOID(oid);
+      locIDRef.current = id;
     }, 20),
     [],
   );
@@ -72,8 +73,7 @@ export const OperateArea = () => {
       if (oid === PlaceholderOID) {
         return;
       }
-      oid && debounceSetLocOID(oid);
-      id && (locIDRef.current = id);
+      oid && debounceSetLocOID(oid, id);
     },
   });
 
@@ -93,12 +93,15 @@ export const OperateArea = () => {
       return;
     }
     if (dragElement && locOID) {
+      if (locIDRef.current === GridLayoutID) {
+        return;
+      }
       operator.arrayMoveById(PlaceholderOID, locOID);
       return;
     }
     if (currentOElementID && locOID) {
       // operator.arrayMoveById(currentOElementID, locOID ? locOID : last(data)!.oid);
-      operator.arrayMoveById(currentOElementID, locOID);
+      operator.arrayMoveById(currentOElementID, locOID, locIDRef.current === GridLayoutID);
     }
   }, [dragElement, currentOElementID, locOID, isHovering]);
 

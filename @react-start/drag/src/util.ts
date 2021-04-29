@@ -62,16 +62,12 @@ export const moveItem = (arr: IOperateElementItem[], index: number, toIndex: num
   return oArr;
 };
 
-export const moveItemById = (arr: IOperateElementItem[], oid: string, toOID: string) => {
+export const moveItemById = (arr: IOperateElementItem[], oid: string, toOID: string, addToTarget?: boolean) => {
   const oArr = [...arr];
   let tOpeArr: IOperateElementItem[] | undefined;
   let tIndex = -1;
 
-  console.log("#############", oid, toOID);
-
   deepOpe(oArr, oid, (opeArr, index) => {
-    // const re = opeArr.splice(index, 1);
-    // target = re[0];
     tOpeArr = opeArr;
     tIndex = index;
   });
@@ -80,8 +76,15 @@ export const moveItemById = (arr: IOperateElementItem[], oid: string, toOID: str
   }
   deepOpe(oArr, toOID, (opeArr, index) => {
     const [target] = tOpeArr!.splice(tIndex, 1);
-    opeArr.splice(index, 0, target);
-    console.log("@@@@@@@", target, opeArr, index);
+    if (addToTarget) {
+      if (isArray(opeArr[index].elementList)) {
+        opeArr[index].elementList!.push(target);
+      } else {
+        opeArr[index].elementList = [target];
+      }
+    } else {
+      opeArr.splice(index, 0, target);
+    }
   });
   return oArr;
 };

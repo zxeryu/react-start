@@ -24,7 +24,7 @@ const OperateContext = createContext<{
     addElement: (el: IOperateElementItem, locElOID?: string, targetOID?: string) => void;
     addElementById: (elID: string, locElOID?: string, targetOID?: string) => void;
     removeElement: (oid: string) => void;
-    arrayMoveById: (oid: string, toOID: string) => void;
+    arrayMoveById: (oid: string, toOID: string, addToTarget?: boolean) => void;
     setDragElementID: (id?: string) => void;
   };
 }>({} as any);
@@ -96,11 +96,11 @@ export const DragOperator = ({ elements }: { elements: IElementItem[] }) => {
     setData(removeItem(dataRef.current, oid));
   }, []);
 
-  const arrayMoveById = useCallback((oid: string, toOID: string) => {
+  const arrayMoveById = useCallback((oid: string, toOID: string, addToTarget?: boolean) => {
     if (oid === toOID) {
       return;
     }
-    setData(moveItemById(dataRef.current, oid, toOID));
+    setData(moveItemById(dataRef.current, oid, toOID, addToTarget));
   }, []);
 
   return (
