@@ -52,7 +52,7 @@ export const OperateArea = () => {
     debounce((oid: string, id: string) => {
       setLocOID(oid);
       locIDRef.current = id;
-    }, 20),
+    }, 10),
     [],
   );
 
@@ -100,16 +100,9 @@ export const OperateArea = () => {
       return;
     }
     if (currentOElementID && locOID) {
-      // operator.arrayMoveById(currentOElementID, locOID ? locOID : last(data)!.oid);
       operator.arrayMoveById(currentOElementID, locOID, locIDRef.current === GridLayoutID);
     }
   }, [dragElement, currentOElementID, locOID, isHovering]);
-
-  // return (
-  //   <GridLayout {...dropProps} elements={data} style={{ width: "100%", paddingBottom: 100, backgroundColor: "pink" }} />
-  // );
-
-  // console.log("data=", data);
 
   return (
     <Box {...dropProps} style={{ width: "100%", paddingBottom: 100, backgroundColor: "pink" }}>
@@ -119,9 +112,3 @@ export const OperateArea = () => {
     </Box>
   );
 };
-
-// export const OperateArea = () => {
-//   const { data } = useOperator();
-//
-//   return <GridLayout elements={data} style={{ width: "100%", paddingBottom: 100, backgroundColor: "pink" }} />;
-// };
