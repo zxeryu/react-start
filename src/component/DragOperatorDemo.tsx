@@ -17,9 +17,9 @@ const ElementThree = (props: Props) => {
 };
 
 const elements: IElementItem[] = [
-  { showElement: <ElementOne />, setProps: {}, name: "ElementOne" },
-  { showElement: <ElementTwo />, setProps: {}, name: "ElementTwo" },
-  { showElement: <ElementThree />, setProps: {}, name: "ElementThree" },
+  { menuElement: <ElementOne />, showElement: <ElementOne />, setProps: {}, name: "ElementOne" },
+  { menuElement: <ElementTwo />, showElement: <ElementTwo />, setProps: {}, name: "ElementTwo" },
+  { menuElement: <ElementThree />, showElement: <ElementThree />, setProps: {}, name: "ElementThree" },
 ];
 
 export const DragOperatorDemo = () => {

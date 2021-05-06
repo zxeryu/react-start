@@ -30,12 +30,12 @@ export const ElementList = () => {
     <Grid container>
       <Grid container wrap={"wrap"}>
         {map(elements, (el) => {
-          if (!isValidElement(el.showElement)) {
+          if (!isValidElement(el.menuElement)) {
             return null;
           }
           return (
             <ElementWrapper key={el.id} {...getDragProps(el.id)} onClick={() => operator.addElementById(el.id!)}>
-              {cloneElement(el.showElement, { id: el.id })}
+              {cloneElement(el.menuElement, { id: el.id })}
             </ElementWrapper>
           );
         })}

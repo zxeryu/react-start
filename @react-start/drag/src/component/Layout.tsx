@@ -38,6 +38,7 @@ export const GridLayoutID = "grid-layout";
 export const GridElement: IElementItem = {
   id: GridLayoutID,
   showElement: <GridLayout />,
+  menuElement: <GridLayout />,
   setProps: {
     alignContent: {
       chooseValue: ["stretch", "center", "flex-start", "flex-end", "space-between", "space-around"],

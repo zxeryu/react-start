@@ -13,6 +13,7 @@ const Placeholder = ({ style, ...props }: BoxProps) => (
 );
 
 const PlaceholderElement: IOperateElementItem = {
+  menuElement: <Placeholder />,
   showElement: <Placeholder />,
   id: PlaceholderOID,
   oid: PlaceholderOID,

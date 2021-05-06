@@ -11,6 +11,8 @@ interface ISetProps {
 
 export interface IElementItem {
   //展示的组件
+  menuElement: ReactNode;
+  //真正渲染的组件
   showElement: ReactNode;
   //可设置的属性
   setProps?: ISetProps;
