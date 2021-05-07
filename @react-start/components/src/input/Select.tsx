@@ -17,7 +17,6 @@ export const Select = ({ options, ...otherProps }: ISelectProps) => {
           vertical: "bottom",
           horizontal: "left",
         },
-        getContentAnchorEl: null,
       }}
       IconComponent={ExpandMoreIcon}
       {...otherProps}>

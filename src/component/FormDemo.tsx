@@ -12,9 +12,8 @@ import {
   SimpleSearchForm,
   RadioGroup,
 } from "@react-start/components";
-import { Button, MenuItem, Select, Switch, TextField } from "@material-ui/core";
+import { Button, MenuItem, Rating, Select, Switch, TextField } from "@material-ui/core";
 import * as yup from "yup";
-import { Rating } from "@material-ui/lab";
 
 const validationSchema = yup.object({
   email: yup.string().email("Enter a valid email").required("Email is required"),

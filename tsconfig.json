@@ -4,7 +4,8 @@
     "baseUrl": ".",
     "rootDir": ".",
     "paths": {
-      "@babel/types": ["node_modules/@babel/types"]
+      "@babel/types": ["node_modules/@babel/types"],
+      "*": ["__types__/*", "*"]
     },
     "resolveJsonModule": true,
     "noImplicitAny": true,
