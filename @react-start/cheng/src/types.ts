@@ -1,13 +1,15 @@
 import { ReactNode } from "react";
 
+export interface SetProp {
+  required?: boolean; //默认非必填
+  type?: "string" | "number" | "boolean" | "array"; //boolean：默认选项； array：多选；
+  inputType?: "select" | "input" | "json"; //默认select
+  chooseValue?: (string | number)[]; //type 为boolean 或 inputType为input时候不需要
+  name?: string;
+}
+
 interface ISetProps {
-  [key: string]: {
-    required?: boolean; //默认非必填
-    type?: "string" | "number" | "boolean" | "array"; //boolean：默认选项； array：多选；
-    inputType?: "select" | "input" | "json"; //默认select
-    chooseValue?: (string | number)[]; //type 为boolean 或 inputType为input时候不需要
-    name?: string;
-  };
+  [key: string]: SetProp;
 }
 
 export interface IElementItem {

@@ -3,7 +3,7 @@ import { Stack } from "@material-ui/core";
 import { OperateArea } from "./OperateArea";
 import { ShowArea } from "./ShowArea";
 import { IElementItem, IOperateElementItem } from "./types";
-import { find } from "lodash";
+import { find, forEach, size } from "lodash";
 import { addItem, generateId, moveItemById, removeItem } from "./util";
 
 export interface OperatorContextProps {
@@ -24,18 +24,40 @@ const OperatorContext = createContext<OperatorContextProps>({} as any);
 
 export const useOperator = () => useContext(OperatorContext);
 
-export interface OperatorProps {
-  elements: IElementItem[];
-  initialIds?: string[];
+export interface OperateElementItemProp extends Omit<IOperateElementItem, "oid" | "elementList"> {
+  oid?: string;
+  elementList?: OperateElementItemProp[];
 }
 
-export const Operator = ({ elements }: OperatorProps) => {
+export interface OperatorProps {
+  elements: IElementItem[];
+  initialOElements: OperateElementItemProp[];
+}
+
+const setOID = (oels: OperateElementItemProp[]) => {
+  forEach(oels, (oel) => {
+    if (!oel.oid) {
+      oel.oid = generateId();
+      if (oel.elementList && size(oel.elementList) > 0) {
+        setOID(oel.elementList);
+      }
+    }
+  });
+};
+
+export const Operator = ({ elements, initialOElements }: OperatorProps) => {
   const getElement = useCallback((id: string) => {
     return find(elements, (el) => el.id === id);
   }, []);
 
   //操作elements
-  const [data, setData] = useState<IOperateElementItem[]>([]);
+  const [data, setData] = useState<IOperateElementItem[]>(() => {
+    if (initialOElements) {
+      setOID(initialOElements);
+      return initialOElements as IOperateElementItem[];
+    }
+    return [];
+  });
   const dataRef = useRef<IOperateElementItem[]>([]);
   dataRef.current = data;
 
@@ -76,7 +98,7 @@ export const Operator = ({ elements }: OperatorProps) => {
           arrayMoveById,
         },
       }}>
-      <Stack direction={"row"}>
+      <Stack direction={"row"} style={{ height: "100%" }}>
         <Stack style={{ width: 300 }}>
           <OperateArea />
         </Stack>

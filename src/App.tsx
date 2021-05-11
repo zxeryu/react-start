@@ -16,7 +16,7 @@ export const App = () => {
   const Content = get(Routes, current);
 
   return (
-    <div>
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <div
         style={{
           display: "flex",
@@ -38,7 +38,7 @@ export const App = () => {
           </span>
         ))}
       </div>
-      {Content && <Content />}
+      <div style={{ flexGrow: 1 }}>{Content && <Content />}</div>
     </div>
   );
 };
