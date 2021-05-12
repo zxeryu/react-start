@@ -12,7 +12,7 @@ export const ShowItem = ({ oel }: { oel: IOperateElementItem }) => {
     return null;
   }
 
-  return cloneElement(oel.showElement, { data: oel, ...oel.props });
+  return cloneElement(oel.showElement, { data: oel });
 };
 
 export const ShowArea = () => {

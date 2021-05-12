@@ -5,17 +5,9 @@ import { map } from "lodash";
 import { ShowItem } from "./ShowArea";
 import { OperateItem } from "./OperateArea";
 
-export const StackLayout = ({
-  data,
-  spacing,
-  isMenu,
-  ...otherProps
-}: StackProps & {
-  data?: IOperateElementItem;
-  isMenu?: boolean;
-}) => {
+export const StackLayout = ({ data, isMenu }: { data?: IOperateElementItem; isMenu?: boolean }) => {
   return (
-    <Stack spacing={spacing} style={{ ...otherProps } as any}>
+    <Stack spacing={data?.props?.spacing} style={{ ...data?.props } as any}>
       {map(data?.elementList, (oel) =>
         isMenu ? <OperateItem key={oel.oid} oel={oel} /> : <ShowItem key={oel.oid} oel={oel} />,
       )}

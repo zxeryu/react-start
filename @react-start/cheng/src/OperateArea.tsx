@@ -33,7 +33,7 @@ const SubOperatorContext = createContext<{
 
 const useSubOperator = () => useContext(SubOperatorContext);
 
-export const OperateItem = ({ oel }: { oel: IOperateElementItem }) => {
+export const OperateItem = ({ oel, onClick }: { oel: IOperateElementItem; onClick?: () => void }) => {
   const { dragElement, currentOElementID, getDragProps } = useSubOperator();
 
   if (!isValidElement(oel.menuElement)) {
@@ -53,6 +53,9 @@ export const OperateItem = ({ oel }: { oel: IOperateElementItem }) => {
     ...(get(oel, "directShow", true) ? getDragProps(oel.oid) : null),
     style: {
       borderTop: currentOElementID === oel.oid ? "2px solid blue" : "none",
+    },
+    onClick: () => {
+      onClick && onClick();
     },
   });
 };
@@ -145,9 +148,17 @@ export const OperateArea = () => {
         getDragProps,
         setDragElement,
       }}>
-      <Stack {...dropProps} style={{ width: "100%", paddingBottom: 100, backgroundColor: "pink" }}>
+      <Stack
+        {...dropProps}
+        style={{ height: "100%", paddingBottom: 100, backgroundColor: "pink", position: "relative" }}>
         {map(data, (oel) => (
-          <OperateItem key={oel.oid} oel={oel} />
+          <OperateItem
+            key={oel.oid}
+            oel={oel}
+            onClick={() => {
+              console.log("@@@@@@@@@@");
+            }}
+          />
         ))}
       </Stack>
     </SubOperatorContext.Provider>
