@@ -3,11 +3,13 @@ import { map, get } from "lodash";
 import { FormDemo } from "./component/FormDemo";
 import { FormHighDemo } from "./component/FormHighDemo";
 import { DragOperatorDemo } from "./component/DragOperatorDemo";
+import { ReWriteComponent } from "./component/ReWriteComponent";
 
 const Routes = {
   FormDemo: FormDemo,
   FormHighDemo: FormHighDemo,
   DragOperatorDemo: DragOperatorDemo,
+  ReWriteComponent: ReWriteComponent,
 };
 
 export const App = () => {

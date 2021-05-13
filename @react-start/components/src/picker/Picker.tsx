@@ -161,17 +161,13 @@ export const Picker = ({
 
       while (flag) {
         let tempSelectIndex = 0;
+
         if (indexChangeFlag) {
           tempSelectIndex = 0;
         } else if (isNumber(valueRef.current[index])) {
           tempSelectIndex = valueRef.current[index];
           if (isNumber(lastValueRef.current[index]) && valueRef.current[index] != lastValueRef.current[index]) {
             indexChangeFlag = true;
-            if (index === 0) {
-              tempSelectIndex = valueRef.current[index];
-            } else {
-              tempSelectIndex = 0;
-            }
           }
         }
         lastValueRef.current[index] = tempSelectIndex;

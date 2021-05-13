@@ -19,7 +19,7 @@ import React, {
   useMemo,
 } from "react";
 import { FormControl, FormHelperText } from "@material-ui/core";
-import { get } from "lodash";
+import { get, debounce } from "lodash";
 
 export type Values = FormikValues;
 
@@ -168,7 +168,15 @@ export const BaseFormItem = ({
 
   const { error, errorMsg } = useItemProps(name);
 
+  const debounceSetTouched = useCallback(
+    debounce((name: string) => {
+      name && form.setFieldTouched(name, true);
+    }, 300),
+    [],
+  );
+
   const handleChange = useCallback((e: any) => {
+    debounceSetTouched(name!);
     if (directChange) {
       form.setFieldValue(name!, e, true);
     } else {
