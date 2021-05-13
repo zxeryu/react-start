@@ -27,7 +27,15 @@ export default [
         extensions: [".ts", ".tsx", ".mjs", ".js", ".jsx"],
       }),
     ],
-    external: ["lodash", "react", "formik", "@material-ui/core", "@material-ui/icons", "hoist-non-react-statics"],
+    external: [
+      "lodash",
+      "react",
+      "formik",
+      "@material-ui/core",
+      "@material-ui/icons",
+      "@emotion/react",
+      "@emotion/styled",
+    ],
   },
   {
     input: "../../.tmp/@react-start/components/index.d.ts",
