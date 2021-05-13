@@ -14,6 +14,34 @@ const TestOptions = [
   { label: "999", value: "9" },
 ];
 
+export const TreeOptions = [
+  {
+    label: "1",
+    value: "id-1",
+    children: [
+      { label: "1-1", value: "id-1-1" },
+      { label: "1-2", value: "id-1-2" },
+      { label: "1-3", value: "id-1-3" },
+    ],
+  },
+  {
+    label: "2",
+    value: "id-2",
+    children: [
+      {
+        label: "2-1",
+        value: "id-2-1",
+        children: [
+          { label: "2-1-1", value: "id-2-1-1" },
+          { label: "2-1-2", value: "id-2-1-2" },
+        ],
+      },
+      { label: "2-2", value: "id-2-2" },
+      { label: "2-3", value: "id-2-3" },
+    ],
+  },
+];
+
 export const ReWriteComponent = () => {
   const [value, setValue] = useState<(string | number)[]>([]);
 
@@ -29,33 +57,7 @@ export const ReWriteComponent = () => {
       <PickerModal
         mode={"cascade"}
         title={"级联"}
-        columns={[
-          {
-            label: "1",
-            value: "id-1",
-            children: [
-              { label: "1-1", value: "id-1-1" },
-              { label: "1-2", value: "id-1-2" },
-              { label: "1-3", value: "id-1-3" },
-            ],
-          },
-          {
-            label: "2",
-            value: "id-2",
-            children: [
-              {
-                label: "2-1",
-                value: "id-2-1",
-                children: [
-                  { label: "2-1-1", value: "id-2-1-1" },
-                  { label: "2-1-2", value: "id-2-1-2" },
-                ],
-              },
-              { label: "2-2", value: "id-2-2" },
-              { label: "2-3", value: "id-2-3" },
-            ],
-          },
-        ]}
+        columns={TreeOptions}
         value={value}
         onChange={(values) => {
           setValue(values);

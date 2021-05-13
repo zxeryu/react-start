@@ -11,9 +11,11 @@ import {
   SearchForm,
   SimpleSearchForm,
   RadioGroup,
+  PickerModal,
 } from "@react-start/components";
 import { Button, MenuItem, Rating, Select, Switch, TextField } from "@material-ui/core";
 import * as yup from "yup";
+import { TreeOptions } from "./ReWriteComponent";
 
 const validationSchema = yup.object({
   email: yup.string().email("Enter a valid email").required("Email is required"),
@@ -169,6 +171,9 @@ const RecommendFormDemo = () => {
         </FormItem>
         <FormItem name={"rating"} label={"rating"}>
           <Rating />
+        </FormItem>
+        <FormItem name={"picker"} label={"级联Picker"} directChange>
+          <PickerModal mode={"cascade"} title={"级联"} columns={TreeOptions} />
         </FormItem>
         <FormItem>
           <Button color="primary" variant="contained" fullWidth type="submit">
