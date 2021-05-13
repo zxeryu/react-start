@@ -19,9 +19,15 @@
     "url": "git+https://github.com/zxeryu/react-start.git"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "build": "rollup -c rollup.config.js"
   },
   "bugs": {
     "url": "https://github.com/zxeryu/react-start/issues"
+  },
+  "peerDependencies": {
+    "lodash": "^4.x",
+    "@material-ui/core": "^5.x",
+    "@material-ui/icons": "^5.x",
+    "formik": "^2.x"
   }
 }

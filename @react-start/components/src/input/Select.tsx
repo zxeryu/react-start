@@ -1,6 +1,4 @@
-import SelectOrigin, { SelectProps } from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { Select as SelectOrigin, SelectProps, MenuItem } from "@material-ui/core";
 import React from "react";
 import { TOptions } from "../type";
 import { map } from "lodash";
@@ -18,7 +16,6 @@ export const Select = ({ options, ...otherProps }: ISelectProps) => {
           horizontal: "left",
         },
       }}
-      IconComponent={ExpandMoreIcon}
       {...otherProps}>
       {map(options, (option) => (
         <MenuItem key={option.value} value={option.value}>
