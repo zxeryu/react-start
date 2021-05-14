@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.6](https://github.com/zxeryu/react-start/compare/@react-start/components@0.1.5...@react-start/components@0.1.6) (2021-05-14)
+
+### Bug Fixes
+
+- **components:** form origin onChange ([9fa3d02](https://github.com/zxeryu/react-start/commit/9fa3d02a10c03fa7aba6dcaa23b22f75f6ed399d))
+
 ## [0.1.5](https://github.com/zxeryu/react-start/compare/@react-start/components@0.1.4...@react-start/components@0.1.5) (2021-05-14)
 
 ### Bug Fixes
