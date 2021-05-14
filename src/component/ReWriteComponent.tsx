@@ -63,6 +63,9 @@ export const ReWriteComponent = () => {
           setValue(values);
           console.log("@@@@@@@@@@@@@", values);
         }}
+        onPickerChange={(values) => {
+          console.log("@@@@@@@@@@@@@onPickerChange=", values);
+        }}
       />
     </div>
   );

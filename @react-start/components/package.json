@@ -30,6 +30,7 @@
     "@material-ui/core": "^5.x",
     "@material-ui/icons": "^5.x",
     "formik": "^2.x",
-    "lodash": "^4.x"
+    "lodash": "^4.x",
+    "@react-start/hooks": "*"
   }
 }

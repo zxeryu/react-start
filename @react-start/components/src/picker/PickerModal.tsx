@@ -98,6 +98,7 @@ export const PickerModal = ({
   //
   value,
   onChange,
+  onPickerChange,
   //
   round = true,
   //
@@ -105,6 +106,7 @@ export const PickerModal = ({
 }: Omit<PickerProps, "onChange" | "value"> & {
   textFieldProps?: TextFieldProps;
   onChange?: (values: (string | number)[], labels: string[], indexs: number[]) => void;
+  onPickerChange?: (values: (string | number)[], labels: string[], indexs: number[]) => void;
   value?: (string | number)[];
   round?: boolean;
 }) => {
@@ -156,6 +158,10 @@ export const PickerModal = ({
               onChange && onChange(values, labels, v);
 
               setOpen(false);
+            }}
+            onChange={(v) => {
+              const { labels, values } = getValue(pickerProps.mode, pickerProps.columns, v);
+              onPickerChange && onPickerChange(values, labels, v);
             }}
           />
         </div>

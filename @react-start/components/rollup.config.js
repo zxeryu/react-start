@@ -35,6 +35,7 @@ export default [
       "@material-ui/icons",
       "@emotion/react",
       "@emotion/styled",
+      "@react-start/hooks",
     ],
   },
   {

@@ -207,10 +207,6 @@ export const Picker = ({
     }
   }, [selectValue]);
 
-  useNextEffect(() => {
-    onChange && onChange(selectValue);
-  }, [selectValue]);
-
   useEffect(() => {
     setColumns();
   }, [columns]);
@@ -225,16 +221,23 @@ export const Picker = ({
     };
   }, [itemHeight, visibleItemCount]);
 
-  const handleSure = useCallback(() => {
-    if (!onConfirm) {
-      return;
-    }
+  const getCurrentValue = useCallback(() => {
     if (size(valueRef.current) > 0) {
       const lastValue = map(valueRef.current, (i) => (isNumber(i) ? i : 0));
-      onConfirm(map(showColumns, (_, index) => lastValue[index]));
+      return map(showColumnsRef.current, (_, index) => lastValue[index]);
     } else {
-      onConfirm(map(showColumns, () => 0));
+      return map(showColumnsRef.current, () => 0);
     }
+  }, []);
+
+  //onChange callback
+  useNextEffect(() => {
+    onChange && onChange(getCurrentValue());
+  }, [selectValue]);
+
+  //onConfirm callback
+  const handleSure = useCallback(() => {
+    onConfirm && onConfirm(getCurrentValue());
   }, [showColumns]);
 
   const handleCancel = useCallback(() => {
