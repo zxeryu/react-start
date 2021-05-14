@@ -1,7 +1,6 @@
 import React, { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { map, size, isNumber, isArray } from "lodash";
 import { PickerOption, Column, PickerObjectOption } from "./Column";
-import { useNextEffect } from "@react-start/hooks";
 import { Button, Stack, CircularProgress, CircularProgressProps } from "@material-ui/core";
 
 export interface ToolbarProps {
@@ -139,8 +138,35 @@ export const Picker = ({
   valueRef.current = selectValue;
   const lastValueRef = useRef<number[]>([]);
 
-  const opeColumnRef = useRef<PickerObjectOption>();
-  const opeIndexRef = useRef<number>(0);
+  const changeRef = useRef<boolean>(false);
+
+  const getCurrentValue = useCallback(() => {
+    if (size(valueRef.current) <= 0) {
+      return map(showColumnsRef.current, () => 0);
+    }
+
+    if (mode === "cascade") {
+      const is: number[] = [];
+      let index = 0;
+      let tempColumn = (columns as CascadeProps[])[valueRef.current[index]];
+      let flag = true;
+
+      while (flag) {
+        is.push(valueRef.current[index] || 0);
+        index++;
+        if (size(tempColumn?.children) > 0) {
+          tempColumn = tempColumn.children![valueRef.current[index]];
+        } else {
+          flag = false;
+        }
+      }
+
+      return is;
+    }
+
+    const lastValue = map(valueRef.current, (i) => (isNumber(i) ? i : 0));
+    return map(showColumnsRef.current, (_, index) => lastValue[index]);
+  }, [columns]);
 
   const setColumns = useCallback(() => {
     if (!columns) {
@@ -186,33 +212,29 @@ export const Picker = ({
           flag = false;
         }
       }
-
       setShowColumns(cs);
       if (indexChangeFlag || !selectValue || size(selectValue) <= 0) {
-        setSelectValue(lastValueRef.current);
-        // valueRef.current = lastValueRef.current;
+        setSelectValue([...lastValueRef.current]);
       }
+      if (changeRef.current) {
+        onChange && onChange(getCurrentValue());
+      }
+      changeRef.current = true;
     }
   }, [columns]);
-
-  useNextEffect(() => {
-    if (mode === "cascade") {
-      if (opeIndexRef.current < size(showColumnsRef.current) - 1) {
-        setColumns();
-        return;
-      }
-      if (opeColumnRef.current && opeColumnRef.current.hasChild) {
-        setColumns();
-      }
-    }
-  }, [selectValue]);
 
   useEffect(() => {
     setColumns();
   }, [columns]);
 
   useEffect(() => {
-    value && setSelectValue(isArray(value) ? value : [value]);
+    if (value) {
+      if (isArray(value)) {
+        size(value) > 0 && setSelectValue(value);
+      } else {
+        setSelectValue([value as number]);
+      }
+    }
   }, [value]);
 
   const { wrapHeight } = useMemo(() => {
@@ -220,20 +242,6 @@ export const Picker = ({
       wrapHeight: itemHeight * +visibleItemCount,
     };
   }, [itemHeight, visibleItemCount]);
-
-  const getCurrentValue = useCallback(() => {
-    if (size(valueRef.current) > 0) {
-      const lastValue = map(valueRef.current, (i) => (isNumber(i) ? i : 0));
-      return map(showColumnsRef.current, (_, index) => lastValue[index]);
-    } else {
-      return map(showColumnsRef.current, () => 0);
-    }
-  }, []);
-
-  //onChange callback
-  useNextEffect(() => {
-    onChange && onChange(getCurrentValue());
-  }, [selectValue]);
 
   //onConfirm callback
   const handleSure = useCallback(() => {
@@ -278,14 +286,26 @@ export const Picker = ({
             options={columns}
             index={selectValue[i] || 0}
             onChange={(index) => {
-              if (mode === "cascade") {
-                opeColumnRef.current = showColumnsRef.current[i][index] as PickerObjectOption;
-                opeIndexRef.current = i;
-              }
               setSelectValue((prevState) => {
                 prevState[i] = index;
                 return [...prevState];
               });
+
+              if (mode === "cascade") {
+                const opeColumn = showColumnsRef.current[i][index] as PickerObjectOption;
+                //非最后一列筛选
+                const prevIndexFlag = i < size(showColumnsRef.current) - 1;
+                //最后一列，但是hasChild
+                const lastIndexFlag = opeColumn && opeColumn.hasChild;
+                if (prevIndexFlag || lastIndexFlag) {
+                  setColumns();
+                } else {
+                  onChange && onChange(getCurrentValue());
+                }
+                return;
+              }
+
+              onChange && onChange(getCurrentValue());
             }}
           />
         ))}
