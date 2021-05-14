@@ -138,6 +138,8 @@ export const Picker = ({
   valueRef.current = selectValue;
   const lastValueRef = useRef<number[]>([]);
 
+  const changeRef = useRef<boolean>(false);
+
   const getCurrentValue = useCallback(() => {
     if (size(valueRef.current) <= 0) {
       return map(showColumnsRef.current, () => 0);
@@ -166,62 +168,67 @@ export const Picker = ({
     return map(showColumnsRef.current, (_, index) => lastValue[index]);
   }, [columns]);
 
-  const setColumns = useCallback(
-    (change?: boolean) => {
-      if (!columns) {
-        return null;
-      }
-      if (mode === "single") {
-        setShowColumns([columns]);
-      } else if (mode === "multi") {
-        setShowColumns(columns as MultiColumns);
-      } else {
-        const cs: PickerOption[][] = [];
+  const setColumns = useCallback(() => {
+    if (!columns) {
+      return null;
+    }
+    if (mode === "single") {
+      setShowColumns([columns]);
+    } else if (mode === "multi") {
+      setShowColumns(columns as MultiColumns);
+    } else {
+      const cs: PickerOption[][] = [];
 
-        let index = 0;
-        let tempColumns = columns as CascadeProps[];
+      let index = 0;
+      let tempColumns = columns as CascadeProps[];
+      let flag = true;
+
+      let indexChangeFlag = false;
+
+      while (flag) {
+        let tempSelectIndex = 0;
+
+        if (indexChangeFlag) {
+          tempSelectIndex = 0;
+        } else if (isNumber(valueRef.current[index])) {
+          tempSelectIndex = valueRef.current[index];
+          if (isNumber(lastValueRef.current[index]) && valueRef.current[index] != lastValueRef.current[index]) {
+            indexChangeFlag = true;
+          }
+        }
+        lastValueRef.current[index] = tempSelectIndex;
+
+        const os = map(tempColumns, (c) => ({
+          label: c.label,
+          value: c.value,
+          hasChild: size(c.children) > 0,
+        }));
+        cs.push(os);
+
+        if (size(tempColumns[tempSelectIndex]?.children) > 0) {
+          tempColumns = tempColumns[tempSelectIndex].children!;
+          index++;
+        } else {
+          flag = false;
+        }
+      }
+      setShowColumns(cs);
+      if (indexChangeFlag || !selectValue || size(selectValue) <= 0) {
+        setSelectValue([...lastValueRef.current]);
+      }
+      if (changeRef.current) {
         let flag = true;
-
-        let indexChangeFlag = false;
-
-        while (flag) {
-          let tempSelectIndex = 0;
-
-          if (indexChangeFlag) {
-            tempSelectIndex = 0;
-          } else if (isNumber(valueRef.current[index])) {
-            tempSelectIndex = valueRef.current[index];
-            if (isNumber(lastValueRef.current[index]) && valueRef.current[index] != lastValueRef.current[index]) {
-              indexChangeFlag = true;
-            }
-          }
-          lastValueRef.current[index] = tempSelectIndex;
-
-          const os = map(tempColumns, (c) => ({
-            label: c.label,
-            value: c.value,
-            hasChild: size(c.children) > 0,
-          }));
-          cs.push(os);
-
-          if (size(tempColumns[tempSelectIndex]?.children) > 0) {
-            tempColumns = tempColumns[tempSelectIndex].children!;
-            index++;
-          } else {
+        for (let i = 0; i < valueRef.current.length; i++) {
+          if (isNumber(valueRef.current[i]) && valueRef.current[i] !== lastValueRef.current[i]) {
             flag = false;
+            break;
           }
         }
-        setShowColumns(cs);
-        if (indexChangeFlag || !selectValue || size(selectValue) <= 0) {
-          setSelectValue([...lastValueRef.current]);
-        }
-        if (change) {
-          onChange && onChange(getCurrentValue());
-        }
+        flag && onChange && onChange(getCurrentValue());
       }
-    },
-    [columns],
-  );
+      changeRef.current = true;
+    }
+  }, [columns]);
 
   useEffect(() => {
     setColumns();
@@ -298,7 +305,7 @@ export const Picker = ({
                 //最后一列，但是hasChild
                 const lastIndexFlag = opeColumn && opeColumn.hasChild;
                 if (prevIndexFlag || lastIndexFlag) {
-                  setColumns(true);
+                  setColumns();
                 } else {
                   onChange && onChange(getCurrentValue());
                 }
