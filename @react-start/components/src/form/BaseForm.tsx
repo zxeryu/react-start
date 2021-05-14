@@ -175,17 +175,17 @@ export const BaseFormItem = ({
     [],
   );
 
-  const handleChange = useCallback((e: any) => {
+  const handleChange = useCallback((...e: any) => {
     debounceSetTouched(name!);
     if (directChange) {
-      form.setFieldValue(name!, e, true);
+      form.setFieldValue(name!, e[0], true);
     } else {
-      form.handleChange(e);
+      form.handleChange(e[0]);
     }
 
     const originChange = get(children, ["props", "onChange"]);
     if (originChange) {
-      originChange(e);
+      originChange(...e);
     }
   }, []);
 

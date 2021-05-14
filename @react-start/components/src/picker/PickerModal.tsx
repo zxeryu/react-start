@@ -139,10 +139,10 @@ export const PickerModal = ({
         // disabled
         fullWidth
         size={"small"}
-        {...textFieldProps}
         onClick={() => {
           setOpen(true);
         }}
+        {...textFieldProps}
       />
       <Drawer
         open={open}

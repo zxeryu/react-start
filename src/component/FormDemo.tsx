@@ -173,7 +173,14 @@ const RecommendFormDemo = () => {
           <Rating />
         </FormItem>
         <FormItem name={"picker"} label={"级联Picker"} directChange>
-          <PickerModal mode={"cascade"} title={"级联"} columns={TreeOptions} />
+          <PickerModal
+            mode={"cascade"}
+            title={"级联"}
+            columns={TreeOptions}
+            onChange={(a, b, c) => {
+              console.log("@@@@", a, b, c);
+            }}
+          />
         </FormItem>
         <FormItem>
           <Button color="primary" variant="contained" fullWidth type="submit">
