@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.3](https://github.com/zxeryu/react-start/compare/@react-start/components@0.1.2...@react-start/components@0.1.3) (2021-05-14)
+
+### Performance Improvements
+
+- picker async data ([80b358d](https://github.com/zxeryu/react-start/commit/80b358dc6883d888c1614f89a3e6b5e792678463))
+
 ## [0.1.2](https://github.com/zxeryu/react-start/compare/@react-start/components@0.1.1...@react-start/components@0.1.2) (2021-05-14)
 
 ### Performance Improvements
