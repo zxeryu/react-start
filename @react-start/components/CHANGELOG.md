@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.5](https://github.com/zxeryu/react-start/compare/@react-start/components@0.1.4...@react-start/components@0.1.5) (2021-05-14)
+
+### Bug Fixes
+
+- picker directChange ([b3502c0](https://github.com/zxeryu/react-start/commit/b3502c07576527fd8c45ebe63b24a8193ee4a83e))
+
 ## [0.1.4](https://github.com/zxeryu/react-start/compare/@react-start/components@0.1.3...@react-start/components@0.1.4) (2021-05-14)
 
 ### Bug Fixes
