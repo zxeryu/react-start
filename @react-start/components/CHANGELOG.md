@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.4](https://github.com/zxeryu/react-start/compare/@react-start/components@0.1.3...@react-start/components@0.1.4) (2021-05-14)
+
+### Bug Fixes
+
+- onPickerChange ([2dbbe6f](https://github.com/zxeryu/react-start/commit/2dbbe6f1dff71e8c33740e052df01de88add69ef))
+- onPickerChange perf ([deaf23e](https://github.com/zxeryu/react-start/commit/deaf23e9561d87dcc6902c35b57195888c77a532))
+
 ## [0.1.3](https://github.com/zxeryu/react-start/compare/@react-start/components@0.1.2...@react-start/components@0.1.3) (2021-05-14)
 
 ### Performance Improvements
