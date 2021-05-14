@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.2](https://github.com/zxeryu/react-start/compare/@react-start/components@0.1.1...@react-start/components@0.1.2) (2021-05-14)
+
+### Performance Improvements
+
+- onPickerChange for PickerModal ([1686896](https://github.com/zxeryu/react-start/commit/1686896cbe9c9c49c357a34dc939d4d529f12d6c))
+
 ## [0.1.1](https://github.com/zxeryu/react-start/compare/@react-start/components@0.1.0...@react-start/components@0.1.1) (2021-05-13)
 
 **Note:** Version bump only for package @react-start/components
