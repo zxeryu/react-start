@@ -2,6 +2,7 @@ import React, { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useRe
 import { map, size, isNumber, isArray } from "lodash";
 import { PickerOption, Column, PickerObjectOption } from "./Column";
 import { Button, Stack, CircularProgress, CircularProgressProps } from "@material-ui/core";
+import { useNextEffect } from "@react-start/hooks";
 
 export interface ToolbarProps {
   cancelButtonText?: ReactNode;
@@ -101,6 +102,8 @@ export interface PickerProps extends Omit<ToolbarProps, "onCancel" | "onSure"> {
   onCancel?: () => void;
   //
   style?: CSSProperties;
+  //直接触发onChange事件 级联模式
+  directChange?: boolean;
 }
 
 export const Picker = ({
@@ -122,6 +125,8 @@ export const Picker = ({
   //
   style,
   //
+  directChange,
+  //
   ...toolbarProps
 }: PickerProps) => {
   const [showColumns, setShowColumns] = useState<PickerOption[][]>([]);
@@ -140,33 +145,37 @@ export const Picker = ({
 
   const changeRef = useRef<boolean>(false);
 
-  const getCurrentValue = useCallback(() => {
-    if (size(valueRef.current) <= 0) {
-      return map(showColumnsRef.current, () => 0);
-    }
-
-    if (mode === "cascade") {
-      const is: number[] = [];
-      let index = 0;
-      let tempColumn = (columns as CascadeProps[])[valueRef.current[index]];
-      let flag = true;
-
-      while (flag) {
-        is.push(valueRef.current[index] || 0);
-        index++;
-        if (size(tempColumn?.children) > 0) {
-          tempColumn = tempColumn.children![valueRef.current[index]];
-        } else {
-          flag = false;
-        }
+  const getCurrentValue = useCallback(
+    (vs?: number[]) => {
+      const values = vs || valueRef.current;
+      if (size(values) <= 0) {
+        return map(showColumnsRef.current, () => 0);
       }
 
-      return is;
-    }
+      if (mode === "cascade") {
+        const is: number[] = [];
+        let index = 0;
+        let tempColumn = (columns as CascadeProps[])[values[index]];
+        let flag = true;
 
-    const lastValue = map(valueRef.current, (i) => (isNumber(i) ? i : 0));
-    return map(showColumnsRef.current, (_, index) => lastValue[index]);
-  }, [columns]);
+        while (flag) {
+          is.push(values[index] || 0);
+          index++;
+          if (size(tempColumn?.children) > 0) {
+            tempColumn = tempColumn.children![values[index]];
+          } else {
+            flag = false;
+          }
+        }
+
+        return is;
+      }
+
+      const lastValue = map(values, (i) => (isNumber(i) ? i : 0));
+      return map(showColumnsRef.current, (_, index) => lastValue[index]);
+    },
+    [columns],
+  );
 
   const setColumns = useCallback(() => {
     if (!columns) {
@@ -196,6 +205,7 @@ export const Picker = ({
             indexChangeFlag = true;
           }
         }
+
         lastValueRef.current[index] = tempSelectIndex;
 
         const os = map(tempColumns, (c) => ({
@@ -210,22 +220,25 @@ export const Picker = ({
           index++;
         } else {
           flag = false;
+          for (let i = index + 1; i < lastValueRef.current.length; i++) {
+            lastValueRef.current[i] = 0;
+          }
         }
       }
+
       setShowColumns(cs);
       if (indexChangeFlag || !selectValue || size(selectValue) <= 0) {
         setSelectValue([...lastValueRef.current]);
       }
+
       if (changeRef.current) {
-        let flag = true;
-        for (let i = 0; i < valueRef.current.length; i++) {
-          if (isNumber(valueRef.current[i]) && valueRef.current[i] !== lastValueRef.current[i]) {
-            flag = false;
-            break;
-          }
-        }
-        flag && onChange && onChange(getCurrentValue());
+        onChange && onChange(getCurrentValue());
       }
+
+      if (directChange && !changeRef.current) {
+        onChange && onChange(getCurrentValue(lastValueRef.current));
+      }
+
       changeRef.current = true;
     }
   }, [columns]);
@@ -234,7 +247,7 @@ export const Picker = ({
     setColumns();
   }, [columns]);
 
-  useEffect(() => {
+  useNextEffect(() => {
     if (value) {
       if (isArray(value)) {
         size(value) > 0 && setSelectValue(value);

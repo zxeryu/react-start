@@ -73,6 +73,12 @@ const getOptions = (id: string) => {
       resolve([
         { label: "2-1-1", value: "id-2-1-1" },
         { label: "2-1-2", value: "id-2-1-2" },
+        { label: "2-1-3", value: "id-2-1-3" },
+      ]);
+    } else if (id === "id-2-2") {
+      resolve([
+        { label: "2-2-1", value: "id-2-2-1" },
+        { label: "2-2-2", value: "id-2-2-2" },
       ]);
     } else {
       resolve([]);
@@ -82,7 +88,7 @@ const getOptions = (id: string) => {
 
 const setData = (columns: CascadeProps[], id: string, children: CascadeProps[]) => {
   for (let i = 0; i < columns.length; i++) {
-    if (columns[i].value === id) {
+    if (columns[i].value === id && !columns[i].children) {
       columns[i].children = children;
       return;
     }
@@ -134,13 +140,12 @@ export const ReWriteComponent = () => {
       <div>级联（异步数据）</div>
       <PickerModal
         mode={"cascade"}
+        directChange
         title={"级联"}
         columns={columns}
-        // columns={TreeOptions}
         value={value}
         onChange={(values) => {
           setValue(values);
-          console.log("@@@@@@@@@@@@@", values);
         }}
         onPickerChange={(values) => {
           console.log("@@@@@@@@@@@@@onPickerChange=", values);

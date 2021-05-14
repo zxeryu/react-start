@@ -110,6 +110,9 @@ export const PickerModal = ({
   value?: (string | number)[];
   round?: boolean;
 }) => {
+  const columnsRef = useRef<PickerProps["columns"]>(pickerProps.columns);
+  columnsRef.current = pickerProps.columns;
+
   const [open, setOpen] = useState<boolean>(false);
 
   const [selectValue, setSelectValue] = useState<number[]>([]);
@@ -118,11 +121,11 @@ export const PickerModal = ({
   const inputRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (value && pickerProps.columns) {
-      const is = getIndex(pickerProps.mode, pickerProps.columns, value);
+    if (value && columnsRef.current) {
+      const is = getIndex(pickerProps.mode, columnsRef.current, value);
       setSelectValue(is);
     }
-  }, [value, pickerProps.columns]);
+  }, [value]);
 
   useNextEffect(() => {
     !open && inputRef.current!.blur();
