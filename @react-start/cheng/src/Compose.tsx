@@ -1,4 +1,13 @@
-import React, { createContext, useCallback, useContext, useRef, useState } from "react";
+import React, {
+  createContext,
+  CSSProperties,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from "react";
 import { Stack } from "@material-ui/core";
 import { OperateArea } from "./OperateArea";
 import { ShowArea } from "./ShowArea";
@@ -17,6 +26,7 @@ export interface OperatorContextProps {
     addElementById: (elID: string, locElOID?: string, targetOID?: string) => void;
     removeElement: (oid: string) => void;
     arrayMoveById: (oid: string, toOID: string, addToTarget?: boolean) => void;
+    setData: Dispatch<SetStateAction<IOperateElementItem[]>>;
   };
 }
 
@@ -32,6 +42,10 @@ export interface OperateElementItemProp extends Omit<IOperateElementItem, "oid" 
 export interface OperatorProps {
   elements: IElementItem[];
   initialOElements: OperateElementItemProp[];
+  showAreaProps?: CSSProperties;
+  operatePanelProps?: CSSProperties;
+  operateAreaProps?: CSSProperties;
+  style?: CSSProperties;
 }
 
 const setOID = (oels: OperateElementItemProp[]) => {
@@ -45,7 +59,14 @@ const setOID = (oels: OperateElementItemProp[]) => {
   });
 };
 
-export const Operator = ({ elements, initialOElements }: OperatorProps) => {
+export const Operator = ({
+  elements,
+  initialOElements,
+  showAreaProps,
+  operateAreaProps,
+  operatePanelProps,
+  style,
+}: OperatorProps) => {
   const getElement = useCallback((id: string) => {
     return find(elements, (el) => el.id === id);
   }, []);
@@ -96,14 +117,15 @@ export const Operator = ({ elements, initialOElements }: OperatorProps) => {
           addElementById,
           removeElement,
           arrayMoveById,
+          setData,
         },
       }}>
-      <Stack direction={"row"} style={{ height: "100%" }}>
+      <Stack direction={"row"} style={{ height: "100%", ...style }}>
         <Stack style={{ width: 300 }}>
-          <OperateArea />
+          <OperateArea operateAreaProps={operateAreaProps} operatePanelProps={operatePanelProps} />
         </Stack>
-        <Stack style={{ flexGrow: 1 }}>
-          <ShowArea />
+        <Stack style={{ flexGrow: 1, alignItems: "center" }}>
+          <ShowArea {...showAreaProps} />
         </Stack>
       </Stack>
     </OperatorContext.Provider>
