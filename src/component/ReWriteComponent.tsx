@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { PickerModal } from "@react-start/components";
+import { PickerModal, DatePicker } from "@react-start/components";
 import { size, debounce, last } from "lodash";
 import { CascadeProps } from "../../@react-start/components/src/picker";
 
@@ -152,6 +152,8 @@ export const ReWriteComponent = () => {
           addColumnsAsync(last(values));
         }}
       />
+
+      <DatePicker />
     </div>
   );
 };
