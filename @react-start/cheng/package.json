@@ -1,6 +1,6 @@
 {
   "name": "@react-start/cheng",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "> TODO: description",
   "author": "zx <zxpstudy@163.com>",
   "homepage": "https://github.com/zxeryu/react-start#readme",
@@ -29,6 +29,7 @@
     "@emotion/styled": "^11.x",
     "@material-ui/core": "^5.x",
     "@material-ui/icons": "^5.x",
+    "@react-start/hooks": "*",
     "lodash": "^4.x"
   }
 }

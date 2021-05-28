@@ -4,6 +4,7 @@
 import React, {
   cloneElement,
   createContext,
+  CSSProperties,
   Dispatch,
   isValidElement,
   SetStateAction,
@@ -19,6 +20,7 @@ import { PlaceholderElement, StackElement } from "./Elements";
 import { debounce, get, map } from "lodash";
 import { useOperator } from "./Compose";
 import { Stack } from "@material-ui/core";
+import { OperatePanel } from "./OperatePanel";
 
 const SubOperatorContext = createContext<{
   //当前拖动的Element from：left
@@ -60,7 +62,13 @@ export const OperateItem = ({ oel, onClick }: { oel: IOperateElementItem; onClic
   });
 };
 
-export const OperateArea = () => {
+export const OperateArea = ({
+  operateAreaProps,
+  operatePanelProps,
+}: {
+  operatePanelProps?: CSSProperties;
+  operateAreaProps?: CSSProperties;
+}) => {
   const { data, operator } = useOperator();
 
   //当前拖动的element
@@ -140,6 +148,8 @@ export const OperateArea = () => {
     },
   });
 
+  const [currentOEL, setCurrentOEL] = useState<IOperateElementItem>();
+
   return (
     <SubOperatorContext.Provider
       value={{
@@ -150,16 +160,23 @@ export const OperateArea = () => {
       }}>
       <Stack
         {...dropProps}
-        style={{ height: "100%", paddingBottom: 100, backgroundColor: "pink", position: "relative" }}>
+        style={{
+          position: "relative",
+          ...operateAreaProps,
+        }}>
         {map(data, (oel) => (
           <OperateItem
             key={oel.oid}
             oel={oel}
             onClick={() => {
-              console.log("@@@@@@@@@@");
+              setCurrentOEL(oel);
             }}
           />
         ))}
+
+        {currentOEL && (
+          <OperatePanel style={operatePanelProps} oel={currentOEL} onClose={() => setCurrentOEL(undefined)} />
+        )}
       </Stack>
     </SubOperatorContext.Provider>
   );
