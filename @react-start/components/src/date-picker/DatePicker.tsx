@@ -1,7 +1,7 @@
-import { isDate, map, times, padStart, findIndex } from "lodash";
+import { isDate, map, times, padStart, findIndex, get } from "lodash";
 import { range } from "../../utils/format";
 import React, { useCallback, useMemo, useState } from "react";
-import { ColumnType, DatetimePickerType, getMonthEndDay } from "./utils";
+import { DatetimePickerType, getMonthEndDay } from "./utils";
 import { Picker } from "../picker";
 
 const currentYear = new Date().getFullYear();
@@ -33,36 +33,34 @@ const getDateBoundary = (minDate: Date, value: Date, type: "min" | "max") => {
     }
   }
   return {
-    [`${type}Year`]: year,
-    [`${type}Month`]: month,
-    [`${type}Day`]: day,
-    [`${type}Hour`]: hour,
-    [`${type}Minute`]: minute,
+    [`${type}-year`]: year,
+    [`${type}-month`]: month,
+    [`${type}-day`]: day,
+    [`${type}-hour`]: hour,
+    [`${type}-minute`]: minute,
   };
 };
 
-const TimeKeys = ["year", "month", "day", "hour", "minute"];
+interface TimeObject {
+  year: number;
+  month: number;
+  day: number;
+  hour: number;
+  minute: number;
+}
 
-const getValue = (date: Date, type: string) => {
-  let value = 0;
-  switch (type) {
-    case "year":
-      value = date.getFullYear();
-      break;
-    case "month":
-      value = date.getMonth() + 1;
-      break;
-    case "day":
-      value = date.getDate();
-      break;
-    case "hour":
-      value = date.getHours();
-      break;
-    case "minute":
-      value = date.getMinutes();
-      break;
-  }
-  return value;
+type TimeKey = keyof TimeObject;
+
+const TimeKeys: Array<TimeKey> = ["year", "month", "day", "hour", "minute"];
+
+const getTimeObj = (date: Date) => {
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate(),
+    hour: date.getHours(),
+    minute: date.getMinutes(),
+  };
 };
 
 export const DatePicker = ({
@@ -90,31 +88,13 @@ export const DatePicker = ({
   const [selectValue, setSelectValue] = useState<Date>(() => formatValue(value) || maxDate);
 
   const ranges = useMemo(() => {
-    const { maxYear, maxDay, maxMonth, maxHour, maxMinute } = getDateBoundary(maxDate, selectValue, "max");
-    const { minYear, minDay, minMonth, minHour, minMinute } = getDateBoundary(minDate, selectValue, "min");
+    const minBoundary = getDateBoundary(minDate, selectValue, "min");
+    const maxBoundary = getDateBoundary(maxDate, selectValue, "max");
 
-    let result: Array<{ type: ColumnType; range: number[] }> = [
-      {
-        type: "year",
-        range: [minYear, maxYear],
-      },
-      {
-        type: "month",
-        range: [minMonth, maxMonth],
-      },
-      {
-        type: "day",
-        range: [minDay, maxDay],
-      },
-      {
-        type: "hour",
-        range: [minHour, maxHour],
-      },
-      {
-        type: "minute",
-        range: [minMinute, maxMinute],
-      },
-    ];
+    let result: Array<[number, number]> = map(TimeKeys, (key) => [
+      get(minBoundary, `min-${key}`),
+      get(maxBoundary, `max-${key}`),
+    ]);
 
     switch (type) {
       case "year-month":
@@ -135,7 +115,7 @@ export const DatePicker = ({
   }, [selectValue, minDate, maxDate, type, selectValue]);
 
   const columns = useMemo(() => {
-    return map(ranges, ({ range }) => {
+    return map(ranges, (range) => {
       return map(times(range[1] - range[0] + 1), (index) => {
         const str = padStart(String(index + range[0]), 2, "0");
         return { label: str, value: str };
@@ -145,10 +125,9 @@ export const DatePicker = ({
 
   const dateToIndexes = useCallback(
     (date: Date) => {
+      const timeObj = getTimeObj(date);
       return map(columns, (sub, index) => {
-        const type = TimeKeys[index];
-        const v = getValue(date, type);
-        const tv = padStart(String(v), 2, "0");
+        const tv = padStart(String(get(timeObj, TimeKeys[index])), 2, "0");
         const i = findIndex(sub, ({ value }) => value === tv);
         return i > 0 ? i : 0;
       });
