@@ -1,7 +1,7 @@
 import { isDate, map, times, padStart, findIndex, get, slice } from "lodash";
 import { range } from "../../utils/format";
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { Picker } from "../picker";
+import { Picker, PickerProps } from "../picker";
 import { PickerObjectOption } from "../picker/Column";
 
 const currentYear = new Date().getFullYear();
@@ -45,7 +45,7 @@ const getDateBoundary = (date: Date, value: Date, type: "min" | "max") => {
   };
 };
 
-type DatetimePickerType = "date" | "time" | "date-minute" | "date-hour" | "year-month" | "month-day";
+type DatePickerType = "date" | "time" | "date-minute" | "date-hour" | "year-month" | "month-day";
 
 const PickerTypeMap = {
   "year-month": [0, 2],
@@ -78,19 +78,25 @@ const getTimeObj = (date: Date): TimeObject => {
   };
 };
 
+export interface DatePickerProps extends Omit<PickerProps, "onChange" | "value" | "onConfirm"> {
+  type?: DatePickerType;
+  minDate?: Date;
+  maxDate?: Date;
+  value?: Date;
+  defaultValue?: Date;
+  onChange?: (date?: Date) => void;
+  onConfirm?: (date?: Date) => void;
+}
+
 export const DatePicker = ({
   type = "date",
   minDate = new Date(currentYear - 10, 0, 1),
   maxDate = new Date(currentYear + 10, 11, 31),
   value,
   defaultValue = new Date(),
-}: {
-  type?: DatetimePickerType;
-  minDate?: Date;
-  maxDate?: Date;
-  value?: Date;
-  defaultValue?: Date;
-}) => {
+  onChange,
+  onConfirm,
+}: DatePickerProps) => {
   const formatValue = useCallback(
     (value?: Date) => {
       if (isDate(value)) {
@@ -161,9 +167,20 @@ export const DatePicker = ({
       }
       const nextDate = new Date(nextTimes[0], nextTimes[1] - 1, nextTimes[2], nextTimes[3], nextTimes[4]);
       setSelectValue(nextDate);
+      onChange && onChange(nextDate);
     },
     [selectValue, type],
   );
 
-  return <Picker mode={"multi"} columns={showColumns} value={dateToIndexes(selectValue)} onChange={handleChange} />;
+  return (
+    <Picker
+      mode={"multi"}
+      columns={showColumns}
+      value={dateToIndexes(selectValue)}
+      onChange={handleChange}
+      onConfirm={() => {
+        onConfirm && onConfirm(selectValue);
+      }}
+    />
+  );
 };

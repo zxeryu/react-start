@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { PickerModal, DatePicker } from "@react-start/components";
 import { size, debounce, last } from "lodash";
 import { CascadeProps } from "../../@react-start/components/src/picker";
+import { DatePickerModal } from "../../@react-start/components/src/date-picker";
 
 const TestOptions = [
   { label: "000", value: "0" },
@@ -154,6 +155,14 @@ export const ReWriteComponent = () => {
       />
 
       <DatePicker type={"time"} />
+      <DatePickerModal
+        onChange={(v) => {
+          console.log("@@@@@@@@onChange===", v);
+        }}
+        onConfirm={(v) => {
+          console.log("@@@@@@@@onConfirm===", v);
+        }}
+      />
     </div>
   );
 };
