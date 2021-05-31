@@ -1,13 +1,17 @@
-import { isDate, map, times, padStart, findIndex, get } from "lodash";
+import { isDate, map, times, padStart, findIndex, get, slice } from "lodash";
 import { range } from "../../utils/format";
-import React, { useCallback, useMemo, useState } from "react";
-import { DatetimePickerType, getMonthEndDay } from "./utils";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Picker } from "../picker";
+import { PickerObjectOption } from "../picker/Column";
 
 const currentYear = new Date().getFullYear();
 
-const getDateBoundary = (minDate: Date, value: Date, type: "min" | "max") => {
-  const year = minDate.getFullYear();
+const getMonthEndDay = (year: number, month: number): number => {
+  return 32 - new Date(year, month - 1, 32).getDate();
+};
+
+const getDateBoundary = (date: Date, value: Date, type: "min" | "max") => {
+  const year = date.getFullYear();
   let month = 1;
   let day = 1;
   let hour = 0;
@@ -21,13 +25,13 @@ const getDateBoundary = (minDate: Date, value: Date, type: "min" | "max") => {
   }
 
   if (value.getFullYear() === year) {
-    month = minDate.getMonth() + 1;
+    month = date.getMonth() + 1;
     if (value.getMonth() + 1 === month) {
-      day = minDate.getDate();
+      day = date.getDate();
       if (value.getDate() === day) {
-        hour = minDate.getHours();
+        hour = date.getHours();
         if (value.getHours() === hour) {
-          minute = minDate.getMinutes();
+          minute = date.getMinutes();
         }
       }
     }
@@ -39,6 +43,17 @@ const getDateBoundary = (minDate: Date, value: Date, type: "min" | "max") => {
     [`${type}-hour`]: hour,
     [`${type}-minute`]: minute,
   };
+};
+
+type DatetimePickerType = "date" | "time" | "date-minute" | "date-hour" | "year-month" | "month-day";
+
+const PickerTypeMap = {
+  "year-month": [0, 2],
+  date: [0, 3],
+  "date-hour": [0, 4],
+  "date-minute": [0, 5],
+  time: [3, 5],
+  "month-day": [1, 3],
 };
 
 interface TimeObject {
@@ -53,7 +68,7 @@ type TimeKey = keyof TimeObject;
 
 const TimeKeys: Array<TimeKey> = ["year", "month", "day", "hour", "minute"];
 
-const getTimeObj = (date: Date) => {
+const getTimeObj = (date: Date): TimeObject => {
   return {
     year: date.getFullYear(),
     month: date.getMonth() + 1,
@@ -68,11 +83,13 @@ export const DatePicker = ({
   minDate = new Date(currentYear - 10, 0, 1),
   maxDate = new Date(currentYear + 10, 11, 31),
   value,
+  defaultValue = new Date(),
 }: {
   type?: DatetimePickerType;
   minDate?: Date;
   maxDate?: Date;
   value?: Date;
+  defaultValue?: Date;
 }) => {
   const formatValue = useCallback(
     (value?: Date) => {
@@ -85,75 +102,68 @@ export const DatePicker = ({
     [minDate, maxDate],
   );
 
-  const [selectValue, setSelectValue] = useState<Date>(() => formatValue(value) || maxDate);
+  const [selectValue, setSelectValue] = useState<Date>(() => formatValue(value) || defaultValue || maxDate);
 
-  const ranges = useMemo(() => {
+  const columns = useMemo(() => {
     const minBoundary = getDateBoundary(minDate, selectValue, "min");
     const maxBoundary = getDateBoundary(maxDate, selectValue, "max");
 
-    let result: Array<[number, number]> = map(TimeKeys, (key) => [
+    const result: Array<[number, number]> = map(TimeKeys, (key) => [
       get(minBoundary, `min-${key}`),
       get(maxBoundary, `max-${key}`),
     ]);
 
-    switch (type) {
-      case "year-month":
-        result = result.slice(0, 2);
-        break;
-      case "date":
-        result = result.slice(0, 3);
-        break;
-      case "date-hour":
-        result = result.slice(0, 4);
-        break;
-      case "date-minute":
-        result = result.slice(0, 5);
-        break;
-    }
-
-    return result;
-  }, [selectValue, minDate, maxDate, type, selectValue]);
-
-  const columns = useMemo(() => {
-    return map(ranges, (range) => {
+    return map(result, (range) => {
       return map(times(range[1] - range[0] + 1), (index) => {
         const str = padStart(String(index + range[0]), 2, "0");
         return { label: str, value: str };
       });
     });
-  }, [ranges]);
+  }, [selectValue, minDate, maxDate, type, selectValue]);
+
+  const showColumns = useMemo(() => {
+    return slice(columns, ...get(PickerTypeMap, type, [0, 3]));
+  }, [columns, type]);
+  const showColumnsRef = useRef<PickerObjectOption[][]>(showColumns);
+  showColumnsRef.current = showColumns;
 
   const dateToIndexes = useCallback(
     (date: Date) => {
       const timeObj = getTimeObj(date);
-      return map(columns, (sub, index) => {
-        const tv = padStart(String(get(timeObj, TimeKeys[index])), 2, "0");
+      const start = get(PickerTypeMap, type, [0, 3])[0];
+      return map(showColumnsRef.current, (sub, index) => {
+        const tv = padStart(String(get(timeObj, TimeKeys[index + start])), 2, "0");
         const i = findIndex(sub, ({ value }) => value === tv);
         return i > 0 ? i : 0;
       });
     },
-    [columns],
+    [type],
   );
 
   const handleChange = useCallback(
     (indexes: number[]) => {
-      const selectTimes = map(columns, (sub, index) => {
+      const timeObj = getTimeObj(selectValue);
+      const start = get(PickerTypeMap, type, [0, 3])[0];
+
+      const selectTimes = map(showColumnsRef.current, (sub, index) => {
         return sub[indexes[index] || 0];
       });
       const nextTimes = map(TimeKeys, (_, index) => {
-        const v = selectTimes[index]?.value || "0";
+        let v = get(timeObj, TimeKeys[index]) as any;
+        if (index >= start && selectTimes[index - start]) {
+          v = selectTimes[index - start].value;
+        }
         return parseInt(v, 10);
       });
       const maxDay = getMonthEndDay(nextTimes[0], nextTimes[1]);
       if (nextTimes[2] > maxDay) {
         nextTimes[2] = maxDay;
       }
-
       const nextDate = new Date(nextTimes[0], nextTimes[1] - 1, nextTimes[2], nextTimes[3], nextTimes[4]);
       setSelectValue(nextDate);
     },
-    [columns, selectValue],
+    [selectValue, type],
   );
 
-  return <Picker mode={"multi"} columns={columns} value={dateToIndexes(selectValue)} onChange={handleChange} />;
+  return <Picker mode={"multi"} columns={showColumns} value={dateToIndexes(selectValue)} onChange={handleChange} />;
 };

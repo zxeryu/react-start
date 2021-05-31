@@ -153,7 +153,7 @@ export const ReWriteComponent = () => {
         }}
       />
 
-      <DatePicker />
+      <DatePicker type={"time"} />
     </div>
   );
 };
