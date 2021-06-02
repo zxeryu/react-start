@@ -154,8 +154,31 @@ export const ReWriteComponent = () => {
         }}
       />
 
-      <DatePicker type={"time"} />
+      <DatePicker
+        type={"time"}
+        filter={(options, type) => {
+          if (type === "minute") {
+            return options.filter(({ value }) => (value as number) % 5 === 0);
+          }
+          return options;
+        }}
+      />
       <DatePickerModal
+        formatter={(str, type) => {
+          switch (type) {
+            case "year":
+              return `${str}年`;
+            case "month":
+              return `${str}月`;
+            case "day":
+              return `${str}日`;
+            case "hour":
+              return `${str}时`;
+            case "minute":
+              return `${str}分`;
+          }
+          return str;
+        }}
         onChange={(v) => {
           console.log("@@@@@@@@onChange===", v);
         }}

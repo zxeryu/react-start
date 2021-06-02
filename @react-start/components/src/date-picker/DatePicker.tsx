@@ -86,16 +86,20 @@ export interface DatePickerProps extends Omit<PickerProps, "onChange" | "value" 
   defaultValue?: Date;
   onChange?: (date?: Date) => void;
   onConfirm?: (date?: Date) => void;
+  formatter?: (val: string, type: TimeKey) => string;
+  filter?: (options: PickerObjectOption[], type: TimeKey) => PickerObjectOption[];
 }
 
 export const DatePicker = ({
   type = "date",
+  formatter,
   minDate = new Date(currentYear - 10, 0, 1),
   maxDate = new Date(currentYear + 10, 11, 31),
   value,
   defaultValue = new Date(),
   onChange,
   onConfirm,
+  ...props
 }: DatePickerProps) => {
   const formatValue = useCallback(
     (value?: Date) => {
@@ -119,11 +123,17 @@ export const DatePicker = ({
       get(maxBoundary, `max-${key}`),
     ]);
 
-    return map(result, (range) => {
-      return map(times(range[1] - range[0] + 1), (index) => {
-        const str = padStart(String(index + range[0]), 2, "0");
-        return { label: str, value: str };
+    return map(result, (range, index) => {
+      const timeKey = TimeKeys[index];
+      const cs = map(times(range[1] - range[0] + 1), (i) => {
+        const v = i + range[0];
+        const str = padStart(String(v), 2, "0");
+        return { label: formatter ? formatter(str, timeKey) : str, value: v };
       });
+      if (props.filter) {
+        return props.filter(cs, timeKey);
+      }
+      return cs;
     });
   }, [selectValue, minDate, maxDate, type, selectValue]);
 
@@ -138,8 +148,9 @@ export const DatePicker = ({
       const timeObj = getTimeObj(date);
       const start = get(PickerTypeMap, type, [0, 3])[0];
       return map(showColumnsRef.current, (sub, index) => {
-        const tv = padStart(String(get(timeObj, TimeKeys[index + start])), 2, "0");
-        const i = findIndex(sub, ({ value }) => value === tv);
+        const v = get(timeObj, TimeKeys[index + start]);
+        // const tv = padStart(String(get(timeObj, TimeKeys[index + start])), 2, "0");
+        const i = findIndex(sub, ({ value }) => value === v);
         return i > 0 ? i : 0;
       });
     },
