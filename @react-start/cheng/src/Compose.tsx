@@ -2,6 +2,7 @@ import React, {
   createContext,
   CSSProperties,
   Dispatch,
+  ReactNode,
   SetStateAction,
   useCallback,
   useContext,
@@ -46,6 +47,7 @@ export interface OperatorProps {
   operatePanelProps?: CSSProperties;
   operateAreaProps?: CSSProperties;
   style?: CSSProperties;
+  children?: ReactNode;
 }
 
 const setOID = (oels: OperateElementItemProp[]) => {
@@ -66,6 +68,7 @@ export const Operator = ({
   operateAreaProps,
   operatePanelProps,
   style,
+  children,
 }: OperatorProps) => {
   const getElement = useCallback((id: string) => {
     return find(elements, (el) => el.id === id);
@@ -121,12 +124,10 @@ export const Operator = ({
         },
       }}>
       <Stack direction={"row"} style={{ height: "100%", ...style }}>
-        <Stack style={{ width: 300 }}>
+        <Stack style={{ width: 300, minWidth: 300 }}>
           <OperateArea operateAreaProps={operateAreaProps} operatePanelProps={operatePanelProps} />
         </Stack>
-        <Stack style={{ flexGrow: 1, alignItems: "center" }}>
-          <ShowArea {...showAreaProps} />
-        </Stack>
+        <Stack style={{ flexGrow: 1, alignItems: "center" }}>{children || <ShowArea {...showAreaProps} />}</Stack>
       </Stack>
     </OperatorContext.Provider>
   );
