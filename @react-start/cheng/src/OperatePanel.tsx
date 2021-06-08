@@ -10,7 +10,7 @@ import React, {
 import { IOperateElementItem, SetProp } from "./types";
 import { Checkbox, FormControlLabel, IconButton, Stack, TextField, MenuItem } from "@material-ui/core";
 import { Close as CloseIcon } from "@material-ui/icons";
-import { map, get, isNumber } from "lodash";
+import { map, get, isNumber, size } from "lodash";
 import { useOperator } from "./Compose";
 
 const OSetPropsContext = createContext<{
@@ -120,10 +120,12 @@ const getSetElementKey = (inputType?: SetProps["inputType"], type?: SetProps["ty
 export const OperatePanel = ({
   oel,
   onClose,
+  onOpen,
   style,
 }: {
   oel: IOperateElementItem;
-  onClose: () => void;
+  onClose: (oid: string) => void;
+  onOpen?: (oel: IOperateElementItem) => void;
   style?: CSSProperties;
 }) => {
   const { operator } = useOperator();
@@ -147,7 +149,7 @@ export const OperatePanel = ({
         style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "white", ...style }}>
         <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
           <div>{oel.name}</div>
-          <IconButton onClick={onClose}>
+          <IconButton onClick={() => onClose(oel.oid)}>
             <CloseIcon />
           </IconButton>
         </Stack>
@@ -162,10 +164,17 @@ export const OperatePanel = ({
               const elementKey = getSetElementKey(prop.inputType, prop.type);
               const SetElement = get(SetElementMap, elementKey);
               if (!SetElement) {
-                return null;
+                return prop.name;
               }
               return <SetElement key={propKey} propKey={propKey} {...prop} value={get(oel.props, propKey)} />;
             })}
+
+        {size(oel.elementList) > 0 &&
+          map(oel.elementList, (oel) => (
+            <div key={oel.oid} onClick={() => onOpen && onOpen(oel)}>
+              {oel.name}
+            </div>
+          ))}
       </Stack>
     </OSetPropsContext.Provider>
   );

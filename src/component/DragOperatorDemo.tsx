@@ -110,6 +110,50 @@ const ThreeElement: IElementItem = {
   name: "ElementThree",
 };
 
+const colorInputProps = {
+  type: "string",
+  inputType: "input",
+};
+
+const ColorOperateItem = {
+  id: "color",
+  oid: "color",
+  directShow: false,
+  menuElement: <Menu label={"颜色"} />,
+  name: "颜色",
+  setProps: {
+    //general
+    generalTitle: { type: "title", name: "General" },
+    heading: { name: "Heading", ...colorInputProps },
+    bodyText: { name: "Body Text", ...colorInputProps },
+    bodyTextLight: { name: "Body Text Light", ...colorInputProps },
+    link: { name: "Link", ...colorInputProps },
+    background: { name: "Background", ...colorInputProps },
+    backgroundLight: { name: "Background Light", ...colorInputProps },
+    price: { name: "Price", ...colorInputProps },
+    buttonTitle: { type: "title", name: "Button" },
+    buttonBackground: { name: "Background", ...colorInputProps },
+    buttonText: { name: "Text", ...colorInputProps },
+    headerTitle: { type: "title", name: "Header" },
+    headerBackground: { name: "Background", ...colorInputProps },
+    headerHeading: { name: "Heading and icons", ...colorInputProps },
+    headerLight: { name: "Text Light", ...colorInputProps },
+    footerTitle: { type: "title", name: "Footer" },
+    footerBackground: { name: "Background", ...colorInputProps },
+    footerHeading: { name: "Heading", ...colorInputProps },
+    footerLight: { name: "Text Light", ...colorInputProps },
+  },
+};
+
+const ComposeOperateItem = {
+  id: "compose",
+  oid: "compose",
+  directShow: false,
+  menuElement: <Menu label={"组合"} />,
+  name: "组合",
+  elementList: [ColorOperateItem],
+};
+
 const elements: IElementItem[] = [OneElement, TwoElement, ThreeElement];
 
 const OElements: OperateElementItemProp[] = [OneElement, TwoElement, ThreeElement];
@@ -120,7 +164,12 @@ export const DragOperatorDemo = () => {
     <div>
       <Button onClick={() => setShowWidth("100%")}>pc</Button>
       <Button onClick={() => setShowWidth(375)}>mobile</Button>
-      <Operator elements={elements} initialOElements={OElements} showAreaProps={{ width: showWidth }} />
+      <Operator
+        elements={elements}
+        initialOElements={OElements}
+        showAreaProps={{ width: showWidth }}
+        operateExtra={[ComposeOperateItem as any]}
+      />
     </div>
   );
 };

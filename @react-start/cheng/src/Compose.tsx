@@ -47,6 +47,7 @@ export interface OperatorProps {
   operatePanelProps?: CSSProperties;
   operateAreaProps?: CSSProperties;
   style?: CSSProperties;
+  operateExtra?: IOperateElementItem[];
   children?: ReactNode;
 }
 
@@ -68,6 +69,7 @@ export const Operator = ({
   operateAreaProps,
   operatePanelProps,
   style,
+  operateExtra,
   children,
 }: OperatorProps) => {
   const getElement = useCallback((id: string) => {
@@ -124,8 +126,12 @@ export const Operator = ({
         },
       }}>
       <Stack direction={"row"} style={{ height: "100%", ...style }}>
-        <Stack style={{ width: 300, minWidth: 300 }}>
-          <OperateArea operateAreaProps={operateAreaProps} operatePanelProps={operatePanelProps} />
+        <Stack style={{ width: 300, minWidth: 300, height: "100%" }}>
+          <OperateArea
+            operateAreaProps={operateAreaProps}
+            operatePanelProps={operatePanelProps}
+            operateExtra={operateExtra}
+          />
         </Stack>
         <Stack style={{ flexGrow: 1, alignItems: "center" }}>{children || <ShowArea {...showAreaProps} />}</Stack>
       </Stack>

@@ -17,7 +17,7 @@ import React, {
 import { IElementItem, IOperateElementItem } from "./types";
 import { PropFun, useDrop, useDrag } from "@react-start/hooks";
 import { PlaceholderElement, StackElement } from "./Elements";
-import { debounce, get, map } from "lodash";
+import { debounce, get, map, filter } from "lodash";
 import { useOperator } from "./Compose";
 import { Stack } from "@material-ui/core";
 import { OperatePanel } from "./OperatePanel";
@@ -65,9 +65,11 @@ export const OperateItem = ({ oel, onClick }: { oel: IOperateElementItem; onClic
 export const OperateArea = ({
   operateAreaProps,
   operatePanelProps,
+  operateExtra,
 }: {
   operatePanelProps?: CSSProperties;
   operateAreaProps?: CSSProperties;
+  operateExtra?: IOperateElementItem[];
 }) => {
   const { data, operator } = useOperator();
 
@@ -148,7 +150,7 @@ export const OperateArea = ({
     },
   });
 
-  const [currentOEL, setCurrentOEL] = useState<IOperateElementItem>();
+  const [currentOEL, setCurrentOEL] = useState<IOperateElementItem[]>([]);
 
   return (
     <SubOperatorContext.Provider
@@ -158,25 +160,41 @@ export const OperateArea = ({
         getDragProps,
         setDragElement,
       }}>
-      <Stack
-        {...dropProps}
-        style={{
-          position: "relative",
-          ...operateAreaProps,
-        }}>
-        {map(data, (oel) => (
-          <OperateItem
+      <Stack style={{ position: "relative", ...operateAreaProps }}>
+        <Stack {...dropProps}>
+          {map(data, (oel) => (
+            <OperateItem
+              key={oel.oid}
+              oel={oel}
+              onClick={() => {
+                setCurrentOEL((prevState) => [...prevState, oel]);
+              }}
+            />
+          ))}
+        </Stack>
+        {console.log("@@@@@@@@", operateExtra)}
+        <Stack>
+          {map(operateExtra, (oel) => (
+            <OperateItem
+              key={oel.oid}
+              oel={oel}
+              onClick={() => {
+                setCurrentOEL((prevState) => [...prevState, oel]);
+              }}
+            />
+          ))}
+        </Stack>
+        {map(currentOEL, (oel) => (
+          <OperatePanel
             key={oel.oid}
+            style={operatePanelProps}
             oel={oel}
-            onClick={() => {
-              setCurrentOEL(oel);
+            onClose={(oid) => setCurrentOEL((prevState) => filter(prevState, (oel) => oel.oid !== oid))}
+            onOpen={(oel) => {
+              setCurrentOEL((prevState) => [...prevState, oel]);
             }}
           />
         ))}
-
-        {currentOEL && (
-          <OperatePanel style={operatePanelProps} oel={currentOEL} onClose={() => setCurrentOEL(undefined)} />
-        )}
       </Stack>
     </SubOperatorContext.Provider>
   );
