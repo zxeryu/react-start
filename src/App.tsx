@@ -4,12 +4,14 @@ import { FormDemo } from "./component/FormDemo";
 import { FormHighDemo } from "./component/FormHighDemo";
 import { DragOperatorDemo } from "./component/DragOperatorDemo";
 import { ReWriteComponent } from "./component/ReWriteComponent";
+import { DragShowPage } from "./drag/DragShowPage";
 
 const Routes = {
-  FormDemo: FormDemo,
-  FormHighDemo: FormHighDemo,
-  DragOperatorDemo: DragOperatorDemo,
-  ReWriteComponent: ReWriteComponent,
+  FormDemo,
+  FormHighDemo,
+  DragOperatorDemo,
+  ReWriteComponent,
+  DragShowPage,
 };
 
 export const App = () => {

@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, useState } from "react";
+import React, { HTMLAttributes, useRef, useState } from "react";
 import {
   IElementItem,
   Operator,
@@ -160,16 +160,27 @@ const OElements: OperateElementItemProp[] = [OneElement, TwoElement, ThreeElemen
 
 export const DragOperatorDemo = () => {
   const [showWidth, setShowWidth] = useState<string | number>("100%");
+
+  const frameRef = useRef<HTMLIFrameElement | null>(null);
+
   return (
     <div>
       <Button onClick={() => setShowWidth("100%")}>pc</Button>
       <Button onClick={() => setShowWidth(375)}>mobile</Button>
+      <Button
+        onClick={() => {
+          frameRef.current?.contentWindow?.postMessage({ type: "update" }, "*");
+        }}>
+        update
+      </Button>
+
       <Operator
         elements={elements}
         initialOElements={OElements}
         showAreaProps={{ width: showWidth }}
-        operateExtra={[ComposeOperateItem as any]}
-      />
+        operateExtra={[ComposeOperateItem as any]}>
+        <iframe ref={frameRef} src={"/DragShowPage"} width={showWidth} />
+      </Operator>
     </div>
   );
 };

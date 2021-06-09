@@ -110,7 +110,7 @@ export const OperateArea = ({
       oid && debounceSetLocOID(oid, id);
     },
   });
-
+  console.log("@@@@@@@@@@@@isHovering=", isHovering);
   //左侧拖动添加
   useEffect(() => {
     if (dragElement && isHovering) {
@@ -172,7 +172,7 @@ export const OperateArea = ({
             />
           ))}
         </Stack>
-        {console.log("@@@@@@@@", operateExtra)}
+
         <Stack>
           {map(operateExtra, (oel) => (
             <OperateItem
