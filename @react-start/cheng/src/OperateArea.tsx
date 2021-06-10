@@ -71,7 +71,7 @@ export const OperateArea = ({
   operateAreaProps?: CSSProperties;
   operateExtra?: IOperateElementItem[];
 }) => {
-  const { data, operator } = useOperator();
+  const { data, operator, hoveringRef } = useOperator();
 
   //当前拖动的element
   const [dragElement, setDragElement] = useState<IElementItem>();
@@ -110,7 +110,9 @@ export const OperateArea = ({
       oid && debounceSetLocOID(oid, id);
     },
   });
-  console.log("@@@@@@@@@@@@isHovering=", isHovering);
+
+  hoveringRef.current = isHovering;
+
   //左侧拖动添加
   useEffect(() => {
     if (dragElement && isHovering) {

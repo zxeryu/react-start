@@ -2,6 +2,7 @@ import React, {
   createContext,
   CSSProperties,
   Dispatch,
+  MutableRefObject,
   ReactNode,
   SetStateAction,
   useCallback,
@@ -29,6 +30,8 @@ export interface OperatorContextProps {
     arrayMoveById: (oid: string, toOID: string, addToTarget?: boolean) => void;
     setData: Dispatch<SetStateAction<IOperateElementItem[]>>;
   };
+  //
+  hoveringRef: MutableRefObject<boolean>;
 }
 
 const OperatorContext = createContext<OperatorContextProps>({} as any);
@@ -112,6 +115,8 @@ export const Operator = ({
     setData(moveItemById(dataRef.current, oid, toOID, addToTarget));
   }, []);
 
+  const hoveringRef = useRef<boolean>(false);
+
   return (
     <OperatorContext.Provider
       value={{
@@ -124,6 +129,7 @@ export const Operator = ({
           arrayMoveById,
           setData,
         },
+        hoveringRef,
       }}>
       <Stack direction={"row"} style={{ height: "100%", ...style }}>
         <Stack style={{ width: 300, minWidth: 300, height: "100%" }}>
