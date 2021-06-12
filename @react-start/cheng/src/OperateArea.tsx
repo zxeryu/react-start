@@ -17,7 +17,7 @@ import React, {
 import { IElementItem, IOperateElementItem } from "./types";
 import { PropFun, useDrop, useDrag } from "@react-start/hooks";
 import { PlaceholderElement, StackElement } from "./Elements";
-import { debounce, get, map, filter } from "lodash";
+import { debounce, get, map, filter, set } from "lodash";
 import { useOperator } from "./Compose";
 import { Stack } from "@material-ui/core";
 import { OperatePanel } from "./OperatePanel";
@@ -52,7 +52,7 @@ export const OperateItem = ({ oel, onClick }: { oel: IOperateElementItem; onClic
     "data-oid": oel.oid,
     "data-id": oel.id,
     data: oel,
-    ...(get(oel, "directShow", true) ? getDragProps(oel.oid) : null),
+    ...(get(oel, "canDrag", true) ? getDragProps(oel.oid) : null),
     style: {
       borderTop: currentOElementID === oel.oid ? "2px solid blue" : "none",
     },
@@ -66,12 +66,14 @@ export const OperateArea = ({
   operateAreaProps,
   operatePanelProps,
   operateExtra,
+  onExtraChange,
 }: {
   operatePanelProps?: CSSProperties;
   operateAreaProps?: CSSProperties;
   operateExtra?: IOperateElementItem[];
+  onExtraChange?: (id: string, key: string, value: any) => void;
 }) => {
-  const { data, operator, hoveringRef } = useOperator();
+  const { data, operator, hoveringRef, changeRef } = useOperator();
 
   //当前拖动的element
   const [dragElement, setDragElement] = useState<IElementItem>();
@@ -92,6 +94,7 @@ export const OperateArea = ({
 
   const [dropProps, { isHovering }] = useDrop<string>({
     onDom: (id) => {
+      changeRef.current = true;
       if (dragElement) {
         if (locIDRef.current === StackElement.id) {
           operator.addElementById(id, undefined, locOID);
@@ -181,6 +184,7 @@ export const OperateArea = ({
               key={oel.oid}
               oel={oel}
               onClick={() => {
+                set(oel, "isExtra", true);
                 setCurrentOEL((prevState) => [...prevState, oel]);
               }}
             />
@@ -193,8 +197,10 @@ export const OperateArea = ({
             oel={oel}
             onClose={(oid) => setCurrentOEL((prevState) => filter(prevState, (oel) => oel.oid !== oid))}
             onOpen={(oel) => {
+              set(oel, "isExtra", true);
               setCurrentOEL((prevState) => [...prevState, oel]);
             }}
+            onExtraChange={onExtraChange}
           />
         ))}
       </Stack>

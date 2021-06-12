@@ -6,6 +6,7 @@ import React, {
   isValidElement,
   cloneElement,
   CSSProperties,
+  useState,
 } from "react";
 import { IOperateElementItem, SetProp } from "./types";
 import { Checkbox, FormControlLabel, IconButton, Stack, TextField, MenuItem } from "@material-ui/core";
@@ -27,14 +28,16 @@ interface SetProps extends SetProp {
 export const BooleanSet = ({ name, propKey, value }: SetProps) => {
   const { setProp } = useSetProp();
 
+  const [checked, setChecked] = useState<boolean>(value);
+
   return (
     <FormControlLabel
-      // value={value}
-      checked={value}
+      checked={checked}
       control={<Checkbox />}
       label={name}
       onChange={(e) => {
         setProp(propKey, (e.target as any).checked);
+        setChecked((e.target as any).checked);
       }}
     />
   );
@@ -48,7 +51,8 @@ export const NumberSet = ({ name, propKey, value }: SetProps) => {
       size={"small"}
       type={"number"}
       label={name}
-      value={value}
+      // value={value}
+      defaultValue={value}
       onChange={(e) => {
         setProp(propKey, e.target.value);
       }}
@@ -65,8 +69,12 @@ export const StringSet = ({ name, propKey, value, rows }: SetProps) => {
       multiline={!!isNumber(rows)}
       rows={rows}
       label={name}
-      value={value}
-      onChange={(e) => {
+      // value={value}
+      defaultValue={value}
+      // onChange={(e) => {
+      //   setProp(propKey, e.target.value);
+      // }}
+      onBlur={(e) => {
         setProp(propKey, e.target.value);
       }}
     />
@@ -85,7 +93,6 @@ export const SelectSet = ({ name, propKey, value, chooseValue }: SetProps) => {
       value={value}
       onChange={(e) => {
         setProp(propKey, e.target.value);
-        console.log("@@@@@@@@@", e, e.target.value);
       }}>
       {map(chooseValue, (item) => (
         <MenuItem key={item} value={item}>
@@ -122,14 +129,24 @@ export const OperatePanel = ({
   onClose,
   onOpen,
   style,
+  onExtraChange,
 }: {
   oel: IOperateElementItem;
   onClose: (oid: string) => void;
   onOpen?: (oel: IOperateElementItem) => void;
   style?: CSSProperties;
+  onExtraChange?: (id: string, key: string, value: any) => void;
 }) => {
-  const { operator } = useOperator();
+  const { operator, changeRef } = useOperator();
   const setProp = useCallback((key: string, value: any) => {
+    //extra
+    const isExtra = get(oel, "isExtra");
+    if (isExtra) {
+      onExtraChange && onExtraChange(oel.id || oel.oid, key, value);
+      return;
+    }
+    //data
+    changeRef.current = true;
     operator.setData((prevState) => {
       return map(prevState, (item) => {
         if (item.oid === oel.oid) {

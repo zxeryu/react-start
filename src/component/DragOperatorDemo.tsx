@@ -55,7 +55,7 @@ const OneElement: IElementItem = {
     showOne: true,
     showTwo: true,
     showThree: true,
-    size: 0,
+    size: 10,
     text: "",
   },
   setProps: {
@@ -176,9 +176,12 @@ export const DragOperatorDemo = () => {
 
       <Operator
         elements={elements}
-        initialOElements={OElements}
+        operateElements={OElements}
         showAreaProps={{ width: showWidth }}
-        operateExtra={[ComposeOperateItem as any]}>
+        extraOperateElements={[ComposeOperateItem as any]}
+        onExtraChange={(id, key, value) => {
+          console.log("@@@@@@@@@", id, key, value);
+        }}>
         <iframe ref={frameRef} src={"/DragShowPage"} width={showWidth} />
       </Operator>
     </div>

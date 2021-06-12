@@ -7,6 +7,7 @@ import React, {
   SetStateAction,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
 } from "react";
@@ -32,6 +33,7 @@ export interface OperatorContextProps {
   };
   //
   hoveringRef: MutableRefObject<boolean>;
+  changeRef: MutableRefObject<boolean>;
 }
 
 const OperatorContext = createContext<OperatorContextProps>({} as any);
@@ -45,48 +47,56 @@ export interface OperateElementItemProp extends Omit<IOperateElementItem, "oid" 
 
 export interface OperatorProps {
   elements: IElementItem[];
-  initialOElements: OperateElementItemProp[];
+  operateElements: OperateElementItemProp[];
   showAreaProps?: CSSProperties;
   operatePanelProps?: CSSProperties;
   operateAreaProps?: CSSProperties;
   style?: CSSProperties;
-  operateExtra?: IOperateElementItem[];
+  extraOperateElements?: IOperateElementItem[];
+  onExtraChange?: (id: string, key: string, value: any) => void;
   children?: ReactNode;
+  onChange?: (data: IOperateElementItem[]) => void;
 }
 
 const setOID = (oels: OperateElementItemProp[]) => {
   forEach(oels, (oel) => {
     if (!oel.oid) {
       oel.oid = generateId();
-      if (oel.elementList && size(oel.elementList) > 0) {
-        setOID(oel.elementList);
-      }
+    }
+    if (oel.elementList && size(oel.elementList) > 0) {
+      setOID(oel.elementList);
     }
   });
 };
 
 export const Operator = ({
   elements,
-  initialOElements,
+  operateElements,
   showAreaProps,
   operateAreaProps,
   operatePanelProps,
   style,
-  operateExtra,
+  extraOperateElements,
+  onExtraChange,
+  onChange,
   children,
 }: OperatorProps) => {
-  const getElement = useCallback((id: string) => {
-    return find(elements, (el) => el.id === id);
-  }, []);
+  const getElement = useCallback(
+    (id: string) => {
+      return find(elements, (el) => el.id === id);
+    },
+    [elements],
+  );
 
   //操作elements
-  const [data, setData] = useState<IOperateElementItem[]>(() => {
-    if (initialOElements) {
-      setOID(initialOElements);
-      return initialOElements as IOperateElementItem[];
+  const [data, setData] = useState<IOperateElementItem[]>([]);
+  useEffect(() => {
+    if (!operateElements) {
+      return;
     }
-    return [];
-  });
+    setOID(operateElements);
+    setData(operateElements as IOperateElementItem[]);
+  }, [operateElements]);
   const dataRef = useRef<IOperateElementItem[]>([]);
   dataRef.current = data;
 
@@ -116,6 +126,21 @@ export const Operator = ({
   }, []);
 
   const hoveringRef = useRef<boolean>(false);
+  const changeRef = useRef<boolean>(false);
+
+  //onChange事件
+  useEffect(() => {
+    if (!onChange) {
+      return;
+    }
+    if (hoveringRef.current) {
+      return;
+    }
+    if (changeRef.current) {
+      onChange(data);
+      changeRef.current = false;
+    }
+  }, [data]);
 
   return (
     <OperatorContext.Provider
@@ -130,13 +155,15 @@ export const Operator = ({
           setData,
         },
         hoveringRef,
+        changeRef,
       }}>
       <Stack direction={"row"} style={{ height: "100%", ...style }}>
         <Stack style={{ width: 300, minWidth: 300, height: "100%" }}>
           <OperateArea
             operateAreaProps={operateAreaProps}
             operatePanelProps={operatePanelProps}
-            operateExtra={operateExtra}
+            operateExtra={extraOperateElements}
+            onExtraChange={onExtraChange}
           />
         </Stack>
         <Stack style={{ flexGrow: 1, alignItems: "center" }}>{children || <ShowArea {...showAreaProps} />}</Stack>

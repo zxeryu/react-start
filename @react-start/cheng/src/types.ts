@@ -27,10 +27,10 @@ export interface IElementItem {
   props?: { [key: string]: any };
   //使用过程中的唯一标识
   id?: string;
-  //拖动过程中显示的名称
+  //名称
   name?: string;
-  // 不直接显示元素 如：蒙层 默认true
-  directShow?: boolean;
+  //是否能拖动 默认true
+  canDrag?: boolean;
 }
 
 export interface IOperateElementItem extends IElementItem {
