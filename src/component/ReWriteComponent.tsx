@@ -3,6 +3,7 @@ import { PickerModal, DatePicker } from "@react-start/components";
 import { size, debounce, last } from "lodash";
 import { CascadeProps } from "../../@react-start/components/src/picker";
 import { DatePickerModal } from "../../@react-start/components/src/date-picker";
+import { Cascader } from "../../@react-start/components/src/cascader";
 
 const TestOptions = [
   { label: "000", value: "0" },
@@ -115,15 +116,19 @@ export const ReWriteComponent = () => {
     });
   }, []);
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   const addColumnsAsync = useCallback(
     debounce((id) => {
+      setLoading(true);
       getOptions(id).then((data: any) => {
         if (size(data) > 0) {
           setData(columnsRef.current, id, data);
           setColumns([...columnsRef.current]);
         }
+        setLoading(false);
       });
-    }, 50),
+    }, 1000),
     [],
   );
 
@@ -184,6 +189,17 @@ export const ReWriteComponent = () => {
         }}
         onConfirm={(v) => {
           console.log("@@@@@@@@onConfirm===", v);
+        }}
+      />
+
+      <Cascader title={"选择"} columns={TreeOptions} />
+      <Cascader
+        loading={loading}
+        title={"异步选择"}
+        columns={columns as any}
+        onChange={(v) => {
+          console.log("@@@@@@@@@", v);
+          addColumnsAsync(v);
         }}
       />
     </div>
