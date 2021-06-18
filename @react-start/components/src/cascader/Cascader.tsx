@@ -1,28 +1,33 @@
-import React, { ReactNode, isValidElement, useState, useCallback, useMemo, useRef, useEffect } from "react";
+import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
 
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Stack from "@material-ui/core/Stack";
-import Typography from "@material-ui/core/Typography";
-import IconButton from "@material-ui/core/IconButton";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemButton from "@material-ui/core/ListItemButton";
 import ListItemText from "@material-ui/core/ListItemText";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import IconButton from "@material-ui/core/IconButton";
 
-import CloseIcon from "@material-ui/icons/Close";
 import CheckIcon from "@material-ui/icons/Check";
+import CloseIcon from "@material-ui/icons/Close";
 
 import { IOption, ITreeOption } from "../type";
-import { map, omit, get, slice, set, size, join, last } from "lodash";
+import { map, omit, get, slice, set, size, join, last, findIndex, filter } from "lodash";
+import { Toolbar, ToolbarProps } from "../common/Toolbar";
 
-export interface CascaderProps {
-  title?: ReactNode;
+type ResultCallback = (v: IOption["value"], option?: IOption, options?: IOption[]) => void;
+
+export interface CascaderProps extends Omit<ToolbarProps, "onCancel" | "onSure"> {
+  showToolbar?: boolean;
+  mode?: "child" | "parent";
   loading?: boolean;
   columns: ITreeOption[];
   value?: IOption["value"];
-  onChange?: (v: IOption["value"]) => void;
+  onChange?: ResultCallback;
+  onCancel?: () => void;
+  onConfirm?: ResultCallback;
 }
 
 interface ShowColumnOption {
@@ -30,7 +35,43 @@ interface ShowColumnOption {
   column: IOption[];
 }
 
-export const Cascader = ({ title, loading, columns, onChange, value }: CascaderProps) => {
+const findTarget = (
+  columns: ITreeOption[],
+  targetValue: IOption["value"],
+  targetList: ITreeOption[],
+  resultList: ITreeOption[],
+) => {
+  for (let i = 0; i < columns.length; i++) {
+    const item = columns[i];
+    if (item.value === targetValue) {
+      targetList.push(item);
+      resultList.push(...targetList);
+      return;
+    }
+  }
+  for (let i = 0; i < columns.length; i++) {
+    const parent = columns[i];
+    if (size(parent.children) > 0) {
+      findTarget(parent.children!, targetValue, [...targetList, parent], resultList);
+    }
+  }
+};
+
+export const Cascader = ({
+  showToolbar = true,
+  mode = "child",
+  //
+  title,
+  cancelButtonText,
+  confirmButtonText,
+  //
+  loading,
+  columns,
+  value,
+  onChange,
+  onCancel,
+  onConfirm,
+}: CascaderProps) => {
   const columnsRef = useRef<ITreeOption[]>(columns);
   columnsRef.current = columns;
 
@@ -65,16 +106,13 @@ export const Cascader = ({ title, loading, columns, onChange, value }: CascaderP
     );
     const lastOption = get(columns, path);
     if (lastOption && size(lastOption.children) > 0) {
-      setShowColumns((prev) => [...prev, { column: lastOption.children }]);
+      setShowColumns((prev) => [
+        ...prev,
+        { column: map(lastOption.children, (c) => omit(c, "children")) as IOption[] },
+      ]);
       setCurrentTab(size(showColumnsRef.current));
     }
   }, [columns]);
-
-  useEffect(() => {
-    if (value && columns && size(showColumns) === 1 && !showColumns[0].choose) {
-      //todo:: control
-    }
-  }, [value, showColumns]);
 
   const { currentColumn, currentChoose } = useMemo(
     () => ({
@@ -100,28 +138,128 @@ export const Cascader = ({ title, loading, columns, onChange, value }: CascaderP
       setShowColumns(nextShowColumns);
       setCurrentTab(size(nextShowColumns) - 1);
 
-      onChange && onChange(targetOption.value);
+      const chooseList = filter(
+        map(nextShowColumns, (c) => c.choose),
+        (c) => !!c,
+      );
+
+      onChange && onChange(targetOption.value, targetOption, chooseList as IOption[]);
+
+      //如果是叶子节点，执行onConfirm
+      if (mode === "child" && get(targetOption, "isLeaf")) {
+        onConfirm && onConfirm(targetOption.value, targetOption, chooseList as IOption[]);
+      }
     },
     [showColumns],
   );
 
+  const setValueRef = useRef<boolean>(false);
+  const setValueAsyncRef = useRef<boolean>(false);
+
+  //value 复显（理论情况下，只在初始化执行一次）
+  useEffect(() => {
+    if (!value || (setValueRef.current && setValueAsyncRef.current)) {
+      return;
+    }
+    //columns固定
+    if (!setValueRef.current) {
+      const targetList: ITreeOption[] = [];
+      findTarget(columnsRef.current, value, [], targetList);
+      if (size(targetList) > 0) {
+        const nextColumns = filter(
+          map(targetList, (t) => map(t.children, (c) => omit(c, "children"))),
+          (cs) => size(cs) > 0,
+        );
+        nextColumns.unshift(map(columnsRef.current, (c) => omit(c, "children")));
+
+        const nextChooses = map(targetList, (t) => omit(t, "children"));
+
+        const nextShowColumns = map(nextColumns, (column, i) => {
+          const choose = nextChooses[i];
+          if (choose) {
+            set(
+              choose,
+              "index",
+              findIndex(column, (c) => c.value === choose.value),
+            );
+          }
+
+          return { column, choose };
+        });
+
+        setShowColumns(nextShowColumns as any);
+        setCurrentTab(size(nextShowColumns) - 1);
+
+        setValueRef.current = true;
+
+        return;
+      }
+    }
+
+    if (size(columnsRef.current) > 0) {
+      setValueRef.current = true;
+    }
+
+    //异步情况
+    const currentColumn = get(showColumns, [currentTab, "column"], []);
+    const currentChoose = get(showColumns, [currentTab, "choose"], undefined);
+    const valueIndex = findIndex(currentColumn, (c) => c.value === value);
+    if (!currentChoose && valueIndex > -1) {
+      selectItem(currentTab, valueIndex);
+
+      setValueAsyncRef.current = true;
+    }
+  }, [value, columns, currentTab]);
+
+  const getValue = useCallback(() => {
+    const chooseList = filter(
+      map(showColumns, (c) => c.choose),
+      (c) => !!c,
+    );
+    const lastChoose = last(chooseList);
+
+    return {
+      value: get(lastChoose, "value"),
+      option: lastChoose,
+      options: chooseList,
+    };
+  }, [showColumns]);
+
   return (
     <Stack>
-      <Stack direction={"row"} css={{ justifyContent: "space-between", alignItems: "center" }}>
-        {isValidElement(title) ? (
-          title
-        ) : (
-          <Typography css={{ paddingLeft: "1rem" }} variant={"h6"}>
-            {title}
-          </Typography>
-        )}
-        <IconButton>
-          <CloseIcon />
-        </IconButton>
-      </Stack>
+      {showToolbar && mode === "child" && (
+        <Stack direction={"row"} css={{ justifyContent: "space-between", alignItems: "center", paddingLeft: "1rem" }}>
+          <div css={{ maxWidth: "70%" }}>{title}</div>
+          <IconButton
+            onClick={() => {
+              onCancel && onCancel();
+            }}>
+            <CloseIcon />
+          </IconButton>
+        </Stack>
+      )}
+      {showToolbar && mode === "parent" && (
+        <Toolbar
+          title={title}
+          cancelButtonText={cancelButtonText}
+          confirmButtonText={confirmButtonText}
+          onCancel={() => {
+            onCancel && onCancel();
+          }}
+          onSure={() => {
+            const { value, option, options } = getValue();
+            if (value) {
+              onConfirm && onConfirm(value, option, options as any);
+            } else {
+              onCancel && onCancel();
+            }
+          }}
+        />
+      )}
+
       <Tabs variant={"scrollable"} scrollButtons={"auto"} value={currentTab} onChange={handleTabChange}>
-        {map(showColumns, ({ choose }) => {
-          return <Tab key={choose?.value} label={choose ? choose.label : "请选择"} />;
+        {map(showColumns, ({ choose }, index) => {
+          return <Tab key={choose?.value || index} label={choose ? choose.label : "请选择"} />;
         })}
       </Tabs>
 

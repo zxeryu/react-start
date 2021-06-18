@@ -3,7 +3,7 @@ import { PickerModal, DatePicker } from "@react-start/components";
 import { size, debounce, last } from "lodash";
 import { CascadeProps } from "../../@react-start/components/src/picker";
 import { DatePickerModal } from "../../@react-start/components/src/date-picker";
-import { Cascader } from "../../@react-start/components/src/cascader";
+import { CascaderModal } from "../../@react-start/components/src/cascader";
 
 const TestOptions = [
   { label: "000", value: "0" },
@@ -23,9 +23,9 @@ export const TreeOptions = [
     label: "1",
     value: "id-1",
     children: [
-      { label: "1-1", value: "id-1-1" },
-      { label: "1-2", value: "id-1-2" },
-      { label: "1-3", value: "id-1-3" },
+      { label: "1-1", value: "id-1-1", isLeaf: true },
+      { label: "1-2", value: "id-1-2", isLeaf: true },
+      { label: "1-3", value: "id-1-3", isLeaf: true },
     ],
   },
   {
@@ -36,12 +36,12 @@ export const TreeOptions = [
         label: "2-1",
         value: "id-2-1",
         children: [
-          { label: "2-1-1", value: "id-2-1-1" },
-          { label: "2-1-2", value: "id-2-1-2" },
+          { label: "2-1-1", value: "id-2-1-1", isLeaf: true },
+          { label: "2-1-2", value: "id-2-1-2", isLeaf: true },
         ],
       },
-      { label: "2-2", value: "id-2-2" },
-      { label: "2-3", value: "id-2-3" },
+      { label: "2-2", value: "id-2-2", isLeaf: true },
+      { label: "2-3", value: "id-2-3", isLeaf: true },
     ],
   },
 ];
@@ -61,26 +61,26 @@ const getOptions = (id: string) => {
       ]);
     } else if (id === "id-1") {
       resolve([
-        { label: "1-1", value: "id-1-1" },
-        { label: "1-2", value: "id-1-2" },
-        { label: "1-3", value: "id-1-3" },
+        { label: "1-1", value: "id-1-1", isLeaf: true },
+        { label: "1-2", value: "id-1-2", isLeaf: true },
+        { label: "1-3", value: "id-1-3", isLeaf: true },
       ]);
     } else if (id === "id-2") {
       resolve([
         { label: "2-1", value: "id-2-1" },
         { label: "2-2", value: "id-2-2" },
-        { label: "2-3", value: "id-2-3" },
+        { label: "2-3", value: "id-2-3", isLeaf: true },
       ]);
     } else if (id === "id-2-1") {
       resolve([
-        { label: "2-1-1", value: "id-2-1-1" },
-        { label: "2-1-2", value: "id-2-1-2" },
-        { label: "2-1-3", value: "id-2-1-3" },
+        { label: "2-1-1", value: "id-2-1-1", isLeaf: true },
+        { label: "2-1-2", value: "id-2-1-2", isLeaf: true },
+        { label: "2-1-3", value: "id-2-1-3", isLeaf: true },
       ]);
     } else if (id === "id-2-2") {
       resolve([
-        { label: "2-2-1", value: "id-2-2-1" },
-        { label: "2-2-2", value: "id-2-2-2" },
+        { label: "2-2-1", value: "id-2-2-1", isLeaf: true },
+        { label: "2-2-2", value: "id-2-2-2", isLeaf: true },
       ]);
     } else {
       resolve([]);
@@ -103,7 +103,7 @@ const setData = (columns: CascadeProps[], id: string, children: CascadeProps[]) 
   }
 };
 
-export const ReWriteComponent = () => {
+export const PickerDemo = () => {
   const [value, setValue] = useState<(string | number)[]>([]);
 
   const [columns, setColumns] = useState<CascadeProps[]>([]);
@@ -116,17 +116,13 @@ export const ReWriteComponent = () => {
     });
   }, []);
 
-  const [loading, setLoading] = useState<boolean>(false);
-
   const addColumnsAsync = useCallback(
     debounce((id) => {
-      setLoading(true);
       getOptions(id).then((data: any) => {
         if (size(data) > 0) {
           setData(columnsRef.current, id, data);
           setColumns([...columnsRef.current]);
         }
-        setLoading(false);
       });
     }, 1000),
     [],
@@ -158,7 +154,13 @@ export const ReWriteComponent = () => {
           addColumnsAsync(last(values));
         }}
       />
+    </div>
+  );
+};
 
+const DatePickerDemo = () => {
+  return (
+    <div>
       <DatePicker
         type={"time"}
         filter={(options, type) => {
@@ -191,17 +193,71 @@ export const ReWriteComponent = () => {
           console.log("@@@@@@@@onConfirm===", v);
         }}
       />
+    </div>
+  );
+};
 
-      <Cascader title={"选择"} columns={TreeOptions} />
-      <Cascader
+const CascaderDemo = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [columns, setColumns] = useState<CascadeProps[]>([]);
+  const columnsRef = useRef<CascadeProps[]>(columns);
+  columnsRef.current = columns;
+
+  useEffect(() => {
+    getOptions("").then((data) => {
+      setColumns(data as any);
+    });
+  }, []);
+
+  const addColumnsAsync = useCallback(
+    debounce((id) => {
+      setLoading(true);
+      getOptions(id).then((data: any) => {
+        if (size(data) > 0) {
+          setData(columnsRef.current, id, data);
+          setColumns([...columnsRef.current]);
+        }
+        setLoading(false);
+      });
+    }, 1000),
+    [],
+  );
+
+  const [value, setValue] = useState<string>("id-2-1-2");
+
+  return (
+    <div>
+      <CascaderModal
+        mode={"parent"}
+        columns={TreeOptions}
+        title={"选择"}
+        value={value}
+        onConfirm={(v) => setValue(v as string)}
+        initTextLabel={"2-1-2"}
+      />
+
+      <CascaderModal
         loading={loading}
         title={"异步选择"}
         columns={columns as any}
+        value={value}
         onChange={(v) => {
           console.log("@@@@@@@@@", v);
           addColumnsAsync(v);
         }}
+        onConfirm={(v) => setValue(v as string)}
       />
+    </div>
+  );
+};
+
+export const ReWriteComponent = () => {
+  return (
+    <div>
+      <CascaderDemo />
+      <DatePickerDemo />
+      <PickerDemo />
     </div>
   );
 };

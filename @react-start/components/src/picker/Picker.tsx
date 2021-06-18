@@ -1,40 +1,9 @@
 import React, { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { map, size, isNumber, isArray } from "lodash";
 import { PickerOption, Column, PickerObjectOption } from "./Column";
-import { Button, Stack, CircularProgress, CircularProgressProps } from "@material-ui/core";
+import { Stack, CircularProgress, CircularProgressProps } from "@material-ui/core";
 import { useNextEffect } from "@react-start/hooks";
-
-export interface ToolbarProps {
-  cancelButtonText?: ReactNode;
-  confirmButtonText?: ReactNode;
-  title?: ReactNode;
-  onSure?: () => void;
-  onCancel?: () => void;
-}
-
-export const Toolbar = ({
-  title = "",
-  cancelButtonText = "取消",
-  confirmButtonText = "确定",
-  onSure,
-  onCancel,
-}: ToolbarProps) => {
-  return (
-    <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
-      <Button style={{ color: "grey" }} onClick={() => onCancel && onCancel()}>
-        {cancelButtonText}
-      </Button>
-      <div
-        style={{
-          maxWidth: "50%",
-          textAlign: "center",
-        }}>
-        {title}
-      </div>
-      <Button onClick={() => onSure && onSure()}>{confirmButtonText}</Button>
-    </Stack>
-  );
-};
+import { Toolbar, ToolbarProps } from "../common/Toolbar";
 
 const PickerStyle: { [key: string]: CSSProperties } = {
   root: { position: "relative", userSelect: "none", backgroundColor: "white" },
