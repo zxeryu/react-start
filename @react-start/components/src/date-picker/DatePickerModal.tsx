@@ -5,7 +5,7 @@ import { DatePicker, DatePickerProps } from "./DatePicker";
 
 export const DatePickerModal = ({
   textFieldProps,
-  round,
+  round = true,
   //
   value,
   onConfirm,

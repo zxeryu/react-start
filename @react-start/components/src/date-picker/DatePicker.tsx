@@ -192,6 +192,7 @@ export const DatePicker = ({
       onConfirm={() => {
         onConfirm && onConfirm(selectValue);
       }}
+      {...props}
     />
   );
 };
