@@ -173,12 +173,12 @@ const RecommendFormDemo = () => {
         <FormItem name={"rating"} label={"rating"}>
           <Rating />
         </FormItem>
-        <FormItem name={"picker"} label={"级联Picker"} directChange>
+        <FormItem name={"picker"} label={"级联Picker"} directChange trigger={"onConfirm"}>
           <PickerModal
             mode={"cascade"}
             title={"级联"}
             columns={TreeOptions}
-            onChange={(a, b, c) => {
+            onConfirm={(a, b, c) => {
               console.log("@@@@", a, b, c);
             }}
           />

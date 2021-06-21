@@ -2,7 +2,7 @@
  * from vant
  * @constructor
  */
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { size, map, get } from "lodash";
 import { range } from "../../utils/format";
 import { IOption } from "../type";
@@ -24,14 +24,7 @@ const getElementTranslateY = (element: Element) => {
   return Number(translateY);
 };
 
-export interface PickerObjectOption extends IOption {
-  disabled?: boolean;
-  hasChild?: boolean;
-}
-
-export type PickerOption = ReactNode | PickerObjectOption;
-
-const isOptionDisabled = (option: PickerOption) => {
+const isOptionDisabled = (option: IOption) => {
   return get(option, "disabled", false);
 };
 
@@ -48,7 +41,7 @@ export const Column = ({
   swipeDuration: number;
   visibleItemCount: number;
   index?: number;
-  options?: PickerOption[];
+  options?: IOption[];
   readonly?: boolean;
   onChange?: (index: number) => void;
 }) => {
@@ -63,7 +56,7 @@ export const Column = ({
   const [state, setState] = useState<{
     offset: number;
     duration: number;
-    options: PickerOption[];
+    options: IOption[];
   }>({
     offset: 0,
     duration: 0,

@@ -1,9 +1,10 @@
-import React, { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { map, size, isNumber, isArray } from "lodash";
-import { PickerOption, Column, PickerObjectOption } from "./Column";
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { map, size, isNumber, isArray, get } from "lodash";
+import { Column } from "./Column";
 import { Stack, CircularProgress, CircularProgressProps } from "@material-ui/core";
 import { useNextEffect } from "@react-start/hooks";
 import { Toolbar, ToolbarProps } from "../common/Toolbar";
+import { IOption, ITreeOption } from "../type";
 
 const PickerStyle: { [key: string]: CSSProperties } = {
   root: { position: "relative", userSelect: "none", backgroundColor: "white" },
@@ -34,24 +35,11 @@ const PickerStyle: { [key: string]: CSSProperties } = {
   },
 };
 
-export type PickerFieldNames = {
-  text?: string;
-  values?: string;
-  children?: string;
-};
-
-export interface CascadeProps {
-  label: ReactNode;
-  value?: string | number;
-  disable?: boolean;
-  children?: CascadeProps[];
-}
-
 type Mode = "cascade" | "multi" | "single";
 
-type SingleColumns = PickerOption[];
-type MultiColumns = PickerOption[][];
-type CascadeColumns = CascadeProps[];
+type SingleColumns = IOption[];
+type MultiColumns = IOption[][];
+type CascadeColumns = ITreeOption[];
 
 export interface PickerProps extends Omit<ToolbarProps, "onCancel" | "onSure"> {
   mode?: Mode;
@@ -98,8 +86,8 @@ export const Picker = ({
   //
   ...toolbarProps
 }: PickerProps) => {
-  const [showColumns, setShowColumns] = useState<PickerOption[][]>([]);
-  const showColumnsRef = useRef<PickerOption[][]>(showColumns);
+  const [showColumns, setShowColumns] = useState<IOption[][]>([]);
+  const showColumnsRef = useRef<IOption[][]>(showColumns);
   showColumnsRef.current = showColumns;
 
   const [selectValue, setSelectValue] = useState<number[]>(() => {
@@ -124,7 +112,7 @@ export const Picker = ({
       if (mode === "cascade") {
         const is: number[] = [];
         let index = 0;
-        let tempColumn = (columns as CascadeProps[])[values[index]];
+        let tempColumn = (columns as ITreeOption[])[values[index]];
         let flag = true;
 
         while (flag) {
@@ -151,14 +139,14 @@ export const Picker = ({
       return null;
     }
     if (mode === "single") {
-      setShowColumns([columns]);
+      setShowColumns([columns as SingleColumns]);
     } else if (mode === "multi") {
       setShowColumns(columns as MultiColumns);
     } else {
-      const cs: PickerOption[][] = [];
+      const cs: IOption[][] = [];
 
       let index = 0;
-      let tempColumns = columns as CascadeProps[];
+      let tempColumns = columns as ITreeOption[];
       let flag = true;
 
       let indexChangeFlag = false;
@@ -281,11 +269,11 @@ export const Picker = ({
               });
 
               if (mode === "cascade") {
-                const opeColumn = showColumnsRef.current[i][index] as PickerObjectOption;
+                const opeColumn = showColumnsRef.current[i][index] as IOption;
                 //非最后一列筛选
                 const prevIndexFlag = i < size(showColumnsRef.current) - 1;
                 //最后一列，但是hasChild
-                const lastIndexFlag = opeColumn && opeColumn.hasChild;
+                const lastIndexFlag = get(opeColumn, "hasChild");
                 if (prevIndexFlag || lastIndexFlag) {
                   setColumns();
                 } else {

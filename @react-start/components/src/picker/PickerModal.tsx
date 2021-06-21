@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TextField, Drawer, TextFieldProps } from "@material-ui/core";
-import { CascadeProps, Picker, PickerProps } from "./Picker";
-import { join, isString, get, forEach, size, findIndex, map } from "lodash";
-import { PickerObjectOption, PickerOption } from "./Column";
+import { Picker, PickerProps } from "./Picker";
+import { join, get, forEach, size, findIndex, map } from "lodash";
 import { useNextEffect } from "@react-start/hooks";
+import { IOption, ITreeOption } from "../type";
 
 export const getValue = (
   mode: PickerProps["mode"] = "single",
@@ -14,23 +14,19 @@ export const getValue = (
   values: (string | number)[];
 } => {
   if (mode === "single") {
-    const item = (columns as PickerOption[])[is[0]];
-    const l = get(item, "label");
-    const v = get(item, "value");
+    const item = (columns as IOption[])[is[0]];
     return {
-      labels: [isString(item) ? item : l?.toString()],
-      values: [v],
+      labels: [get(item, "label") as string],
+      values: [get(item, "value")],
     };
   } else if (mode === "multi") {
     const ls: string[] = [];
     const vs: string[] = [];
-    forEach(columns as PickerOption[][], (c, i) => {
+    forEach(columns as IOption[][], (c, i) => {
       const item = c[is[i]];
-      const l = get(item, "label");
-      const v = get(item, "value");
 
-      ls.push(isString(item) ? item : l?.toString());
-      vs.push(v);
+      ls.push(get(item, "label") as string);
+      vs.push(get(item, "value") as string);
     });
     return {
       labels: ls,
@@ -41,7 +37,7 @@ export const getValue = (
     const vs: (string | number)[] = [];
     const len = size(is);
     let index = 0;
-    let tempCascade: CascadeProps = (columns as CascadeProps[])[is[index]];
+    let tempCascade: ITreeOption = (columns as ITreeOption[])[is[index]];
 
     while (index < len) {
       ls.push(tempCascade.label?.toString() as any);
@@ -64,10 +60,10 @@ export const getIndex = (
   values: (string | number)[],
 ) => {
   if (mode === "single") {
-    const index = findIndex(columns as PickerObjectOption[], (c) => c.value === values[0]);
+    const index = findIndex(columns as IOption[], (c) => c.value === values[0]);
     return [index];
   } else if (mode === "multi") {
-    return map(columns as PickerObjectOption[][], (cs, index) => {
+    return map(columns as IOption[][], (cs, index) => {
       return findIndex(cs, (c) => c.value === values[index]);
     });
   } else {
@@ -76,7 +72,7 @@ export const getIndex = (
     const len = size(values);
     let index = 0;
 
-    let tempCascade = columns as CascadeProps[];
+    let tempCascade = columns as ITreeOption[];
 
     while (index < len) {
       const selectIndex = findIndex(tempCascade, (c) => c.value === values[index]);
@@ -98,17 +94,17 @@ export const PickerModal = ({
   //
   value,
   onChange,
-  onPickerChange,
+  onConfirm,
   //
   round = true,
   //
   ...pickerProps
-}: Omit<PickerProps, "onChange" | "value"> & {
+}: Omit<PickerProps, "onChange" | "value" | "onConfirm"> & {
   textFieldProps?: TextFieldProps;
-  onChange?: (values: (string | number)[], labels: string[], indexs: number[]) => void;
-  onPickerChange?: (values: (string | number)[], labels: string[], indexs: number[]) => void;
-  value?: (string | number)[];
   round?: boolean;
+  onChange?: (values: (string | number)[], labels: string[], indexs: number[]) => void;
+  onConfirm?: (values: (string | number)[], labels: string[], indexs: number[]) => void;
+  value?: (string | number)[];
 }) => {
   const columnsRef = useRef<PickerProps["columns"]>(pickerProps.columns);
   columnsRef.current = pickerProps.columns;
@@ -138,7 +134,6 @@ export const PickerModal = ({
         value={showText}
         // disabled
         fullWidth
-        size={"small"}
         onClick={() => {
           setOpen(true);
         }}
@@ -158,13 +153,13 @@ export const PickerModal = ({
               setSelectValue(v);
               const { labels, values } = getValue(pickerProps.mode, pickerProps.columns, v);
               setShowText(join(labels, ","));
-              onChange && onChange(values, labels, v);
+              onConfirm && onConfirm(values, labels, v);
 
               setOpen(false);
             }}
             onChange={(v) => {
               const { labels, values } = getValue(pickerProps.mode, pickerProps.columns, v);
-              onPickerChange && onPickerChange(values, labels, v);
+              onChange && onChange(values, labels, v);
             }}
           />
         </div>
