@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.1](https://github.com/zxeryu/react-start/compare/@react-start/components@0.2.0...@react-start/components@0.2.1) (2021-06-21)
+
+### Bug Fixes
+
+- **component:** cascader under control ([6001bad](https://github.com/zxeryu/react-start/commit/6001bada9ecf50cc68eaa8ce9c7ac316b94abd76))
+- **components:** cascader modal ([08e29d0](https://github.com/zxeryu/react-start/commit/08e29d0b5a8334f71864ffccfff050cbc975425d))
+- **components:** date picker props transmit ([25959ac](https://github.com/zxeryu/react-start/commit/25959aca49e3b5b219896b91311a197962b9e321))
+- **components:** import way ([67f06e8](https://github.com/zxeryu/react-start/commit/67f06e85c7de27a653ae8c2f32801f3be822359b))
+- **components:** types ([e8b8cc0](https://github.com/zxeryu/react-start/commit/e8b8cc01df09269a4ad2939d80207bb37171b81b))
+- **components:** valuePropName and trigger for Form ([be379d9](https://github.com/zxeryu/react-start/commit/be379d9948753b571e2ef733ad68520300a572e6))
+
+### Performance Improvements
+
+- **components:** types and modal for picker ([5a45a66](https://github.com/zxeryu/react-start/commit/5a45a66d5836cf7951196ecc7d1c442557cc6c8a))
+
 # [0.2.0](https://github.com/zxeryu/react-start/compare/@react-start/components@0.1.6...@react-start/components@0.2.0) (2021-06-11)
 
 ### Bug Fixes
