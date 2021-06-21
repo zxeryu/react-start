@@ -1,9 +1,7 @@
 import React, { useRef, useState } from "react";
-import TextField from "@material-ui/core/TextField";
-import Drawer from "@material-ui/core/Drawer";
 import { useNextEffect } from "../../../hooks";
 import { Cascader, CascaderProps } from "./Cascader";
-import { TextFieldProps } from "@material-ui/core";
+import { TextFieldProps, TextField, Drawer } from "@material-ui/core";
 import { isString } from "lodash";
 
 export const CascaderModal = ({

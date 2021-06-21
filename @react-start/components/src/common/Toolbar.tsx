@@ -1,7 +1,6 @@
 import React, { ReactNode } from "react";
 
-import Button from "@material-ui/core/Button";
-import Stack from "@material-ui/core/Stack";
+import { Button, Stack } from "@material-ui/core";
 
 export interface ToolbarProps {
   cancelButtonText?: ReactNode;
@@ -19,7 +18,7 @@ export const Toolbar = ({
   onCancel,
 }: ToolbarProps) => {
   return (
-    <Stack direction={"row"} css={{ justifyContent: "space-between", alignItems: "center" }}>
+    <Stack direction={"row"} style={{ justifyContent: "space-between", alignItems: "center" }}>
       <Button style={{ color: "grey" }} onClick={() => onCancel && onCancel()}>
         {cancelButtonText}
       </Button>
