@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { PickerModal, DatePicker } from "@react-start/components";
+import { PickerModal, DatePicker, DatePickerModal, CascaderModal } from "@react-start/components";
 import { size, debounce, last } from "lodash";
-import { CascadeProps } from "../../@react-start/components/src/picker";
-import { DatePickerModal } from "../../@react-start/components/src/date-picker";
-import { CascaderModal } from "../../@react-start/components/src/cascader";
+import { ITreeOption } from "../../@react-start/components/src/type";
 
 const TestOptions = [
   { label: "000", value: "0" },
@@ -88,7 +86,7 @@ const getOptions = (id: string) => {
   });
 };
 
-const setData = (columns: CascadeProps[], id: string, children: CascadeProps[]) => {
+const setData = (columns: ITreeOption[], id: string, children: ITreeOption[]) => {
   for (let i = 0; i < columns.length; i++) {
     if (columns[i].value === id && !columns[i].children) {
       columns[i].children = children;
@@ -106,8 +104,8 @@ const setData = (columns: CascadeProps[], id: string, children: CascadeProps[]) 
 export const PickerDemo = () => {
   const [value, setValue] = useState<(string | number)[]>([]);
 
-  const [columns, setColumns] = useState<CascadeProps[]>([]);
-  const columnsRef = useRef<CascadeProps[]>(columns);
+  const [columns, setColumns] = useState<ITreeOption[]>([]);
+  const columnsRef = useRef<ITreeOption[]>(columns);
   columnsRef.current = columns;
 
   useEffect(() => {
@@ -146,10 +144,10 @@ export const PickerDemo = () => {
         title={"级联"}
         columns={columns}
         value={value}
-        onChange={(values) => {
+        onConfirm={(values) => {
           setValue(values);
         }}
-        onPickerChange={(values) => {
+        onChange={(values) => {
           console.log("@@@@@@@@@@@@@onPickerChange=", values);
           addColumnsAsync(last(values));
         }}
@@ -200,8 +198,8 @@ const DatePickerDemo = () => {
 const CascaderDemo = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [columns, setColumns] = useState<CascadeProps[]>([]);
-  const columnsRef = useRef<CascadeProps[]>(columns);
+  const [columns, setColumns] = useState<ITreeOption[]>([]);
+  const columnsRef = useRef<ITreeOption[]>(columns);
   columnsRef.current = columns;
 
   useEffect(() => {
@@ -240,7 +238,7 @@ const CascaderDemo = () => {
       <CascaderModal
         loading={loading}
         title={"异步选择"}
-        columns={columns as any}
+        columns={columns}
         value={value}
         onChange={(v) => {
           console.log("@@@@@@@@@", v);

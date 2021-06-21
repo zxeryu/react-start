@@ -2,7 +2,7 @@ import { isDate, map, times, padStart, findIndex, get, slice } from "lodash";
 import { range } from "../../utils/format";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Picker, PickerProps } from "../picker";
-import { PickerObjectOption } from "../picker/Column";
+import { IOption } from "../type";
 
 const currentYear = new Date().getFullYear();
 
@@ -87,7 +87,7 @@ export interface DatePickerProps extends Omit<PickerProps, "onChange" | "value" 
   onChange?: (date?: Date) => void;
   onConfirm?: (date?: Date) => void;
   formatter?: (val: string, type: TimeKey) => string;
-  filter?: (options: PickerObjectOption[], type: TimeKey) => PickerObjectOption[];
+  filter?: (options: IOption[], type: TimeKey) => IOption[];
 }
 
 export const DatePicker = ({
@@ -140,7 +140,7 @@ export const DatePicker = ({
   const showColumns = useMemo(() => {
     return slice(columns, ...get(PickerTypeMap, type, [0, 3]));
   }, [columns, type]);
-  const showColumnsRef = useRef<PickerObjectOption[][]>(showColumns);
+  const showColumnsRef = useRef<IOption[][]>(showColumns);
   showColumnsRef.current = showColumns;
 
   const dateToIndexes = useCallback(
