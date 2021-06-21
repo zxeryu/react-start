@@ -12,6 +12,7 @@ import {
   SimpleSearchForm,
   RadioGroup,
   PickerModal,
+  CascaderModal,
 } from "@react-start/components";
 import { Button, MenuItem, Rating, Select, Switch, TextField } from "@material-ui/core";
 import * as yup from "yup";
@@ -181,6 +182,9 @@ const RecommendFormDemo = () => {
               console.log("@@@@", a, b, c);
             }}
           />
+        </FormItem>
+        <FormItem name={"cascader-picker"} label={"级联组件"} directChange trigger={"onConfirm"}>
+          <CascaderModal title={"级联"} columns={TreeOptions} />
         </FormItem>
         <FormItem>
           <Button color="primary" variant="contained" fullWidth type="submit">

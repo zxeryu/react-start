@@ -151,6 +151,9 @@ export interface IBaseFormItemProps {
   fullWidth?: boolean;
   style?: CSSProperties;
   helperTextStyle?: CSSProperties;
+  //拓展兼容
+  valuePropName?: string;
+  trigger?: string;
 }
 
 export const BaseFormItem = ({
@@ -163,6 +166,9 @@ export const BaseFormItem = ({
   fullWidth,
   style,
   helperTextStyle,
+  //
+  valuePropName = "value",
+  trigger = "onChange",
 }: IBaseFormItemProps) => {
   const { form } = useBaseForm();
 
@@ -178,12 +184,14 @@ export const BaseFormItem = ({
   const handleChange = useCallback((...e: any) => {
     debounceSetTouched(name!);
     if (directChange) {
+      //直接修改form中的value
       form.setFieldValue(name!, e[0], true);
     } else {
+      //取e.target.value
       form.handleChange(e[0]);
     }
 
-    const originChange = get(children, ["props", "onChange"]);
+    const originChange = get(children, ["props", trigger]);
     if (originChange) {
       originChange(...e);
     }
@@ -199,8 +207,8 @@ export const BaseFormItem = ({
         id: name,
         name,
         error,
-        value: get(form.values, name),
-        onChange: handleChange,
+        [valuePropName]: get(form.values, name),
+        [trigger]: handleChange,
       })}
       {showHelperText && <FormHelperText style={helperTextStyle}>{error ? errorMsg || " " : " "}</FormHelperText>}
     </FormControl>

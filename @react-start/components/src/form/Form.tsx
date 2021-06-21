@@ -59,6 +59,9 @@ export interface IFormItemProps extends Pick<IFormContext, "mode" | "labelStyle"
   name?: string;
   label?: ReactNode;
   directChange?: boolean;
+  //拓展兼容
+  valuePropName?: string;
+  trigger?: string;
 }
 
 export const FormItem = ({
@@ -71,6 +74,8 @@ export const FormItem = ({
   inputStyle,
   //
   directChange,
+  valuePropName,
+  trigger,
 }: IFormItemProps) => {
   const formContext = useForm();
   const { error, errorMsg } = useItemProps(name);
@@ -99,7 +104,13 @@ export const FormItem = ({
         </Grid>
         <Grid item style={{ ...formContext.inputStyle, ...inputStyle }}>
           {name ? (
-            <BaseFormItem name={name} fullWidth directChange={directChange} showHelperText={false}>
+            <BaseFormItem
+              name={name}
+              fullWidth
+              directChange={directChange}
+              showHelperText={false}
+              valuePropName={valuePropName}
+              trigger={trigger}>
               {children}
             </BaseFormItem>
           ) : (
