@@ -40,21 +40,47 @@ const ChildSubmit = () => {
 
 const BaseFormDemo = () => {
   const formRef = useRef<IFormik | undefined>();
+
+  const [show, setShow] = useState<boolean>(false);
+
   return (
     <div>
       BaseFormDemo
+      <Switch
+        checked={show}
+        onChange={(e) => {
+          setShow(e.target.checked);
+        }}
+      />
       <BaseForm
         formRef={formRef}
-        validationSchema={validationSchema}
         onSubmit={(values) => {
           console.log("@@@@@@@@", values);
         }}>
-        <BaseFormItem name={"email"} fullWidth>
+        <BaseFormItem
+          name={"email"}
+          fullWidth
+          schema={yup.string().email("Enter a valid email").required("Email is required")}>
           <TextField label={"Email"} />
         </BaseFormItem>
-        <BaseFormItem name={"password"} fullWidth>
+        <BaseFormItem
+          name={"password"}
+          fullWidth
+          schema={yup
+            .string()
+            .min(8, "Password should be of minimum 8 characters length")
+            .required("Password is required")}>
           <TextField label={"Password"} required />
         </BaseFormItem>
+
+        {show && (
+          <BaseFormItem
+            name={"extra"}
+            fullWidth
+            schema={yup.string().matches(RegExp("[1-9]"), { message: "必需数字" })}>
+            <TextField label={"Extra"} />
+          </BaseFormItem>
+        )}
 
         <Button color="primary" variant="contained" fullWidth type="submit">
           Submit
@@ -198,7 +224,7 @@ const RecommendFormDemo = () => {
 
 export const SearchFormDemo = () => {
   const [state, setState] = useState();
-  console.log("@@@@@@@@", state);
+
   return (
     <div>
       SearchForm
@@ -224,7 +250,7 @@ export const SearchFormDemo = () => {
 
 export const SimpleSearchFormDemo = () => {
   const [state, setState] = useState();
-  console.log("@@@@@@@@simple=", state);
+
   return (
     <div>
       SimpleSearchForm

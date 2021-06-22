@@ -16,10 +16,14 @@ import React, {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
+  useState,
 } from "react";
 import { FormControl, FormHelperText } from "@material-ui/core";
 import { get, debounce } from "lodash";
+import { BaseSchema, ObjectSchema, object } from "yup";
 
 export type Values = FormikValues;
 
@@ -94,13 +98,53 @@ export interface IBaseFormProps extends Omit<FormikConfig<Values>, "initialValue
 
 export interface IBaseFormContext {
   form: IFormik;
+  bindSchema?: (name: string, schema: BaseSchema) => void;
+  unbindSchema?: (name: string) => void;
 }
 
 const BaseFormContext = createContext<IBaseFormContext>({} as any);
 
 export const useBaseForm = () => useContext(BaseFormContext);
 
+type TSchema = ObjectSchema<any, any, any>;
+
 export const BaseForm = ({ formRef, children, initialValues, onSubmit, ...formikProps }: IBaseFormProps) => {
+  const schemaRef = useRef<TSchema>(formikProps?.validationSchema || object({}));
+  const [schema, setSchema] = useState<TSchema>(schemaRef.current);
+
+  const unmountRef = useRef<boolean>(false);
+  useEffect(() => {
+    return () => {
+      unmountRef.current = true;
+    };
+  }, []);
+
+  const debounceSetSchema = useCallback(
+    debounce(() => {
+      setSchema(schemaRef.current);
+    }, 300),
+    [],
+  );
+  const handleBindSchema = useCallback((name: string, s: BaseSchema) => {
+    if (unmountRef.current) {
+      return;
+    }
+    schemaRef.current = schemaRef.current.concat(
+      object({
+        [name]: s,
+      }),
+    );
+    debounceSetSchema();
+  }, []);
+  const handleUnbindSchema = useCallback((name: string) => {
+    if (unmountRef.current) {
+      return;
+    }
+
+    schemaRef.current = schemaRef.current.omit([name]);
+    debounceSetSchema();
+  }, []);
+
   const formik = useFormik({
     initialValues: initialValues || {},
     onSubmit: (values, formikHelpers) => {
@@ -109,6 +153,7 @@ export const BaseForm = ({ formRef, children, initialValues, onSubmit, ...formik
       }
     },
     ...formikProps,
+    validationSchema: schema,
   });
 
   if (formRef) {
@@ -116,7 +161,7 @@ export const BaseForm = ({ formRef, children, initialValues, onSubmit, ...formik
   }
 
   return (
-    <BaseFormContext.Provider value={{ form: formik }}>
+    <BaseFormContext.Provider value={{ form: formik, bindSchema: handleBindSchema, unbindSchema: handleUnbindSchema }}>
       <form noValidate onSubmit={formik.handleSubmit} onReset={formik.handleReset}>
         {children}
       </form>
@@ -141,36 +186,41 @@ export const useItemProps = (name?: string) => {
   };
 };
 
-export interface IBaseFormItemProps {
+//拓展兼容
+export interface CommonProps {
+  directChange?: boolean;
+  valuePropName?: string;
+  trigger?: string;
+  schema?: BaseSchema;
+}
+
+export interface IBaseFormItemProps extends CommonProps {
   children: ReactNode;
   //
   name?: string;
-  directChange?: boolean;
   showHelperText?: boolean;
   //style
   fullWidth?: boolean;
   style?: CSSProperties;
   helperTextStyle?: CSSProperties;
-  //拓展兼容
-  valuePropName?: string;
-  trigger?: string;
 }
 
 export const BaseFormItem = ({
   children,
   //
   name,
-  directChange,
   showHelperText = true,
   //
   fullWidth,
   style,
   helperTextStyle,
   //
+  directChange,
   valuePropName = "value",
   trigger = "onChange",
+  schema,
 }: IBaseFormItemProps) => {
-  const { form } = useBaseForm();
+  const { form, bindSchema, unbindSchema } = useBaseForm();
 
   const { error, errorMsg } = useItemProps(name);
 
@@ -195,6 +245,17 @@ export const BaseFormItem = ({
     if (originChange) {
       originChange(...e);
     }
+  }, []);
+
+  useEffect(() => {
+    if (name && schema && bindSchema) {
+      bindSchema(name, schema);
+    }
+    return () => {
+      if (name && schema && unbindSchema) {
+        unbindSchema(name);
+      }
+    };
   }, []);
 
   if (!name || !isValidElement(children)) {

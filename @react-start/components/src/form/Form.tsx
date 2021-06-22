@@ -2,7 +2,15 @@ import React, { CSSProperties, useContext } from "react";
 import { createContext, ReactNode } from "react";
 import { FormHelperText, Grid, GridTypeMap } from "@material-ui/core";
 
-import { BaseForm, BaseFormItem, IBaseFormContext, IBaseFormProps, useBaseForm, useItemProps } from "./BaseForm";
+import {
+  BaseForm,
+  BaseFormItem,
+  CommonProps,
+  IBaseFormContext,
+  IBaseFormProps,
+  useBaseForm,
+  useItemProps,
+} from "./BaseForm";
 
 export type TMode = "horizontal" | "vertical" | "inline";
 
@@ -54,14 +62,10 @@ export const Form = ({
   );
 };
 
-export interface IFormItemProps extends Pick<IFormContext, "mode" | "labelStyle" | "inputStyle"> {
+export interface IFormItemProps extends Pick<IFormContext, "mode" | "labelStyle" | "inputStyle">, CommonProps {
   children: ReactNode;
   name?: string;
   label?: ReactNode;
-  directChange?: boolean;
-  //拓展兼容
-  valuePropName?: string;
-  trigger?: string;
 }
 
 export const FormItem = ({
@@ -73,9 +77,7 @@ export const FormItem = ({
   labelStyle,
   inputStyle,
   //
-  directChange,
-  valuePropName,
-  trigger,
+  ...commonProps
 }: IFormItemProps) => {
   const formContext = useForm();
   const { error, errorMsg } = useItemProps(name);
@@ -104,13 +106,7 @@ export const FormItem = ({
         </Grid>
         <Grid item style={{ ...formContext.inputStyle, ...inputStyle }}>
           {name ? (
-            <BaseFormItem
-              name={name}
-              fullWidth
-              directChange={directChange}
-              showHelperText={false}
-              valuePropName={valuePropName}
-              trigger={trigger}>
+            <BaseFormItem name={name} fullWidth showHelperText={false} {...commonProps}>
               {children}
             </BaseFormItem>
           ) : (
