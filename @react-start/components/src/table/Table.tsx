@@ -162,6 +162,40 @@ export const Table = <RecordType extends BaseRecordType>({
     return { checked, indeterminate };
   }, [rowSection, newDataSource]);
 
+  const handleHeaderCheck = useCallback(
+    (e) => {
+      if (e.target.checked) {
+        //add current dataSource
+        const notAddList = filter(
+          newDataSource,
+          (item) => findIndex(rowSection!.selectedList, (d) => getRecordID(d) === getRecordID(item)) === -1,
+        );
+        rowSection?.onSelectChange([...rowSection!.selectedList, ...notAddList]);
+      } else {
+        //remove current dataSource
+        const result = filter(
+          rowSection!.selectedList,
+          (item) => findIndex(newDataSource, (s) => getRecordID(s) === getRecordID(item)) === -1,
+        );
+        rowSection?.onSelectChange(result);
+      }
+    },
+    [rowSection, newDataSource],
+  );
+
+  const handleItemCheck = useCallback(
+    (record: RecordType, checked: boolean) => {
+      if (checked) {
+        rowSection?.onSelectChange([...rowSection!.selectedList, record]);
+      } else {
+        rowSection?.onSelectChange(
+          filter(rowSection!.selectedList, (item) => getRecordID(item) !== getRecordID(record)),
+        );
+      }
+    },
+    [rowSection],
+  );
+
   return (
     <Paper style={{ position: "relative", minHeight: 200 }} {...PaperProps}>
       <TableContainer>
@@ -170,28 +204,7 @@ export const Table = <RecordType extends BaseRecordType>({
             <TableRow>
               {supportCheck && (
                 <TableCell>
-                  <Checkbox
-                    checked={checked}
-                    indeterminate={indeterminate}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        //add current dataSource
-                        const notAddList = filter(
-                          newDataSource,
-                          (item) =>
-                            findIndex(rowSection!.selectedList, (d) => getRecordID(d) === getRecordID(item)) === -1,
-                        );
-                        rowSection?.onSelectChange([...rowSection!.selectedList, ...notAddList]);
-                      } else {
-                        //remove current dataSource
-                        const result = filter(
-                          rowSection!.selectedList,
-                          (item) => findIndex(newDataSource, (s) => getRecordID(s) === getRecordID(item)) > -1,
-                        );
-                        rowSection?.onSelectChange(result);
-                      }
-                    }}
-                  />
+                  <Checkbox checked={checked} indeterminate={indeterminate} onChange={handleHeaderCheck} />
                 </TableCell>
               )}
               {map(newColumns, (column) => {
@@ -231,15 +244,7 @@ export const Table = <RecordType extends BaseRecordType>({
                     <TableCell>
                       <Checkbox
                         checked={some(rowSection?.selectedList, (item) => getRecordID(item) === getRecordID(data))}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            rowSection?.onSelectChange([...rowSection!.selectedList, data]);
-                          } else {
-                            rowSection?.onSelectChange(
-                              filter(rowSection!.selectedList, (item) => getRecordID(item) !== getRecordID(data)),
-                            );
-                          }
-                        }}
+                        onChange={(e) => handleItemCheck(data, e.target.checked)}
                       />
                     </TableCell>
                   )}
