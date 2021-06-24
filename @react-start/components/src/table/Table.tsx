@@ -57,6 +57,7 @@ export interface TableProps<RecordType extends BaseRecordType> extends TableOrig
   loading?: boolean;
   TableRowProps?: TableRowProps;
   PaperProps?: PaperProps;
+  footer?: ReactNode;
 }
 
 const OrderNumberDataIndex = "orderNumber$";
@@ -84,6 +85,8 @@ export const Table = <RecordType extends BaseRecordType>({
   //
   TableRowProps,
   PaperProps,
+  //
+  footer,
   ...tableProps
 }: TableProps<RecordType>) => {
   const getRecordID = useCallback(
@@ -259,21 +262,22 @@ export const Table = <RecordType extends BaseRecordType>({
           </TableBody>
         </TableOrigin>
       </TableContainer>
-      {size(newDataSource) > 0 && (
-        <Stack direction={"row-reverse"}>
-          {pagination && (
-            <Pagination
-              style={{ padding: "8px 10px" }}
-              shape="rounded"
-              {...paginationOrigin}
-              onChange={(page, pageSize) => {
-                setPagination({ page, pageSize });
-                paginationOrigin?.onChange && paginationOrigin.onChange(page, pageSize);
-              }}
-            />
-          )}
-        </Stack>
-      )}
+
+      <Stack direction={"row"} style={{ justifyContent: "space-between", alignItems: "center" }}>
+        {footer || <div />}
+        {pagination && size(newDataSource) > 0 && (
+          <Pagination
+            style={{ padding: "8px 10px" }}
+            shape="rounded"
+            {...paginationOrigin}
+            onChange={(page, pageSize) => {
+              setPagination({ page, pageSize });
+              paginationOrigin?.onChange && paginationOrigin.onChange(page, pageSize);
+            }}
+          />
+        )}
+      </Stack>
+
       {size(newDataSource) <= 0 && <NoData style={{ marginTop: 50 }} />}
       {loading && <Loading />}
     </Paper>
