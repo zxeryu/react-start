@@ -4,11 +4,12 @@ import { isNumber } from "lodash";
 import { Select } from "../input";
 import { map } from "lodash";
 
-export interface PaginationProps extends Omit<PaginationOriginProps, "count"> {
+export interface PaginationProps extends Omit<PaginationOriginProps, "count" | "onChange"> {
   total?: number;
   pageSize?: number;
   showSizeChange?: boolean;
   pageSizeOptions?: number[];
+  onChange?: (page: number, pageSize: number) => void;
 }
 
 export const DefaultPageSize = 10;
@@ -18,6 +19,7 @@ export const Pagination = ({
   showSizeChange,
   pageSizeOptions = [10, 20, 30, 50],
   page = 1,
+  onChange,
   style,
   ...props
 }: PaginationProps) => {
@@ -53,6 +55,7 @@ export const Pagination = ({
         count={paginationCount}
         onChange={(_, page) => {
           setCurrentPage(page);
+          onChange && onChange(page, pageSize);
         }}
       />
       {showSizeChange && (
@@ -75,7 +78,9 @@ export const Pagination = ({
             }}
             style={{ height: 30, fontSize: 14 }}
             onChange={(e) => {
-              setPageSize(e.target.value as number);
+              const pageSize = e.target.value as number;
+              setPageSize(pageSize);
+              onChange && onChange(currentPage, pageSize);
             }}
           />
           <span style={{ fontSize: 14 }}>行/页</span>

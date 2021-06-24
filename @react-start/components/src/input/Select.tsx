@@ -1,13 +1,14 @@
-import { Select as SelectOrigin, SelectProps, MenuItem } from "@material-ui/core";
+import { Select as SelectOrigin, SelectProps, MenuItem, MenuItemProps } from "@material-ui/core";
 import React from "react";
 import { TOptions } from "../type";
 import { map } from "lodash";
 
 export interface ISelectProps extends SelectProps {
   options?: TOptions;
+  MenuItemProps?: MenuItemProps;
 }
 
-export const Select = ({ options, ...otherProps }: ISelectProps) => {
+export const Select = ({ options, MenuItemProps, ...otherProps }: ISelectProps) => {
   return (
     <SelectOrigin
       MenuProps={{
@@ -18,7 +19,7 @@ export const Select = ({ options, ...otherProps }: ISelectProps) => {
       }}
       {...otherProps}>
       {map(options, (option) => (
-        <MenuItem key={option.value} value={option.value}>
+        <MenuItem key={option.value} value={option.value} {...MenuItemProps}>
           {option.label}
         </MenuItem>
       ))}
