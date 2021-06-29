@@ -24,7 +24,7 @@ import { NoData } from "../common/NoData";
 export declare type DataIndex = string | number | (string | number)[];
 export declare type GetRowKey<RecordType> = (record: RecordType, index?: number) => Key;
 
-type BaseRecordType = { [prop: string]: any };
+export type BaseRecordType = { [prop: string]: any };
 
 export interface ColumnType<RecordType extends BaseRecordType> {
   dataIndex?: DataIndex;
@@ -61,6 +61,7 @@ export interface TableProps<RecordType extends BaseRecordType> extends TableOrig
 }
 
 const OrderNumberDataIndex = "orderNumber$";
+const SelectedDataIndex = "selected$";
 
 const createOrderNumberColumn = (pageSize = DefaultPageSize, page = 1) => ({
   title: "序号",
@@ -122,8 +123,14 @@ export const Table = <RecordType extends BaseRecordType>({
         newColumns.unshift(createOrderNumberColumn(pagination?.pageSize, pagination?.page));
       }
     }
+    if (supportCheck) {
+      const index = findIndex(newColumns, (c) => c.dataIndex === SelectedDataIndex);
+      if (index === -1) {
+        newColumns.unshift({ dataIndex: SelectedDataIndex });
+      }
+    }
     return newColumns;
-  }, [columns, orderNumber, pagination?.page, pagination?.pageSize]);
+  }, [columns, orderNumber, pagination?.page, pagination?.pageSize, supportCheck]);
 
   const newDataSource = useMemo(() => {
     //页数
@@ -144,6 +151,8 @@ export const Table = <RecordType extends BaseRecordType>({
     }
     return data;
   }, [dataSource, sort, pagination?.pageSize, pagination?.page]);
+
+  /************************************** selected *****************************************************/
 
   const { checked, indeterminate } = useMemo(() => {
     if (size(rowSection?.selectedList) <= 0 || size(newDataSource) <= 0) {
@@ -199,17 +208,21 @@ export const Table = <RecordType extends BaseRecordType>({
   return (
     <Paper style={{ position: "relative", minHeight: 200 }} {...PaperProps}>
       <TableContainer>
-        <TableOrigin size={supportCheck ? "small" : undefined} {...tableProps}>
+        <TableOrigin {...tableProps}>
           <TableHead>
             <TableRow>
-              {supportCheck && (
-                <TableCell>
-                  <Checkbox checked={checked} indeterminate={indeterminate} onChange={handleHeaderCheck} />
-                </TableCell>
-              )}
               {map(newColumns, (column) => {
                 let node: ReactNode;
-                if (column.sort) {
+                if (column.dataIndex === SelectedDataIndex) {
+                  node = (
+                    <Checkbox
+                      style={{ padding: 0 }}
+                      checked={checked}
+                      indeterminate={indeterminate}
+                      onChange={handleHeaderCheck}
+                    />
+                  );
+                } else if (column.sort) {
                   node = (
                     <TableSortLabel
                       key={column.dataIndex as Key}
@@ -240,17 +253,17 @@ export const Table = <RecordType extends BaseRecordType>({
               const rKey = getRecordID(data, index);
               return (
                 <TableRow key={rKey} {...TableRowProps}>
-                  {supportCheck && (
-                    <TableCell>
-                      <Checkbox
-                        checked={some(rowSection?.selectedList, (item) => getRecordID(item) === getRecordID(data))}
-                        onChange={(e) => handleItemCheck(data, e.target.checked)}
-                      />
-                    </TableCell>
-                  )}
                   {map(newColumns, (column) => {
                     let cellItem: ReactNode;
-                    if (isFunction(column.render)) {
+                    if (column.dataIndex === SelectedDataIndex) {
+                      cellItem = (
+                        <Checkbox
+                          style={{ padding: 0 }}
+                          checked={some(rowSection?.selectedList, (item) => getRecordID(item) === getRecordID(data))}
+                          onChange={(e) => handleItemCheck(data, e.target.checked)}
+                        />
+                      );
+                    } else if (isFunction(column.render)) {
                       cellItem = column.render(get(data, column.dataIndex || ""), data, index);
                     } else {
                       cellItem = get(data, column.dataIndex || "", "");
@@ -270,7 +283,7 @@ export const Table = <RecordType extends BaseRecordType>({
 
       <Stack direction={"row"} style={{ justifyContent: "space-between", alignItems: "center" }}>
         {footer || <div />}
-        {pagination && size(newDataSource) > 0 && (
+        {paginationOrigin && size(newDataSource) > 0 && (
           <Pagination
             style={{ padding: "8px 10px" }}
             shape="rounded"
