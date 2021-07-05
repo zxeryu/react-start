@@ -31,6 +31,7 @@ export default [
       "lodash",
       "react",
       "formik",
+      "yup",
       "@material-ui/core",
       "@material-ui/icons",
       "@emotion/react",
