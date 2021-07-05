@@ -6,6 +6,7 @@ import { DragOperatorDemo } from "./component/DragOperatorDemo";
 import { ReWriteComponent } from "./component/ReWriteComponent";
 import { DragShowPage } from "./drag/DragShowPage";
 import { TableDemo } from "./component/TableDemo";
+import { TableRCDemo } from "./component/TableRCDemo";
 
 const Routes = {
   FormDemo,
@@ -14,6 +15,7 @@ const Routes = {
   ReWriteComponent,
   DragShowPage,
   TableDemo,
+  TableRCDemo,
 };
 
 export const App = () => {
