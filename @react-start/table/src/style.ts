@@ -4,6 +4,7 @@ const tableBorderRadiusBase = "2px";
 const tablePaddingVertical = "16px";
 const tablePaddingHorizontal = "16px";
 const tableHeaderBg = "#fafafa";
+const borderColor = "#f0f0f0";
 
 const paddingBase = `${tablePaddingVertical} ${tablePaddingHorizontal}`;
 
@@ -88,16 +89,16 @@ export const tableStyle = {
         fontWeight: 500,
         textAlign: "left",
         background: tableHeaderBg,
-        borderBottom: `1px solid #f0f0f0`,
+        borderBottom: `1px solid ${borderColor}`,
         transaction: "background 0.3s ease",
 
         "[colspan]:not([colspan='1'])": {
           textAlign: "center",
         },
 
-        ":not(:last-child):not(.@{table-prefix-cls}-selection-column):not(.@{table-prefix-cls}-row-expand-icon-cell):not([colspan])::before":
+        ":not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before":
           {
-            position: "relative",
+            position: "absolute",
             top: "50%",
             right: 0,
             width: 1,
@@ -105,6 +106,7 @@ export const tableStyle = {
             backgroundColor: "rgba(0, 0, 0, 0.06)",
             transform: "translateY(-50%)",
             transition: "background-color 0.3s",
+            content: `""`,
           },
       },
     },
@@ -117,7 +119,7 @@ export const tableStyle = {
   tbody: {
     tr: {
       td: {
-        borderBottom: `1px solid #f0f0f0`,
+        borderBottom: `1px solid ${borderColor}`,
         transaction: "background 0.3s",
 
         ".ant-table-wrapper:only-child": nestTableCommon,
@@ -146,14 +148,14 @@ export const tableStyle = {
   summary: {
     background: "white",
     div: {
-      boxShadow: "0 1px 0 #f0f0f0",
+      boxShadow: `0 1px 0 ${borderColor}`,
     },
     tr: {
       th: {
-        borderBottom: "1px solid #f0f0f0",
+        borderBottom: `1px solid ${borderColor}`,
       },
       td: {
-        borderBottom: "1px solid #f0f0f0",
+        borderBottom: `1px solid ${borderColor}`,
       },
     },
   },

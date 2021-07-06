@@ -1,30 +1,27 @@
 import React from "react";
 import RCTable from "rc-table";
 import { tableStyle } from "./style";
+import { TableProps as RCTableProps } from "rc-table/es/Table";
+import { ExpandableConfig } from "rc-table/es/interface";
+import { expandIcon } from "./ExpandIcon";
 
-const columns = [
-  { title: "title1", dataIndex: "a", key: "a", width: 100 },
-  { id: "123", title: "title2", dataIndex: "b", key: "b", width: 100 },
-  { title: "title3", dataIndex: "c", key: "c", width: 200 },
-  {
-    title: "Operations",
-    dataIndex: "",
+export interface TableProps<RecordType> extends RCTableProps<RecordType> {}
 
-    key: "d",
-    render: () => <a href="#">Delete</a>,
-  },
-];
+export const Table = <RecordType extends object = any>({ expandable, ...otherProps }: TableProps<RecordType>) => {
+  const mergedExpandable: ExpandableConfig<RecordType> = {
+    ...expandable,
+  };
 
-const data = [
-  { a: "123", key: "1" },
-  { a: "cdd", b: "edd", key: "2" },
-  { a: "1333", c: "eee", key: "3" },
-];
+  if (!mergedExpandable.expandIcon) {
+    mergedExpandable.expandIcon = expandIcon;
+  }
+  if (!mergedExpandable.columnWidth) {
+    mergedExpandable.columnWidth = 60;
+  }
 
-export const Table = () => {
   return (
     <div style={{ clear: "both", maxWidth: "100%" }}>
-      <RCTable {...{ css: tableStyle }} columns={columns} data={data} />
+      <RCTable {...{ css: tableStyle }} {...otherProps} expandable={mergedExpandable} />
     </div>
   );
 };
