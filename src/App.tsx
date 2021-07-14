@@ -5,7 +5,6 @@ import { FormHighDemo } from "./component/FormHighDemo";
 import { DragOperatorDemo } from "./component/DragOperatorDemo";
 import { ReWriteComponent } from "./component/ReWriteComponent";
 import { DragShowPage } from "./drag/DragShowPage";
-import { TableDemo } from "./component/TableDemo";
 import { TableRCDemo } from "./component/TableRCDemo";
 
 const Routes = {
@@ -14,7 +13,6 @@ const Routes = {
   DragOperatorDemo,
   ReWriteComponent,
   DragShowPage,
-  TableDemo,
   TableRCDemo,
 };
 
