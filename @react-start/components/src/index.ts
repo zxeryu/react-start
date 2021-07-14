@@ -6,3 +6,4 @@ export * from "./input";
 export * from "./picker";
 export * from "./date-picker";
 export * from "./cascader";
+export * from "./pagination";

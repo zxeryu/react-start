@@ -20,11 +20,12 @@ export const Pagination = ({
   pageSizeOptions = [10, 20, 30, 50],
   page = 1,
   onChange,
+  pageSize: paginationPageSize,
   style,
   ...props
 }: PaginationProps) => {
   const [currentPage, setCurrentPage] = useState<number>(page);
-  const [pageSize, setPageSize] = useState<number>(props.pageSize || DefaultPageSize);
+  const [pageSize, setPageSize] = useState<number>(paginationPageSize || DefaultPageSize);
 
   const paginationCount = useMemo(() => {
     if (!isNumber(total)) {

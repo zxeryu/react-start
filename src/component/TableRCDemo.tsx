@@ -1,26 +1,32 @@
-import { Table } from "@react-start/table";
+import { Table } from "@react-start/components-table";
 import React from "react";
 
-const columns = [
-  // { title: "", dataIndex: "expand", width: 60 },
-  { title: "title1", dataIndex: "a" },
-  { title: "title2", dataIndex: "b" },
-  { title: "title3", dataIndex: "c" },
-  {
-    title: "Operations",
-    dataIndex: "",
+const createData = (
+  name: string,
+  calories: number,
+  fat: number,
+  carbs: number,
+  protein: number,
+  description?: string,
+) => {
+  return {
+    name,
+    calories,
+    fat,
+    carbs,
+    protein,
+    description,
+  };
+};
 
-    key: "d",
-    render: () => <a href="#">Delete</a>,
-  },
-];
-
-const data = [
-  {
-    a: "123",
-    key: "1",
-    description:
-      "7月6日简报，星期二！\n" +
+const dataSource = [
+  createData(
+    "Cupcake",
+    305,
+    3.7,
+    67,
+    4.3,
+    "7月6日简报，星期二！\n" +
       "1、国家卫健委：全国新冠疫苗接种超13亿剂次；\n" +
       "2、全国共有13332个A级旅游景区，其中5A级景区302个；\n" +
       "3、风云三号E星发射成功，系全球首颗民用晨昏轨道气象卫星；\n" +
@@ -34,21 +40,62 @@ const data = [
       "11、世界银行报告：印度农村地区女方嫁妆约为男方彩礼7倍；\n" +
       "12、中国女排东京奥运会12人名单公布：朱婷、张常宁领衔；\n" +
       "【微语】本来无望的事，大胆尝试，往往能成功。——莎士比亚",
+  ),
+  createData("Donut", 452, 25.0, 51, 4.9, "456"),
+  createData("Eclair", 262, 16.0, 24, 6.0),
+  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
+  createData("Gingerbread", 356, 16.0, 49, 3.9),
+  createData("Honeycomb", 408, 3.2, 87, 6.5),
+  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
+  createData("Jelly Bean", 375, 0.0, 94, 0.0),
+  createData("KitKat", 518, 26.0, 65, 7.0),
+  createData("Lollipop", 392, 0.2, 98, 0.0),
+  createData("Marshmallow", 318, 0, 81, 2.0),
+  createData("Nougat", 360, 19.0, 9, 37.0),
+  createData("Oreo", 437, 18.0, 63, 4.0),
+];
+
+const columns = [
+  {
+    title: "Dessert (100g serving)",
+    dataIndex: "name",
   },
-  { a: "cdd", b: "edd", key: "2", description: "456" },
-  { a: "1333", c: "eee", key: "3" },
+  {
+    title: "Calories",
+    dataIndex: "calories",
+  },
+  {
+    title: <>Fat&nbsp;(g)</>,
+    dataIndex: "fat",
+  },
+  {
+    title: <>Carbs&nbsp;(g)</>,
+    dataIndex: "carbs",
+  },
+  {
+    title: <>Protein&nbsp;(g)</>,
+    dataIndex: "protein",
+  },
 ];
 
 export const TableRCDemo = () => {
   return (
     <div>
       <Table
+        prefixCls={"ant-table"}
         columns={columns}
-        data={data}
+        dataSource={dataSource}
         expandable={{
           expandedRowRender: (record) => <p style={{ margin: 0 }}>{record.description}</p>,
           rowExpandable: (record) => !!record.description,
         }}
+        rowKey={"name"}
+        rowSelection={{
+          onChange: (selectedRowKeys, selectedRows) => {
+            console.log("#########", selectedRowKeys, selectedRows);
+          },
+        }}
+        pagination={{}}
       />
     </div>
   );

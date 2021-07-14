@@ -108,6 +108,18 @@ export const tableStyle = {
             transition: "background-color 0.3s",
             content: `""`,
           },
+
+        ".ant-table-selection-column::before": {
+          position: "absolute",
+          top: "50%",
+          right: 0,
+          width: 1,
+          height: "1.6em",
+          backgroundColor: "red",
+          transform: "translateY(-50%)",
+          transition: "background-color 0.3s",
+          content: `""`,
+        },
       },
     },
     "tr:not(:last-child) > th": {
