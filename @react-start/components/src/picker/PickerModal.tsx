@@ -96,6 +96,8 @@ export const PickerModal = ({
   onChange,
   onConfirm,
   //
+  initTextLabel,
+  //
   round = true,
   //
   ...pickerProps
@@ -105,6 +107,7 @@ export const PickerModal = ({
   onChange?: (values: (string | number)[], labels: string[], indexs: number[]) => void;
   onConfirm?: (values: (string | number)[], labels: string[], indexs: number[]) => void;
   value?: (string | number)[];
+  initTextLabel?: string;
 }) => {
   const columnsRef = useRef<PickerProps["columns"]>(pickerProps.columns);
   columnsRef.current = pickerProps.columns;
@@ -113,11 +116,21 @@ export const PickerModal = ({
 
   const [selectValue, setSelectValue] = useState<number[]>([]);
 
-  const [showText, setShowText] = useState<string>("");
+  const [showText, setShowText] = useState<string>(() => {
+    if (value && size(pickerProps.columns) > 0) {
+      const is = getIndex(pickerProps.mode, columnsRef.current, value);
+      const { labels } = getValue(pickerProps.mode, pickerProps.columns, is);
+      const text = join(labels, ",");
+      if (text) {
+        return text;
+      }
+    }
+    return initTextLabel || "";
+  });
   const inputRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (value && columnsRef.current) {
+    if (value && size(columnsRef.current) > 0) {
       const is = getIndex(pickerProps.mode, columnsRef.current, value);
       setSelectValue(is);
     }

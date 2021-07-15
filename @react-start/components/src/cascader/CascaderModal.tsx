@@ -1,8 +1,24 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNextEffect } from "../../../hooks";
 import { Cascader, CascaderProps } from "./Cascader";
 import { TextFieldProps, TextField, Drawer } from "@material-ui/core";
-import { isString } from "lodash";
+import { isString, size, find, forEach } from "lodash";
+import { IOption } from "../type";
+
+const getOptionByValue = (
+  columns: CascaderProps["columns"],
+  value: CascaderProps["value"],
+  cb: (option: IOption) => void,
+) => {
+  const target = find(columns, (item) => item.value === value);
+  if (target) {
+    cb(target);
+    return;
+  }
+  forEach(columns, (item) => {
+    size(item.children) > 0 && getOptionByValue(item.children!, value, cb);
+  });
+};
 
 export const CascaderModal = ({
   textFieldProps,
@@ -19,6 +35,17 @@ export const CascaderModal = ({
   }, [open]);
 
   const [textValue, setTextValue] = useState<string>(initTextLabel || "");
+
+  //init show option
+  useEffect(() => {
+    if (size(cascaderProps.columns) <= 0 || !cascaderProps.value) {
+      return;
+    }
+    getOptionByValue(cascaderProps.columns, cascaderProps.value, (option) => {
+      console.log(option);
+      isString(option.label) && setTextValue(option.label);
+    });
+  }, []);
 
   return (
     <>
