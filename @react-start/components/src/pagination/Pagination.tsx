@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef } from "react";
 import { Stack, Pagination as PaginationOrigin, PaginationProps as PaginationOriginProps } from "@material-ui/core";
 import { isNumber } from "lodash";
 import { Select } from "../input";
 import { map } from "lodash";
+import { useControlState } from "@react-start/hooks";
 
 export interface PaginationProps extends Omit<PaginationOriginProps, "count" | "onChange"> {
   total?: number;
@@ -24,15 +25,37 @@ export const Pagination = ({
   style,
   ...props
 }: PaginationProps) => {
-  const [currentPage, setCurrentPage] = useState<number>(page);
-  const [pageSize, setPageSize] = useState<number>(paginationPageSize || DefaultPageSize);
+  const pageRef = useRef<number>(1);
+  const pageSizeRef = useRef<number>(DefaultPageSize);
+
+  const [currentPage, setCurrentPage] = useControlState<number>({
+    value: page,
+    defaultValue: props.defaultPage,
+    onChange: onChange
+      ? (page) => {
+          onChange(page, pageSizeRef.current!);
+        }
+      : undefined,
+  });
+  pageRef.current = currentPage!;
+
+  const [pageSize, setPageSize] = useControlState<number>({
+    value: paginationPageSize || DefaultPageSize,
+    defaultValue: DefaultPageSize,
+    onChange: onChange
+      ? (pageSize) => {
+          onChange(pageRef.current!, pageSize);
+        }
+      : undefined,
+  });
+  pageSizeRef.current = pageSize!;
 
   const paginationCount = useMemo(() => {
     if (!isNumber(total)) {
       return 1;
     }
-    const int = parseInt((total / pageSize) as any, 10);
-    const remaining = total % pageSize;
+    const int = parseInt((total / pageSize!) as any, 10);
+    const remaining = total % pageSize!;
     if (int < 1) {
       return 1;
     }
@@ -45,8 +68,8 @@ export const Pagination = ({
   return (
     <Stack direction={"row"} style={{ alignItems: "center", ...style }} spacing={0.5}>
       {total && (
-        <span style={{ fontSize: 14 }}>{`第${(currentPage - 1) * pageSize + 1}-${Math.min(
-          currentPage * pageSize,
+        <span style={{ fontSize: 14 }}>{`第${(currentPage! - 1) * pageSize! + 1}-${Math.min(
+          currentPage! * pageSize!,
           total,
         )}条/共${total}条`}</span>
       )}
@@ -56,7 +79,6 @@ export const Pagination = ({
         count={paginationCount}
         onChange={(_, page) => {
           setCurrentPage(page);
-          onChange && onChange(page, pageSize);
         }}
       />
       {showSizeChange && (
@@ -81,7 +103,6 @@ export const Pagination = ({
             onChange={(e) => {
               const pageSize = e.target.value as number;
               setPageSize(pageSize);
-              onChange && onChange(currentPage, pageSize);
             }}
           />
           <span style={{ fontSize: 14 }}>行/页</span>

@@ -77,8 +77,6 @@ export const Table = <RecordType extends object = any>({
   // ========================== Pagination ==========================
   const [mergedPagination] = usePagination(size(dataSource), pagination);
 
-  console.log("##########", mergedPagination);
-
   // ========================== Data ==========================
   const pageData = useMemo<RecordType[]>(() => {
     if (!pagination) {

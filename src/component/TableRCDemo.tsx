@@ -1,5 +1,5 @@
 import { Table } from "@react-start/components-table";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const createData = (
   name: string,
@@ -79,6 +79,19 @@ const columns = [
 ];
 
 export const TableRCDemo = () => {
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+
+  console.log("111111", page);
+
+  useEffect(() => {
+    if (page !== 1) {
+      setTimeout(() => {
+        setPage(1);
+      }, 1000);
+    }
+  }, [page]);
+
   return (
     <div>
       <Table
@@ -95,7 +108,15 @@ export const TableRCDemo = () => {
             console.log("#########", selectedRowKeys, selectedRows);
           },
         }}
-        pagination={{}}
+        pagination={{
+          page: page,
+          pageSize: pageSize,
+          onChange: (page, pageSize) => {
+            setPage(page);
+            setPageSize(pageSize);
+          },
+          showSizeChange: true,
+        }}
       />
     </div>
   );
