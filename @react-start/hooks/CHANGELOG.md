@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/zxeryu/react-start/compare/@react-start/hooks@0.1.0...@react-start/hooks@0.2.0) (2021-07-15)
+
+### Features
+
+- **hooks:** useControlState ([24ef183](https://github.com/zxeryu/react-start/commit/24ef18377cad55f89f5f1f13079814dcd5e7b0b1))
+
 # 0.1.0 (2021-05-13)
 
 ### Bug Fixes
