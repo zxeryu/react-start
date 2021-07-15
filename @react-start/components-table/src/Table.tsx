@@ -1,7 +1,7 @@
 import React, { Key, ReactNode, useCallback, useMemo } from "react";
 import RCTable from "rc-table";
 import { tableStyle } from "./style";
-import { TableProps as RCTableProps, INTERNAL_HOOKS } from "rc-table/lib/Table";
+import { TableProps as RCTableProps } from "rc-table/lib/Table";
 import { ColumnsType, GetRowKey } from "rc-table/lib/interface";
 import { expandIcon } from "./ExpandIcon";
 import { useSelection } from "./useSelection";
@@ -117,7 +117,7 @@ export const Table = <RecordType extends object = any>({
         data={pageData}
         rowKey={getRowKey}
         expandable={mergedExpandable}
-        internalHooks={INTERNAL_HOOKS}
+        internalHooks={"rc-table-internal-hook"}
         transformColumns={transformColumns}
       />
       <Stack direction={"row"} style={{ justifyContent: "space-between", alignItems: "center", padding: "8px 10px" }}>

@@ -1,6 +1,6 @@
 import { TableRowSelection, TransformColumns } from "./Table";
 import React, { ChangeEvent, Key, useCallback, useMemo } from "react";
-import { ColumnsType, ColumnType, GetRowKey } from "rc-table/es/interface";
+import { ColumnsType, ColumnType, GetRowKey } from "rc-table/lib/interface";
 import { useControlState } from "@react-start/hooks";
 import { Checkbox } from "@material-ui/core";
 import { every, some, forEach, map } from "lodash";

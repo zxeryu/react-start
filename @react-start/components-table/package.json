@@ -32,6 +32,8 @@
     "@emotion/styled": "^11.x",
     "@material-ui/core": "^5.x",
     "@material-ui/icons": "^5.x",
+    "@react-start/hooks": "*",
+    "@react-start/components": "*",
     "lodash": "^4.x"
   }
 }
