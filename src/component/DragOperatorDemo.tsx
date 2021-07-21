@@ -7,7 +7,7 @@ import {
   OperateElementItemProp,
   useSetProp,
 } from "@react-start/cheng";
-import { Button } from "@material-ui/core";
+import { Button, Stack } from "@material-ui/core";
 
 const Menu = ({ label, ...otherProps }: { label: string }) => (
   <div {...otherProps} style={{ padding: "5px 8px" }}>
@@ -66,6 +66,7 @@ const OneElement: IElementItem = {
     text: { name: "文本", type: "string", inputType: "input", rows: 5 },
   },
   name: "ElementOne",
+  canDrag: true,
 };
 
 const TestValueSet = (props: any) => {
@@ -86,6 +87,7 @@ const TwoElement: IElementItem = {
     },
   },
   name: "ElementTwo",
+  canDrag: true,
 };
 
 const TestPageSet = ({ data }: { data?: IOperateElementItem }) => {
@@ -108,6 +110,7 @@ const ThreeElement: IElementItem = {
   showElement: <ElementThree />,
   setElement: <TestPageSet />,
   name: "ElementThree",
+  canDrag: true,
 };
 
 const colorInputProps = {
@@ -143,6 +146,7 @@ const ColorOperateItem = {
     footerHeading: { name: "Heading", ...colorInputProps },
     footerLight: { name: "Text Light", ...colorInputProps },
   },
+  isExtra: true,
 };
 
 const ComposeOperateItem = {
@@ -151,6 +155,7 @@ const ComposeOperateItem = {
   directShow: false,
   menuElement: <Menu label={"组合"} />,
   name: "组合",
+  isExtra: true,
   elementList: [ColorOperateItem],
 };
 
@@ -174,16 +179,19 @@ export const DragOperatorDemo = () => {
         update
       </Button>
 
-      <Operator
-        elements={elements}
-        operateElements={OElements}
-        showAreaProps={{ width: showWidth }}
-        extraOperateElements={[ComposeOperateItem as any]}
-        onExtraChange={(id, key, value) => {
-          console.log("@@@@@@@@@", id, key, value);
-        }}>
+      <Stack direction={"row"} css={{ height: "80vh" }}>
+        <Operator
+          elements={elements}
+          operateElements={OElements}
+          extraOperateElements={[ComposeOperateItem as any]}
+          onExtraChange={(id, key, value) => {
+            console.log("@@@@@@@@@", id, key, value);
+          }}
+          header={<div>Header</div>}
+          footer={<div>Footer</div>}
+        />
         <iframe ref={frameRef} src={"/DragShowPage"} width={showWidth} />
-      </Operator>
+      </Stack>
     </div>
   );
 };

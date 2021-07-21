@@ -17,10 +17,9 @@ import React, {
 import { IElementItem, IOperateElementItem } from "./types";
 import { PropFun, useDrop, useDrag } from "@react-start/hooks";
 import { PlaceholderElement, StackElement } from "./Elements";
-import { debounce, get, map, filter, set } from "lodash";
-import { useOperator } from "./Compose";
+import { debounce, get, map } from "lodash";
+import { useOperator } from "./Operator";
 import { Stack } from "@material-ui/core";
-import { OperatePanel } from "./OperatePanel";
 
 const SubOperatorContext = createContext<{
   //当前拖动的Element from：left
@@ -52,7 +51,7 @@ export const OperateItem = ({ oel, onClick }: { oel: IOperateElementItem; onClic
     "data-oid": oel.oid,
     "data-id": oel.id,
     data: oel,
-    ...(get(oel, "canDrag", true) ? getDragProps(oel.oid) : null),
+    ...(get(oel, "canDrag") ? getDragProps(oel.oid) : null),
     style: {
       borderTop: currentOElementID === oel.oid ? "2px solid blue" : "none",
     },
@@ -62,18 +61,8 @@ export const OperateItem = ({ oel, onClick }: { oel: IOperateElementItem; onClic
   });
 };
 
-export const OperateArea = ({
-  operateAreaProps,
-  operatePanelProps,
-  operateExtra,
-  onExtraChange,
-}: {
-  operatePanelProps?: CSSProperties;
-  operateAreaProps?: CSSProperties;
-  operateExtra?: IOperateElementItem[];
-  onExtraChange?: (id: string, key: string, value: any) => void;
-}) => {
-  const { data, operator, hoveringRef, changeRef } = useOperator();
+export const OperateArea = ({ operateAreaProps }: { operateAreaProps?: CSSProperties }) => {
+  const { data, operator, hoveringRef, changeRef, addPanel } = useOperator();
 
   //当前拖动的element
   const [dragElement, setDragElement] = useState<IElementItem>();
@@ -155,8 +144,6 @@ export const OperateArea = ({
     },
   });
 
-  const [currentOEL, setCurrentOEL] = useState<IOperateElementItem[]>([]);
-
   return (
     <SubOperatorContext.Provider
       value={{
@@ -165,44 +152,18 @@ export const OperateArea = ({
         getDragProps,
         setDragElement,
       }}>
-      <Stack style={{ position: "relative", ...operateAreaProps }}>
+      <Stack style={{ flexGrow: 1, ...operateAreaProps }}>
         <Stack {...dropProps}>
           {map(data, (oel) => (
             <OperateItem
               key={oel.oid}
               oel={oel}
               onClick={() => {
-                setCurrentOEL((prevState) => [...prevState, oel]);
+                addPanel(oel);
               }}
             />
           ))}
         </Stack>
-
-        <Stack>
-          {map(operateExtra, (oel) => (
-            <OperateItem
-              key={oel.oid}
-              oel={oel}
-              onClick={() => {
-                set(oel, "isExtra", true);
-                setCurrentOEL((prevState) => [...prevState, oel]);
-              }}
-            />
-          ))}
-        </Stack>
-        {map(currentOEL, (oel) => (
-          <OperatePanel
-            key={oel.oid}
-            style={operatePanelProps}
-            oel={oel}
-            onClose={(oid) => setCurrentOEL((prevState) => filter(prevState, (oel) => oel.oid !== oid))}
-            onOpen={(oel) => {
-              set(oel, "isExtra", true);
-              setCurrentOEL((prevState) => [...prevState, oel]);
-            }}
-            onExtraChange={onExtraChange}
-          />
-        ))}
       </Stack>
     </SubOperatorContext.Provider>
   );

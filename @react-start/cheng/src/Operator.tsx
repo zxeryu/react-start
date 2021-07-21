@@ -12,11 +12,11 @@ import React, {
   useState,
 } from "react";
 import { Stack } from "@material-ui/core";
-import { OperateArea } from "./OperateArea";
-import { ShowArea } from "./ShowArea";
+import { OperateArea, OperateItem } from "./OperateArea";
 import { IElementItem, IOperateElementItem } from "./types";
-import { find, forEach, size } from "lodash";
+import { find, forEach, size, map, filter } from "lodash";
 import { addItem, generateId, moveItemById, removeItem } from "./util";
+import { OperatePanel } from "./OperatePanel";
 
 export interface OperatorContextProps {
   //注册的elements
@@ -34,6 +34,8 @@ export interface OperatorContextProps {
   //
   hoveringRef: MutableRefObject<boolean>;
   changeRef: MutableRefObject<boolean>;
+  //
+  addPanel: (oel: IOperateElementItem) => void;
 }
 
 const OperatorContext = createContext<OperatorContextProps>({} as any);
@@ -48,14 +50,14 @@ export interface OperateElementItemProp extends Omit<IOperateElementItem, "oid" 
 export interface OperatorProps {
   elements: IElementItem[];
   operateElements: OperateElementItemProp[];
-  showAreaProps?: CSSProperties;
   operatePanelProps?: CSSProperties;
   operateAreaProps?: CSSProperties;
   style?: CSSProperties;
   extraOperateElements?: IOperateElementItem[];
   onExtraChange?: (id: string, key: string, value: any) => void;
-  children?: ReactNode;
   onChange?: (data: IOperateElementItem[]) => void;
+  header?: ReactNode;
+  footer?: ReactNode;
 }
 
 const setOID = (oels: OperateElementItemProp[]) => {
@@ -72,14 +74,14 @@ const setOID = (oels: OperateElementItemProp[]) => {
 export const Operator = ({
   elements,
   operateElements,
-  showAreaProps,
   operateAreaProps,
   operatePanelProps,
   style,
   extraOperateElements,
   onExtraChange,
   onChange,
-  children,
+  header,
+  footer,
 }: OperatorProps) => {
   const getElement = useCallback(
     (id: string) => {
@@ -128,7 +130,7 @@ export const Operator = ({
   const hoveringRef = useRef<boolean>(false);
   const changeRef = useRef<boolean>(false);
 
-  //onChange事件
+  //************************************ onChange事件 ******************************************
   useEffect(() => {
     if (!onChange) {
       return;
@@ -141,6 +143,14 @@ export const Operator = ({
       changeRef.current = false;
     }
   }, [data]);
+
+  //************************************ panel操作 ******************************************
+
+  const [openPanels, setOpenPanels] = useState<IOperateElementItem[]>([]);
+
+  const addPanel = useCallback((oel: IOperateElementItem) => {
+    setOpenPanels((prev) => [...prev, oel]);
+  }, []);
 
   return (
     <OperatorContext.Provider
@@ -156,17 +166,42 @@ export const Operator = ({
         },
         hoveringRef,
         changeRef,
+        addPanel,
       }}>
-      <Stack direction={"row"} style={{ height: "100%", ...style }}>
-        <Stack style={{ width: 300, minWidth: 300, height: "100%" }}>
-          <OperateArea
-            operateAreaProps={operateAreaProps}
-            operatePanelProps={operatePanelProps}
-            operateExtra={extraOperateElements}
+      <Stack style={{ position: "relative", width: 300, minWidth: 300, height: "100%", ...style }} direction={"column"}>
+        {header}
+        <OperateArea operateAreaProps={operateAreaProps} />
+
+        <Stack>
+          {map(extraOperateElements, (oel) => (
+            <OperateItem
+              key={oel.oid}
+              oel={oel}
+              onClick={() => {
+                addPanel(oel);
+              }}
+            />
+          ))}
+        </Stack>
+
+        {footer}
+
+        {map(openPanels, (oel) => (
+          <OperatePanel
+            key={oel.oid}
+            style={operatePanelProps}
+            oel={oel}
+            onClose={(oid) => {
+              setOpenPanels((prev) => {
+                return filter(prev, (o) => o.oid !== oid);
+              });
+            }}
+            onOpen={(oel) => {
+              setOpenPanels((prev) => [...prev, oel]);
+            }}
             onExtraChange={onExtraChange}
           />
-        </Stack>
-        <Stack style={{ flexGrow: 1, alignItems: "center" }}>{children || <ShowArea {...showAreaProps} />}</Stack>
+        ))}
       </Stack>
     </OperatorContext.Provider>
   );

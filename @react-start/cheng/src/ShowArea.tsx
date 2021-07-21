@@ -2,7 +2,7 @@
  * 显示内容
  */
 import React, { cloneElement, CSSProperties, isValidElement } from "react";
-import { useOperator } from "./Compose";
+import { useOperator } from "./Operator";
 import { Stack } from "@material-ui/core";
 import { IOperateElementItem } from "./types";
 import { map } from "lodash";

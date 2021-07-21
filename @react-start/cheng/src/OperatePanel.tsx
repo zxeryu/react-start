@@ -12,7 +12,7 @@ import { IOperateElementItem, SetProp } from "./types";
 import { Checkbox, FormControlLabel, IconButton, Stack, TextField, MenuItem } from "@material-ui/core";
 import { Close as CloseIcon } from "@material-ui/icons";
 import { map, get, isNumber, size } from "lodash";
-import { useOperator } from "./Compose";
+import { useOperator } from "./Operator";
 
 const OSetPropsContext = createContext<{
   setProp: (propKey: string, prop: any) => void;
