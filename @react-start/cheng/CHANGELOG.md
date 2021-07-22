@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.5](https://github.com/zxeryu/react-start/compare/@react-start/cheng@0.1.4...@react-start/cheng@0.1.5) (2021-07-22)
+
+### Bug Fixes
+
+- **cheng:** extra set element ([6685c4c](https://github.com/zxeryu/react-start/commit/6685c4c46325f072e359c14d8dbd0619572c1278))
+
 ## [0.1.4](https://github.com/zxeryu/react-start/compare/@react-start/cheng@0.1.3...@react-start/cheng@0.1.4) (2021-06-21)
 
 ### Bug Fixes
