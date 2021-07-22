@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   IElementItem,
   Operator,
@@ -8,7 +8,7 @@ import {
   useSetProp,
 } from "@react-start/cheng";
 import { Button, Stack } from "@material-ui/core";
-import { omit, get } from "lodash";
+import { omit, get, reduce, pick } from "lodash";
 import { OperatePanelProps } from "../../@react-start/cheng/src";
 
 const Menu = ({ label, ...otherProps }: { label: string }) => (
@@ -25,6 +25,7 @@ const OneElement: IElementItem = {
     showThree: true,
     size: 10,
     text: "",
+    customValue: 0,
   },
   setProps: {
     showOne: { name: "第一部分", type: "boolean" },
@@ -36,6 +37,7 @@ const OneElement: IElementItem = {
   },
   name: "ElementOne",
   canDrag: true,
+  id: "ElementOne",
 };
 
 //自定义设置Item
@@ -58,6 +60,7 @@ const TwoElement: IElementItem = {
   },
   name: "ElementTwo",
   canDrag: true,
+  id: "ElementTwo",
 };
 
 //自定义设置页面
@@ -82,6 +85,7 @@ const ThreeElement: IElementItem = {
   setElement: <TestPageSet />,
   name: "ElementThree",
   canDrag: true,
+  id: "ElementThree",
 };
 
 const colorInputProps = {
@@ -167,6 +171,22 @@ export const DragOperatorDemo = () => {
 
   const frameRef = useRef<HTMLIFrameElement | null>(null);
 
+  useEffect(() => {
+    const initData = reduce(
+      OElements,
+      (pair, item) => {
+        return {
+          ...pair,
+          [item.id!]: pick(item, "props"),
+        };
+      },
+      {},
+    );
+    setTimeout(() => {
+      frameRef.current?.contentWindow?.postMessage({ type: "compose", data: initData }, "*");
+    }, 1000);
+  }, []);
+
   return (
     <div>
       <Button onClick={() => setShowWidth("100%")}>pc</Button>
@@ -185,7 +205,20 @@ export const DragOperatorDemo = () => {
           extraOperateElements={[ComposeOperateItem as any]}
           extraSetElementMap={ExtraSetElementMap}
           onChange={(data) => {
-            console.log("@@@@@@@@@@", data);
+            const composeData = reduce(
+              data,
+              (pair, item) => {
+                return {
+                  ...pair,
+                  [item.id!]: pick(item, "props"),
+                };
+              },
+              {},
+            );
+
+            console.log("@@@@@@@@@@", composeData);
+
+            frameRef.current?.contentWindow?.postMessage({ type: "compose", data: composeData }, "*");
           }}
           onExtraChange={(id, key, value) => {
             console.log("@@@@@@@@@", id, key, value);

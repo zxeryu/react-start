@@ -1,10 +1,11 @@
 import React, { HTMLAttributes, useEffect, useState } from "react";
 import { get } from "lodash";
 import { OperateElementItemProp } from "../../@react-start/cheng";
+import { Stack } from "@material-ui/core";
 
 type Props = HTMLAttributes<HTMLDivElement> & { data?: OperateElementItemProp };
 
-export const ElementOne = ({ data, ...props }: Props) => {
+const ElementOne = ({ data, ...props }: Props) => {
   return (
     <div {...props}>
       ElementOne content
@@ -13,11 +14,12 @@ export const ElementOne = ({ data, ...props }: Props) => {
       {data?.props?.showThree && <div>1---3</div>}
       <div>数字：{data?.props?.size}</div>
       <div>文本：{data?.props?.text}</div>
+      <div>自定义设置值：{data?.props?.customValue}</div>
     </div>
   );
 };
 
-export const ElementTwo = ({ data, ...props }: Props) => {
+const ElementTwo = ({ data, ...props }: Props) => {
   return (
     <div {...props}>
       ElementTwo content
@@ -26,7 +28,7 @@ export const ElementTwo = ({ data, ...props }: Props) => {
   );
 };
 
-export const ElementThree = ({ data, ...props }: Props) => {
+const ElementThree = ({ data, ...props }: Props) => {
   return (
     <div {...props}>
       ElementThree content
@@ -38,11 +40,16 @@ export const ElementThree = ({ data, ...props }: Props) => {
 export const DragShowPage = () => {
   const [count, setCount] = useState<number>(0);
 
+  const [composeData, setComposeData] = useState<any>({});
+
   useEffect(() => {
     window.addEventListener("message", (e) => {
       const type = get(e.data, "type");
       if (type === "update") {
         setCount((prevState) => prevState + 1);
+      }
+      if (type === "compose") {
+        setComposeData(get(e.data, "data"));
       }
     });
   }, []);
@@ -52,6 +59,11 @@ export const DragShowPage = () => {
       DragShowPage
       {count}
       <button onClick={() => setCount((prevState) => prevState + 1)}>update</button>
+      <Stack spacing={2}>
+        <ElementOne data={get(composeData, "ElementOne")} />
+        <ElementTwo data={get(composeData, "ElementTwo")} />
+        <ElementThree data={get(composeData, "ElementThree")} />
+      </Stack>
     </div>
   );
 };
