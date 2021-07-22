@@ -16,7 +16,7 @@ import { OperateArea, OperateItem } from "./OperateArea";
 import { IElementItem, IOperateElementItem } from "./types";
 import { find, forEach, size, map, filter } from "lodash";
 import { addItem, generateId, moveItemById, removeItem } from "./util";
-import { OperatePanel } from "./OperatePanel";
+import { OperatePanel, OperatePanelProps } from "./OperatePanel";
 
 export interface OperatorContextProps {
   //注册的elements
@@ -58,6 +58,7 @@ export interface OperatorProps {
   onChange?: (data: IOperateElementItem[]) => void;
   header?: ReactNode;
   footer?: ReactNode;
+  extraSetElementMap?: OperatePanelProps["extraSetElementMap"];
 }
 
 const setOID = (oels: OperateElementItemProp[]) => {
@@ -82,6 +83,7 @@ export const Operator = ({
   onChange,
   header,
   footer,
+  extraSetElementMap,
 }: OperatorProps) => {
   const getElement = useCallback(
     (id: string) => {
@@ -191,6 +193,7 @@ export const Operator = ({
             key={oel.oid}
             style={operatePanelProps}
             oel={oel}
+            extraSetElementMap={extraSetElementMap}
             onClose={(oid) => {
               setOpenPanels((prev) => {
                 return filter(prev, (o) => o.oid !== oid);

@@ -6,109 +6,19 @@ import React, {
   isValidElement,
   cloneElement,
   CSSProperties,
-  useState,
 } from "react";
-import { IOperateElementItem, SetProp } from "./types";
-import { Checkbox, FormControlLabel, IconButton, Stack, TextField, MenuItem } from "@material-ui/core";
+import { IOperateElementItem } from "./types";
+import { IconButton, Stack } from "@material-ui/core";
 import { Close as CloseIcon } from "@material-ui/icons";
-import { map, get, isNumber, size } from "lodash";
+import { map, get, size } from "lodash";
 import { useOperator } from "./Operator";
+import { BooleanSet, NumberSet, SelectSet, SetProps, StringSet } from "./input/basic";
 
 const OSetPropsContext = createContext<{
   setProp: (propKey: string, prop: any) => void;
 }>({} as any);
 
 export const useSetProp = () => useContext(OSetPropsContext);
-
-interface SetProps extends SetProp {
-  propKey: string;
-  value?: any;
-}
-
-export const BooleanSet = ({ name, propKey, value }: SetProps) => {
-  const { setProp } = useSetProp();
-
-  const [checked, setChecked] = useState<boolean>(value);
-
-  return (
-    <FormControlLabel
-      checked={checked}
-      control={<Checkbox />}
-      label={name}
-      onChange={(e) => {
-        setProp(propKey, (e.target as any).checked);
-        setChecked((e.target as any).checked);
-      }}
-    />
-  );
-};
-
-export const NumberSet = ({ name, propKey, value }: SetProps) => {
-  const { setProp } = useSetProp();
-
-  return (
-    <TextField
-      size={"small"}
-      type={"number"}
-      label={name}
-      // value={value}
-      defaultValue={value}
-      onChange={(e) => {
-        setProp(propKey, e.target.value);
-      }}
-    />
-  );
-};
-
-export const StringSet = ({ name, propKey, value, rows }: SetProps) => {
-  const { setProp } = useSetProp();
-
-  return (
-    <TextField
-      size={"small"}
-      multiline={!!isNumber(rows)}
-      rows={rows}
-      label={name}
-      // value={value}
-      defaultValue={value}
-      // onChange={(e) => {
-      //   setProp(propKey, e.target.value);
-      // }}
-      onBlur={(e) => {
-        setProp(propKey, e.target.value);
-      }}
-    />
-  );
-};
-
-export const SelectSet = ({ name, propKey, value, chooseValue }: SetProps) => {
-  const { setProp } = useSetProp();
-
-  return (
-    <TextField
-      size={"small"}
-      select
-      fullWidth
-      label={name}
-      value={value}
-      onChange={(e) => {
-        setProp(propKey, e.target.value);
-      }}>
-      {map(chooseValue, (item) => (
-        <MenuItem key={item} value={item}>
-          {item}
-        </MenuItem>
-      ))}
-    </TextField>
-  );
-};
-
-const SetElementMap: { [key: string]: FunctionComponent<any> } = {
-  select: SelectSet,
-  string: StringSet,
-  number: NumberSet,
-  boolean: BooleanSet,
-};
 
 const getSetElementKey = (inputType?: SetProps["inputType"], type?: SetProps["type"]): string => {
   if (type === "boolean") {
@@ -121,22 +31,26 @@ const getSetElementKey = (inputType?: SetProps["inputType"], type?: SetProps["ty
     }
     return "string";
   }
-  return "";
+  return type || "";
 };
 
-export const OperatePanel = ({
-  oel,
-  onClose,
-  onOpen,
-  style,
-  onExtraChange,
-}: {
+export interface OperatePanelProps {
   oel: IOperateElementItem;
   onClose: (oid: string) => void;
   onOpen?: (oel: IOperateElementItem) => void;
   style?: CSSProperties;
   onExtraChange?: (id: string, key: string, value: any) => void;
-}) => {
+  extraSetElementMap?: { [key: string]: FunctionComponent<any> };
+}
+
+const SetElementMap: OperatePanelProps["extraSetElementMap"] = {
+  select: SelectSet,
+  string: StringSet,
+  number: NumberSet,
+  boolean: BooleanSet,
+};
+
+export const OperatePanel = ({ oel, onClose, onOpen, style, onExtraChange, extraSetElementMap }: OperatePanelProps) => {
   const { operator, changeRef } = useOperator();
   const setProp = useCallback((key: string, value: any) => {
     //extra
@@ -179,7 +93,8 @@ export const OperatePanel = ({
               }
 
               const elementKey = getSetElementKey(prop.inputType, prop.type);
-              const SetElement = get(SetElementMap, elementKey);
+              const SetElement = get({ ...SetElementMap, ...extraSetElementMap }, elementKey);
+
               if (!SetElement) {
                 return prop.name;
               }

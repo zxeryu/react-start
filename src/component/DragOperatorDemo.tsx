@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   IElementItem,
   Operator,
@@ -8,49 +8,17 @@ import {
   useSetProp,
 } from "@react-start/cheng";
 import { Button, Stack } from "@material-ui/core";
+import { omit, get } from "lodash";
+import { OperatePanelProps } from "../../@react-start/cheng/src";
 
 const Menu = ({ label, ...otherProps }: { label: string }) => (
-  <div {...otherProps} style={{ padding: "5px 8px" }}>
+  <div {...omit(otherProps, "style")} style={{ padding: "5px 8px", ...get(otherProps, "style") }}>
     {label}
   </div>
 );
 
-type Props = HTMLAttributes<HTMLDivElement> & { data?: OperateElementItemProp };
-
-const ElementOne = ({ data, ...props }: Props) => {
-  return (
-    <div {...props}>
-      ElementOne content
-      {data?.props?.showOne && <div>1---1</div>}
-      {data?.props?.showTwo && <div>1---2</div>}
-      {data?.props?.showThree && <div>1---3</div>}
-      <div>数字：{data?.props?.size}</div>
-      <div>文本：{data?.props?.text}</div>
-    </div>
-  );
-};
-
-const ElementTwo = ({ data, ...props }: Props) => {
-  return (
-    <div {...props}>
-      ElementTwo content
-      <div>选择值：{data?.props?.selectValue}</div>
-    </div>
-  );
-};
-
-const ElementThree = ({ data, ...props }: Props) => {
-  return (
-    <div {...props}>
-      ElementThree content
-      <div>自定义设置值：{data?.props?.customValue}</div>
-    </div>
-  );
-};
-
 const OneElement: IElementItem = {
   menuElement: <Menu label={"ElementOne"} />,
-  showElement: <ElementOne />,
   props: {
     showOne: true,
     showTwo: true,
@@ -64,10 +32,13 @@ const OneElement: IElementItem = {
     showThree: { name: "第三部分", type: "boolean" },
     size: { name: "数字", type: "number", inputType: "input" },
     text: { name: "文本", type: "string", inputType: "input", rows: 5 },
+    customValue: { name: "自定义部分", type: "custom" },
   },
   name: "ElementOne",
   canDrag: true,
 };
+
+//自定义设置Item
 
 const TestValueSet = (props: any) => {
   return (
@@ -79,7 +50,6 @@ const TestValueSet = (props: any) => {
 
 const TwoElement: IElementItem = {
   menuElement: <Menu label={"ElementTwo"} />,
-  showElement: <ElementTwo />,
   props: { selectValue: 1 },
   setProps: {
     selectValue: {
@@ -89,6 +59,8 @@ const TwoElement: IElementItem = {
   name: "ElementTwo",
   canDrag: true,
 };
+
+//自定义设置页面
 
 const TestPageSet = ({ data }: { data?: IOperateElementItem }) => {
   const { setProp } = useSetProp();
@@ -107,7 +79,6 @@ const TestPageSet = ({ data }: { data?: IOperateElementItem }) => {
 
 const ThreeElement: IElementItem = {
   menuElement: <Menu label={"ElementThree"} />,
-  showElement: <ElementThree />,
   setElement: <TestPageSet />,
   name: "ElementThree",
   canDrag: true,
@@ -163,6 +134,34 @@ const elements: IElementItem[] = [OneElement, TwoElement, ThreeElement];
 
 const OElements: OperateElementItemProp[] = [OneElement, TwoElement, ThreeElement];
 
+/************************** 自定义设置组件 ***********************/
+
+const CustomSet = (props: any) => {
+  const { setProp } = useSetProp();
+
+  const [value, setValue] = useState<number>(props.value || 1);
+
+  return (
+    <div>
+      Custom Set {value}
+      <button
+        onClick={() => {
+          if (props.propKey) {
+            const next = value + 1;
+            setValue(next);
+            setProp(props.propKey, next);
+          }
+        }}>
+        add
+      </button>
+    </div>
+  );
+};
+
+const ExtraSetElementMap: OperatePanelProps["extraSetElementMap"] = {
+  custom: CustomSet,
+};
+
 export const DragOperatorDemo = () => {
   const [showWidth, setShowWidth] = useState<string | number>("100%");
 
@@ -184,6 +183,10 @@ export const DragOperatorDemo = () => {
           elements={elements}
           operateElements={OElements}
           extraOperateElements={[ComposeOperateItem as any]}
+          extraSetElementMap={ExtraSetElementMap}
+          onChange={(data) => {
+            console.log("@@@@@@@@@@", data);
+          }}
           onExtraChange={(id, key, value) => {
             console.log("@@@@@@@@@", id, key, value);
           }}
