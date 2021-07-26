@@ -33,6 +33,8 @@ export interface IElementItem {
   canDrag?: boolean;
   //不进入操作区，如：全局设置
   isExtra?: boolean;
+  //是否可以删除
+  canDelete?: boolean;
 }
 
 export interface IOperateElementItem extends IElementItem {

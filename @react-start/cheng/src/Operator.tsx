@@ -17,6 +17,7 @@ import { IElementItem, IOperateElementItem } from "./types";
 import { find, forEach, size, map, filter, isEmpty } from "lodash";
 import { addItem, generateId, moveItemById, removeItem } from "./util";
 import { OperatePanel, OperatePanelProps } from "./OperatePanel";
+import { ElementsPanel } from "./ElementsPanel";
 
 export interface OperatorContextProps {
   //注册的elements
@@ -59,6 +60,8 @@ export interface OperatorProps {
   header?: ReactNode;
   footer?: ReactNode;
   extraSetElementMap?: OperatePanelProps["extraSetElementMap"];
+  addElementMenu?: string | ReactNode;
+  elementsPanelProps?: CSSProperties;
 }
 
 const setOID = (oels: OperateElementItemProp[]) => {
@@ -84,6 +87,8 @@ export const Operator = ({
   header,
   footer,
   extraSetElementMap,
+  addElementMenu,
+  elementsPanelProps,
 }: OperatorProps) => {
   const getElement = useCallback(
     (id: string) => {
@@ -157,6 +162,10 @@ export const Operator = ({
     setOpenPanels((prev) => [...prev, oel]);
   }, []);
 
+  //************************************elements panel ******************************************
+
+  const [elementPanelShow, setElementPanelShow] = useState<boolean>(false);
+
   return (
     <OperatorContext.Provider
       value={{
@@ -189,6 +198,15 @@ export const Operator = ({
           ))}
         </Stack>
 
+        {size(elements) > 0 && (
+          <Stack
+            onClick={() => {
+              setElementPanelShow(true);
+            }}>
+            {addElementMenu || "添加元素"}
+          </Stack>
+        )}
+
         {footer}
 
         {map(openPanels, (oel) => (
@@ -208,6 +226,8 @@ export const Operator = ({
             onExtraChange={onExtraChange}
           />
         ))}
+
+        {elementPanelShow && <ElementsPanel onClose={() => setElementPanelShow(false)} style={elementsPanelProps} />}
       </Stack>
     </OperatorContext.Provider>
   );

@@ -19,7 +19,7 @@ import { PropFun, useDrop, useDrag } from "@react-start/hooks";
 import { PlaceholderElement, StackElement } from "./Elements";
 import { debounce, get, map } from "lodash";
 import { useOperator } from "./Operator";
-import { Stack } from "@material-ui/core";
+import { Stack, Menu, MenuItem } from "@material-ui/core";
 
 const SubOperatorContext = createContext<{
   //当前拖动的Element from：left
@@ -35,7 +35,11 @@ const SubOperatorContext = createContext<{
 const useSubOperator = () => useContext(SubOperatorContext);
 
 export const OperateItem = ({ oel, onClick }: { oel: IOperateElementItem; onClick?: () => void }) => {
+  const { operator } = useOperator();
   const { dragElement, currentOElementID, getDragProps } = useSubOperator();
+
+  const anchorElRef = useRef<null | HTMLElement>(null);
+  const [open, setOpen] = useState<boolean>(false);
 
   if (!isValidElement(oel.menuElement)) {
     return null;
@@ -47,18 +51,46 @@ export const OperateItem = ({ oel, onClick }: { oel: IOperateElementItem; onClic
       children: dragElement?.menuElement,
     });
   }
-  return cloneElement(oel.menuElement, {
-    "data-oid": oel.oid,
-    "data-id": oel.id,
-    data: oel,
-    ...(get(oel, "canDrag") ? getDragProps(oel.oid) : null),
-    style: {
-      borderTop: currentOElementID === oel.oid ? "2px solid blue" : "none",
-    },
-    onClick: () => {
-      onClick && onClick();
-    },
-  });
+  return (
+    <div
+      ref={anchorElRef as any}
+      onContextMenu={(e) => {
+        if (!get(oel, "canDelete")) {
+          return;
+        }
+        e.preventDefault();
+        setOpen(true);
+      }}>
+      {cloneElement(oel.menuElement, {
+        "data-oid": oel.oid,
+        "data-id": oel.id,
+        data: oel,
+        ...(get(oel, "canDrag") ? getDragProps(oel.oid) : null),
+        style: {
+          borderTop: currentOElementID === oel.oid ? "2px solid blue" : "none",
+        },
+        onClick: () => {
+          onClick && onClick();
+        },
+      })}
+      <Menu
+        open={open}
+        anchorEl={anchorElRef.current}
+        onClose={() => setOpen(false)}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}>
+        <MenuItem
+          onClick={() => {
+            operator.removeElement(oel.oid);
+            setOpen(false);
+          }}>
+          删除
+        </MenuItem>
+      </Menu>
+    </div>
+  );
 };
 
 export const OperateArea = ({ operateAreaProps }: { operateAreaProps?: CSSProperties }) => {

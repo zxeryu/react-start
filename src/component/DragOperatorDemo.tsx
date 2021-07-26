@@ -85,6 +85,7 @@ const ThreeElement: IElementItem = {
   setElement: <TestPageSet />,
   name: "ElementThree",
   canDrag: true,
+  canDelete: true,
   id: "ElementThree",
 };
 
