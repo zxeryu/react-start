@@ -88,6 +88,13 @@ const ThreeElement: IElementItem = {
   id: "ElementThree",
 };
 
+const FourElement: IElementItem = {
+  menuElement: <Menu label={"ElementFour"} />,
+  name: "ElementFour",
+  canDrag: true,
+  id: "ElementThree",
+};
+
 const colorInputProps = {
   type: "string",
   inputType: "input",
@@ -136,7 +143,7 @@ const ComposeOperateItem = {
 
 const elements: IElementItem[] = [OneElement, TwoElement, ThreeElement];
 
-const OElements: OperateElementItemProp[] = [OneElement, TwoElement, ThreeElement];
+const OElements: OperateElementItemProp[] = [OneElement, TwoElement, ThreeElement, FourElement];
 
 /************************** 自定义设置组件 ***********************/
 
