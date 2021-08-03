@@ -96,6 +96,8 @@ const FourElement: IElementItem = {
   id: "ElementThree",
 };
 
+/************************** extra ***********************/
+
 const colorInputProps = {
   type: "string",
   inputType: "input",
@@ -142,7 +144,27 @@ const ComposeOperateItem = {
   elementList: [ColorOperateItem],
 };
 
-const elements: IElementItem[] = [OneElement, TwoElement, ThreeElement];
+/************************** card ***********************/
+
+const CardElement: IElementItem = {
+  menuElement: <Menu label={"Card"} />,
+  props: {
+    title: "",
+    subTile: "",
+    content: "",
+    img: "",
+  },
+  setProps: {
+    title: { name: "标题", type: "string", inputType: "input" },
+    subTile: { name: "副标题", type: "string", inputType: "input" },
+    content: { name: "内容", type: "string", inputType: "input", rows: 5 },
+  },
+  name: "Card",
+  canDrag: true,
+  id: "Card",
+};
+
+const elements: IElementItem[] = [OneElement, TwoElement, ThreeElement, CardElement];
 
 const OElements: OperateElementItemProp[] = [OneElement, TwoElement, ThreeElement, FourElement];
 

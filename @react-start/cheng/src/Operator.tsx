@@ -14,7 +14,7 @@ import React, {
 import { Stack } from "@material-ui/core";
 import { OperateArea, OperateItem } from "./OperateArea";
 import { IElementItem, IOperateElementItem } from "./types";
-import { find, forEach, size, map, filter, isEmpty } from "lodash";
+import { find, forEach, size, map, filter, isEmpty, get } from "lodash";
 import { addItem, generateId, moveItemById, removeItem } from "./util";
 import { OperatePanel, OperatePanelProps } from "./OperatePanel";
 import { ElementsPanel } from "./ElementsPanel";
@@ -156,7 +156,7 @@ export const Operator = ({
   const [openPanels, setOpenPanels] = useState<IOperateElementItem[]>([]);
 
   const addPanel = useCallback((oel: IOperateElementItem) => {
-    if (!oel.setElement && isEmpty(oel.setProps)) {
+    if (!oel.setElement && isEmpty(oel.setProps) && !get(oel, "isExtra")) {
       return;
     }
     setOpenPanels((prev) => [...prev, oel]);
