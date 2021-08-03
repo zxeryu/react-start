@@ -5,7 +5,7 @@ import { map } from "lodash";
 import { Close as CloseIcon } from "@material-ui/icons";
 
 export const ElementsPanel = ({ style, onClose }: { style?: CSSProperties; onClose: () => void }) => {
-  const { elements, operator } = useOperator();
+  const { elements, operator, changeRef } = useOperator();
 
   return (
     <Stack
@@ -32,7 +32,9 @@ export const ElementsPanel = ({ style, onClose }: { style?: CSSProperties; onClo
           return null;
         }
         return cloneElement(el.menuElement, {
+          key: el.id,
           onClick: () => {
+            changeRef.current = true;
             el.id && operator.addElementById(el.id);
             onClose();
           },
