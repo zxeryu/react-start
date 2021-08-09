@@ -1,5 +1,34 @@
-import React from "react";
-import { HighForm, IHighFormData } from "@react-start/components";
+import React, { ForwardRefRenderFunction, FunctionComponent } from "react";
+import {
+  HighForm,
+  IHighFormData,
+  CheckboxGroup,
+  ICheckboxGroupProps,
+  IRadioGroupProps,
+  ISelectProps,
+  RadioGroup,
+  Select,
+  HighProvider,
+} from "@react-start/components";
+import { Button, ButtonTypeMap, Switch, SwitchProps, TextField, TextFieldProps } from "@material-ui/core";
+
+type ElementProps = {
+  TextInput: TextFieldProps;
+  SelectInput: ISelectProps;
+  RadioGroup: IRadioGroupProps;
+  CheckboxGroup: ICheckboxGroupProps;
+  Button: ButtonTypeMap["props"];
+  Switch: SwitchProps;
+};
+
+const ElementMap: { [key in keyof ElementProps]: FunctionComponent | ForwardRefRenderFunction<any, any> } = {
+  TextInput: TextField,
+  SelectInput: Select,
+  RadioGroup: RadioGroup,
+  CheckboxGroup: CheckboxGroup,
+  Button: Button,
+  Switch: Switch,
+};
 
 const options = [
   { label: "选择一", value: "1" },
@@ -81,9 +110,11 @@ const structureData: IHighFormData = {
 
 export const FormHighDemo = () => {
   return (
-    <div>
-      FormHighDemo
-      <HighForm data={structureData} />
-    </div>
+    <HighProvider elementsMap={ElementMap}>
+      <div>
+        FormHighDemo
+        <HighForm data={structureData} />
+      </div>
+    </HighProvider>
   );
 };

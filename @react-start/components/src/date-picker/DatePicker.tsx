@@ -1,5 +1,5 @@
 import { isDate, map, times, padStart, findIndex, get, slice } from "lodash";
-import { range } from "../../utils/format";
+import { range } from "../utils/format";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Picker, PickerProps } from "../picker";
 import { IOption } from "../type";
