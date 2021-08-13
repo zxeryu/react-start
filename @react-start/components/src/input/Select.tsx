@@ -10,14 +10,7 @@ export interface ISelectProps extends SelectProps {
 
 export const Select = ({ options, MenuItemProps, ...otherProps }: ISelectProps) => {
   return (
-    <SelectOrigin
-      MenuProps={{
-        anchorOrigin: {
-          vertical: "bottom",
-          horizontal: "left",
-        },
-      }}
-      {...otherProps}>
+    <SelectOrigin {...otherProps}>
       {map(options, (option) => (
         <MenuItem key={option.value} value={option.value} {...MenuItemProps}>
           {option.label}

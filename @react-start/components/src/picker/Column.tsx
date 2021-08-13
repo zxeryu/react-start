@@ -4,7 +4,7 @@
  */
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { size, map, get } from "lodash";
-import { range } from "../../utils/format";
+import { range } from "../utils/format";
 import { IOption } from "../type";
 import { useTouch } from "@react-start/hooks";
 
