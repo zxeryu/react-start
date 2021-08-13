@@ -253,6 +253,9 @@ export const DragOperatorDemo = () => {
           onExtraChange={(id, key, value) => {
             console.log("@@@@@@@@@", id, key, value);
           }}
+          onItemClick={(oel) => {
+            console.log("#######", oel);
+          }}
           header={<div>Header</div>}
           footer={<div>Footer</div>}
         />

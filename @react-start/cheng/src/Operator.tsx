@@ -62,6 +62,7 @@ export interface OperatorProps {
   extraSetElementMap?: OperatePanelProps["extraSetElementMap"];
   addElementMenu?: string | ReactNode;
   elementsPanelProps?: CSSProperties;
+  onItemClick?: (oel: IOperateElementItem) => void;
 }
 
 const setOID = (oels: OperateElementItemProp[]) => {
@@ -89,6 +90,7 @@ export const Operator = ({
   extraSetElementMap,
   addElementMenu,
   elementsPanelProps,
+  onItemClick,
 }: OperatorProps) => {
   const getElement = useCallback(
     (id: string) => {
@@ -184,7 +186,7 @@ export const Operator = ({
       }}>
       <Stack style={{ position: "relative", width: 300, minWidth: 300, height: "100%", ...style }} direction={"column"}>
         {header}
-        <OperateArea operateAreaProps={operateAreaProps} />
+        <OperateArea operateAreaProps={operateAreaProps} onItemClick={onItemClick} />
 
         <Stack>
           {map(extraOperateElements, (oel) => (

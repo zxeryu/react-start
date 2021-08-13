@@ -93,7 +93,13 @@ export const OperateItem = ({ oel, onClick }: { oel: IOperateElementItem; onClic
   );
 };
 
-export const OperateArea = ({ operateAreaProps }: { operateAreaProps?: CSSProperties }) => {
+export const OperateArea = ({
+  operateAreaProps,
+  onItemClick,
+}: {
+  operateAreaProps?: CSSProperties;
+  onItemClick?: (oel: IOperateElementItem) => void;
+}) => {
   const { data, operator, hoveringRef, changeRef, addPanel } = useOperator();
 
   //当前拖动的element
@@ -191,6 +197,7 @@ export const OperateArea = ({ operateAreaProps }: { operateAreaProps?: CSSProper
               key={oel.oid}
               oel={oel}
               onClick={() => {
+                onItemClick && onItemClick(oel);
                 addPanel(oel);
               }}
             />
