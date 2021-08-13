@@ -2,11 +2,10 @@ import React from "react";
 import { Form, FormItem, IFormItemProps, IFormProps } from "../form";
 import { map, get } from "lodash";
 import { useHigh } from "./HighProvider";
+import { ElementDescProps } from "./types";
 
-interface IHighFormItem {
-  type: string;
+interface IHighFormItem extends ElementDescProps {
   itemProps: Omit<IFormItemProps, "children">;
-  elementProps?: { [key: string]: any };
 }
 
 export interface IHighFormData {
@@ -19,13 +18,13 @@ export const HighForm = ({ data }: { data: IHighFormData }) => {
 
   return (
     <Form {...data.formProps}>
-      {map(data.items, ({ type, itemProps, elementProps }, index) => {
+      {map(data.items, ({ id, type, itemProps, elementProps }) => {
         const Content = get(elementsMap, type);
         if (!Content) {
           return null;
         }
         return (
-          <FormItem key={itemProps?.name || index} {...itemProps}>
+          <FormItem key={itemProps?.name || id} {...itemProps}>
             <Content {...elementProps} />
           </FormItem>
         );
