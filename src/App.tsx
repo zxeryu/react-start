@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { map, get } from "lodash";
 import { FormDemo } from "./component/FormDemo";
-import { FormHighDemo } from "./component/FormHighDemo";
+import { HighDemo } from "./component/HighDemo";
 import { DragOperatorDemo } from "./component/DragOperatorDemo";
 import { ReWriteComponent } from "./component/ReWriteComponent";
 import { DragShowPage } from "./drag/DragShowPage";
@@ -9,7 +9,7 @@ import { TableRCDemo } from "./component/TableRCDemo";
 
 const Routes = {
   FormDemo,
-  FormHighDemo,
+  HighDemo,
   DragOperatorDemo,
   ReWriteComponent,
   DragShowPage,

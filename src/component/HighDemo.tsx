@@ -1,27 +1,11 @@
 import React, { ForwardRefRenderFunction, FunctionComponent } from "react";
-import {
-  HighForm,
-  IHighFormData,
-  CheckboxGroup,
-  ICheckboxGroupProps,
-  IRadioGroupProps,
-  ISelectProps,
-  RadioGroup,
-  Select,
-  HighProvider,
-} from "@react-start/components";
-import { Button, ButtonTypeMap, Switch, SwitchProps, TextField, TextFieldProps } from "@material-ui/core";
+import { HighForm, IHighFormData, CheckboxGroup, RadioGroup, Select, HighProvider } from "@react-start/components";
+import { Button, Switch, TextField } from "@material-ui/core";
+import * as yup from "yup";
+import { ElementDescProps } from "../../@react-start/components/src/high/types";
+import { HighLayout } from "../../@react-start/components/src/high/HighLayout";
 
-type ElementProps = {
-  TextInput: TextFieldProps;
-  SelectInput: ISelectProps;
-  RadioGroup: IRadioGroupProps;
-  CheckboxGroup: ICheckboxGroupProps;
-  Button: ButtonTypeMap["props"];
-  Switch: SwitchProps;
-};
-
-const ElementMap: { [key in keyof ElementProps]: FunctionComponent | ForwardRefRenderFunction<any, any> } = {
+const ElementMap: { [key: string]: FunctionComponent | ForwardRefRenderFunction<any, any> } = {
   TextInput: TextField,
   SelectInput: Select,
   RadioGroup: RadioGroup,
@@ -36,7 +20,7 @@ const options = [
   { label: "选择三", value: "3" },
 ];
 
-const structureData: IHighFormData = {
+const FormConfigData: IHighFormData = {
   formProps: {
     mode: "horizontal",
     labelStyle: { width: "20%", textAlign: "right" },
@@ -47,7 +31,15 @@ const structureData: IHighFormData = {
     },
   },
   items: [
-    { type: "TextInput", itemProps: { name: "text", label: "Text" }, elementProps: { placeholder: "请输入" } },
+    {
+      type: "TextInput",
+      itemProps: {
+        name: "text",
+        label: "Text",
+        schema: yup.string().required("Text is required"),
+      },
+      elementProps: { placeholder: "请输入" },
+    },
     {
       type: "TextInput",
       itemProps: { name: "textMulti", label: "MultiText" },
@@ -89,6 +81,7 @@ const structureData: IHighFormData = {
       elementProps: {},
     },
     {
+      id: "submit",
       type: "Button",
       itemProps: {},
       elementProps: {
@@ -102,18 +95,31 @@ const structureData: IHighFormData = {
   ],
 };
 
-// options={[
-//     { label: "horizontal", value: "1" },
-// { label: "vertical", value: "2" },
-// { label: "inline", value: "3" },
-// ]}
+const ButtonConfigData: ElementDescProps = {
+  id: "button",
+  type: "Button",
+  elementProps: { variant: "contained", children: "演示" },
+};
 
-export const FormHighDemo = () => {
+const TextInputConfigData: ElementDescProps = {
+  id: "textInput",
+  type: "TextInput",
+  elementProps: { placeholder: "演示" },
+};
+
+export const HighDemo = () => {
   return (
     <HighProvider elementsMap={ElementMap}>
       <div>
-        FormHighDemo
-        <HighForm data={structureData} />
+        HighForm
+        <HighForm data={FormConfigData} />
+        HighLayout
+        <HighLayout
+          data={{
+            elementProps: { direction: "row", spacing: 1 },
+            elementList: [ButtonConfigData, TextInputConfigData],
+          }}
+        />
       </div>
     </HighProvider>
   );
