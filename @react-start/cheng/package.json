@@ -24,6 +24,9 @@
   "bugs": {
     "url": "https://github.com/zxeryu/react-start/issues"
   },
+  "dependencies": {
+    "@dnd-kit/sortable": "^4.0.0"
+  },
   "peerDependencies": {
     "@emotion/react": "^11.x",
     "@emotion/styled": "^11.x",
