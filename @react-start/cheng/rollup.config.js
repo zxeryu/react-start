@@ -30,11 +30,15 @@ export default [
     external: [
       "lodash",
       "react",
+      "react-dom",
       "@material-ui/core",
       "@material-ui/icons",
       "@emotion/react",
       "@emotion/styled",
       "@react-start/hooks",
+      "@dnd-kit/core",
+      "@dnd-kit/sortable",
+      "@dnd-kit/utilities",
     ],
   },
   {

@@ -11,8 +11,8 @@ import { IOperateElementItem } from "./types";
 import { IconButton, Stack } from "@material-ui/core";
 import { Close as CloseIcon } from "@material-ui/icons";
 import { map, get, size } from "lodash";
+import { BooleanSet, NumberSet, SelectSet, SetProps, StringSet } from "./input";
 import { useOperator } from "./Operator";
-import { BooleanSet, NumberSet, SelectSet, SetProps, StringSet } from "./input/basic";
 
 const OSetPropsContext = createContext<{
   setProp: (propKey: string, prop: any) => void;
@@ -50,8 +50,8 @@ const SetElementMap: OperatePanelProps["extraSetElementMap"] = {
   boolean: BooleanSet,
 };
 
-export const OperatePanel = ({ oel, onClose, onOpen, style, onExtraChange, extraSetElementMap }: OperatePanelProps) => {
-  const { operator, changeRef } = useOperator();
+export const OperatePanel = ({ oel, onClose, onOpen, style }: OperatePanelProps) => {
+  const { setPropDataWithEmitChange, onExtraChange, extraSetElementMap } = useOperator();
   const setProp = useCallback((key: string, value: any) => {
     //extra
     const isExtra = get(oel, "isExtra");
@@ -60,21 +60,13 @@ export const OperatePanel = ({ oel, onClose, onOpen, style, onExtraChange, extra
       return;
     }
     //data
-    changeRef.current = true;
-    operator.setData((prevState) => {
-      return map(prevState, (item) => {
-        if (item.oid === oel.oid) {
-          item.props = { ...item.props, [key]: value };
-          return item;
-        }
-        return item;
-      });
-    });
+    setPropDataWithEmitChange(oel.oid, key, value);
   }, []);
 
   return (
     <OSetPropsContext.Provider value={{ setProp }}>
       <Stack
+        className={"OperatePanel"}
         direction={"column"}
         spacing={"10px"}
         style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "white", ...style }}>

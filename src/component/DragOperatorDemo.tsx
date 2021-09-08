@@ -4,12 +4,11 @@ import {
   Operator,
   SelectSet,
   IOperateElementItem,
-  OperateElementItemProp,
   useSetProp,
+  OperatePanelProps,
 } from "@react-start/cheng";
-import { Button, Stack } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import { omit, get, reduce, pick } from "lodash";
-import { OperatePanelProps } from "../../@react-start/cheng/src";
 
 const Menu = ({ label, ...otherProps }: { label: string }) => (
   <div {...omit(otherProps, "style")} style={{ padding: "5px 8px", ...get(otherProps, "style") }}>
@@ -17,7 +16,7 @@ const Menu = ({ label, ...otherProps }: { label: string }) => (
   </div>
 );
 
-const OneElement: IElementItem = {
+const OneElement: IOperateElementItem = {
   menuElement: <Menu label={"ElementOne"} />,
   props: {
     showOne: true,
@@ -38,6 +37,7 @@ const OneElement: IElementItem = {
   name: "ElementOne",
   canDrag: true,
   id: "ElementOne",
+  oid: "ElementOne-O",
 };
 
 //自定义设置Item
@@ -50,7 +50,7 @@ const TestValueSet = (props: any) => {
   );
 };
 
-const TwoElement: IElementItem = {
+const TwoElement: IOperateElementItem = {
   menuElement: <Menu label={"ElementTwo"} />,
   props: { selectValue: 1 },
   setProps: {
@@ -61,6 +61,7 @@ const TwoElement: IElementItem = {
   name: "ElementTwo",
   canDrag: true,
   id: "ElementTwo",
+  oid: "ElementTwo-O",
 };
 
 //自定义设置页面
@@ -80,20 +81,22 @@ const TestPageSet = ({ data }: { data?: IOperateElementItem }) => {
   );
 };
 
-const ThreeElement: IElementItem = {
+const ThreeElement: IOperateElementItem = {
   menuElement: <Menu label={"ElementThree"} />,
   setElement: <TestPageSet />,
   name: "ElementThree",
   canDrag: true,
   canDelete: true,
   id: "ElementThree",
+  oid: "ElementThree-O",
 };
 
-const FourElement: IElementItem = {
+const FourElement: IOperateElementItem = {
   menuElement: <Menu label={"ElementFour"} />,
   name: "ElementFour",
   canDrag: true,
-  id: "ElementThree",
+  id: "ElementFour",
+  oid: "ElementFour-O",
 };
 
 /************************** extra ***********************/
@@ -166,7 +169,7 @@ const CardElement: IElementItem = {
 
 const elements: IElementItem[] = [OneElement, TwoElement, ThreeElement, CardElement];
 
-const OElements: OperateElementItemProp[] = [OneElement, TwoElement, ThreeElement, FourElement];
+const OElements: IOperateElementItem[] = [OneElement, TwoElement, ThreeElement, FourElement];
 
 /************************** 自定义设置组件 ***********************/
 
@@ -197,7 +200,7 @@ const ExtraSetElementMap: OperatePanelProps["extraSetElementMap"] = {
 };
 
 export const DragOperatorDemo = () => {
-  const [showWidth, setShowWidth] = useState<string | number>("100%");
+  const [mode, setMode] = useState<"pc" | "mobile">("pc");
 
   const frameRef = useRef<HTMLIFrameElement | null>(null);
 
@@ -219,8 +222,8 @@ export const DragOperatorDemo = () => {
 
   return (
     <div>
-      <Button onClick={() => setShowWidth("100%")}>pc</Button>
-      <Button onClick={() => setShowWidth(375)}>mobile</Button>
+      <Button onClick={() => setMode("pc")}>pc</Button>
+      <Button onClick={() => setMode("mobile")}>mobile</Button>
       <Button
         onClick={() => {
           frameRef.current?.contentWindow?.postMessage({ type: "update" }, "*");
@@ -228,39 +231,43 @@ export const DragOperatorDemo = () => {
         update
       </Button>
 
-      <Stack direction={"row"} css={{ height: "80vh" }}>
-        <Operator
-          elements={elements}
-          operateElements={OElements}
-          extraOperateElements={[ComposeOperateItem as any]}
-          extraSetElementMap={ExtraSetElementMap}
-          onChange={(data) => {
-            const composeData = reduce(
-              data,
-              (pair, item) => {
-                return {
-                  ...pair,
-                  [item.id!]: pick(item, "props"),
-                };
-              },
-              {},
-            );
+      <Operator
+        style={{ height: "80vh" }}
+        elements={elements}
+        operateElements={OElements}
+        extraOperateElements={[ComposeOperateItem as any]}
+        extraSetElementMap={ExtraSetElementMap}
+        onChange={(data) => {
+          const composeData = reduce(
+            data,
+            (pair, item) => {
+              return {
+                ...pair,
+                [item.id!]: pick(item, "props"),
+              };
+            },
+            {},
+          );
 
-            console.log("@@@@@@@@@@", composeData);
+          console.log("@@@@@@@@@@", composeData);
 
-            frameRef.current?.contentWindow?.postMessage({ type: "compose", data: composeData }, "*");
-          }}
-          onExtraChange={(id, key, value) => {
-            console.log("@@@@@@@@@", id, key, value);
-          }}
-          onItemClick={(oel) => {
-            console.log("#######", oel);
-          }}
-          header={<div>Header</div>}
-          footer={<div>Footer</div>}
+          frameRef.current?.contentWindow?.postMessage({ type: "compose", data: composeData }, "*");
+        }}
+        onExtraChange={(id, key, value) => {
+          console.log("@@@@@@@@@", id, key, value);
+        }}
+        onItemClick={(oel) => {
+          console.log("#######", oel);
+        }}
+        // header={<div>Header</div>}
+        // footer={<div>Footer</div>}
+      >
+        <iframe
+          ref={frameRef}
+          src={"/DragShowPage"}
+          css={{ ...(mode === "pc" ? { flex: 1 } : { width: 375 }), height: "80vh" }}
         />
-        <iframe ref={frameRef} src={"/DragShowPage"} width={showWidth} />
-      </Stack>
+      </Operator>
     </div>
   );
 };

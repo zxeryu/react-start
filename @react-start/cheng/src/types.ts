@@ -16,7 +16,7 @@ interface ISetProps {
 
 export interface IElementItem {
   //展示的组件
-  menuElement: ReactNode;
+  menuElement?: ReactNode;
   //set element
   setElement?: ReactNode;
   //真正渲染的组件
@@ -25,8 +25,8 @@ export interface IElementItem {
   setProps?: ISetProps;
   //props 根据setProps生成的属性
   props?: { [key: string]: any };
-  //使用过程中的唯一标识
-  id?: string;
+  //使用过程中的唯一标识（元素id）
+  id: string;
   //名称
   name?: string;
   //是否能拖动 默认true
@@ -35,10 +35,24 @@ export interface IElementItem {
   isExtra?: boolean;
   //是否可以删除
   canDelete?: boolean;
+  //是否是容器，可以添加子元素标识
+  isContainer?: boolean;
 }
 
 export interface IOperateElementItem extends IElementItem {
   oid: string;
   //
   elementList?: IOperateElementItem[];
+}
+
+export interface TreeItem extends IOperateElementItem {
+  collapsed?: boolean;
+}
+
+export type TreeItems = TreeItem[];
+
+export interface FlattenedItem extends TreeItem {
+  parentId: null | string;
+  depth: number;
+  index: number;
 }

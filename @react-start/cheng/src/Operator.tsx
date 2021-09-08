@@ -1,235 +1,189 @@
+import { IElementItem, IOperateElementItem } from "./types";
 import React, {
   createContext,
   CSSProperties,
   Dispatch,
-  MutableRefObject,
   ReactNode,
   SetStateAction,
   useCallback,
   useContext,
-  useEffect,
   useRef,
   useState,
 } from "react";
-import { Stack } from "@material-ui/core";
-import { OperateArea, OperateItem } from "./OperateArea";
-import { IElementItem, IOperateElementItem } from "./types";
-import { find, forEach, size, map, filter, isEmpty, get } from "lodash";
-import { addItem, generateId, moveItemById, removeItem } from "./util";
 import { OperatePanel, OperatePanelProps } from "./OperatePanel";
+import { isFunction, map, filter, size } from "lodash";
+import { Stack } from "@material-ui/core";
+import { OperateArea } from "./OperateArea";
+import { Item } from "./component";
 import { ElementsPanel } from "./ElementsPanel";
+import { generateId } from "./util";
 
-export interface OperatorContextProps {
-  //注册的elements
-  elements: IElementItem[];
-  //操作的elements
+type TValue = IOperateElementItem[] | ((prevState: IOperateElementItem[]) => IOperateElementItem[]);
+
+export interface OperatorProps {
+  operateElements: IOperateElementItem[];
+  elements?: IElementItem[];
+  extraOperateElements?: IOperateElementItem[];
+  extraSetElementMap?: OperatePanelProps["extraSetElementMap"];
+  //
+  onExtraChange?: (id: string, key: string, value: any) => void;
+  onChange?: (data: IOperateElementItem[]) => void;
+  onDragChange?: () => void;
+  onItemClick?: (oel: IOperateElementItem) => void;
+  //
+  style?: CSSProperties;
+  children?: ReactNode;
+}
+
+export interface OperatorContextProps extends Pick<OperatorProps, "elements" | "extraSetElementMap" | "onExtraChange"> {
+  //操作对象
   data: IOperateElementItem[];
-  //operators
-  operator: {
-    addElement: (el: IOperateElementItem, locElOID?: string, targetOID?: string) => void;
-    addElementById: (elID: string, locElOID?: string, targetOID?: string) => void;
-    removeElement: (oid: string) => void;
-    arrayMoveById: (oid: string, toOID: string, addToTarget?: boolean) => void;
-    setData: Dispatch<SetStateAction<IOperateElementItem[]>>;
-  };
-  //
-  hoveringRef: MutableRefObject<boolean>;
-  changeRef: MutableRefObject<boolean>;
-  //
-  addPanel: (oel: IOperateElementItem) => void;
+  //改变data对象
+  setData: Dispatch<SetStateAction<IOperateElementItem[]>>;
+  //改变data对象，并触发onChange事件
+  setDataWithEmitChange: (value: TValue) => void;
+  //改变单个属性
+  setPropDataWithEmitChange: (oid: string, key: string, value: any) => void;
+  //打开添加元素弹窗
+  openElementsPanel: () => void;
+  //打开的OperatePanels
+  operatePanels: IOperateElementItem[];
 }
 
 const OperatorContext = createContext<OperatorContextProps>({} as any);
 
 export const useOperator = () => useContext(OperatorContext);
 
-export interface OperateElementItemProp extends Omit<IOperateElementItem, "oid" | "elementList"> {
-  oid?: string;
-  elementList?: OperateElementItemProp[];
-}
-
-export interface OperatorProps {
-  elements: IElementItem[];
-  operateElements: OperateElementItemProp[];
-  operatePanelProps?: CSSProperties;
-  operateAreaProps?: CSSProperties;
-  style?: CSSProperties;
-  extraOperateElements?: IOperateElementItem[];
-  onExtraChange?: (id: string, key: string, value: any) => void;
-  onChange?: (data: IOperateElementItem[]) => void;
-  header?: ReactNode;
-  footer?: ReactNode;
-  extraSetElementMap?: OperatePanelProps["extraSetElementMap"];
-  addElementMenu?: string | ReactNode;
-  elementsPanelProps?: CSSProperties;
-  onItemClick?: (oel: IOperateElementItem) => void;
-}
-
-const setOID = (oels: OperateElementItemProp[]) => {
-  forEach(oels, (oel) => {
-    if (!oel.oid) {
-      oel.oid = generateId();
-    }
-    if (oel.elementList && size(oel.elementList) > 0) {
-      setOID(oel.elementList);
-    }
-  });
-};
-
 export const Operator = ({
-  elements,
-  operateElements,
-  operateAreaProps,
-  operatePanelProps,
-  style,
-  extraOperateElements,
-  onExtraChange,
-  onChange,
-  header,
-  footer,
-  extraSetElementMap,
-  addElementMenu,
-  elementsPanelProps,
-  onItemClick,
-}: OperatorProps) => {
-  const getElement = useCallback(
-    (id: string) => {
-      return find(elements, (el) => el.id === id);
-    },
-    [elements],
-  );
-
-  //操作elements
-  const [data, setData] = useState<IOperateElementItem[]>([]);
-  useEffect(() => {
-    if (!operateElements) {
-      return;
-    }
-    setOID(operateElements);
-    setData(operateElements as IOperateElementItem[]);
-  }, [operateElements]);
-  const dataRef = useRef<IOperateElementItem[]>([]);
+                           operateElements,
+                           elements,
+                           extraOperateElements,
+                           extraSetElementMap,
+                           //
+                           onExtraChange,
+                           onChange,
+                           onDragChange,
+                           onItemClick,
+                           //
+                           style,
+                           children,
+                         }: OperatorProps) => {
+  const [data, setData] = useState<IOperateElementItem[]>(operateElements);
+  const dataRef = useRef<IOperateElementItem[]>(operateElements);
   dataRef.current = data;
 
-  //operator methods
-
-  const addElement = useCallback((el: IOperateElementItem, locOID?: string, targetOID?: string) => {
-    setData(addItem(dataRef.current, el, locOID, targetOID));
+  const setDataWithEmitChange = useCallback((value: TValue) => {
+    const nextData = isFunction(value) ? value(dataRef.current) : value;
+    setData(nextData);
+    onChange && onChange(nextData);
   }, []);
 
-  const addElementById = useCallback((elID: string, locElOID?: string, targetOID?: string) => {
-    const el = getElement(elID);
-    if (!el) {
-      return;
-    }
-    addElement({ ...el, oid: generateId() }, locElOID, targetOID);
+  //设置单个属性
+  const setPropDataWithEmitChange = useCallback((oid: string, key: string, value: any) => {
+    const nextData = map(dataRef.current, (item) => {
+      if (item.oid === oid) {
+        return { ...item, props: { ...item.props, [key]: value } };
+      }
+      return item;
+    });
+    setData(nextData);
+    onChange && onChange(nextData);
   }, []);
 
-  const removeElement = useCallback((oid: string) => {
-    setData(removeItem(dataRef.current, oid));
+  //************************************ extra panels ******************************************
+  const [extraPanels, setExtraPanels] = useState<IOperateElementItem[]>([]);
+
+  const addExtraPanel = useCallback((oel: IOperateElementItem) => {
+    setExtraPanels((prev) => [...prev, oel]);
   }, []);
 
-  const arrayMoveById = useCallback((oid: string, toOID: string, addToTarget?: boolean) => {
-    if (oid === toOID) {
-      return;
-    }
-    setData(moveItemById(dataRef.current, oid, toOID, addToTarget));
-  }, []);
+  //************************************ current panels ******************************************
+  const [operatePanels, setOperatePanels] = useState<IOperateElementItem[]>([]);
 
-  const hoveringRef = useRef<boolean>(false);
-  const changeRef = useRef<boolean>(false);
-
-  //************************************ onChange事件 ******************************************
-  useEffect(() => {
-    if (!onChange) {
-      return;
-    }
-    if (hoveringRef.current) {
-      return;
-    }
-    if (changeRef.current) {
-      onChange(data);
-      changeRef.current = false;
-    }
-  }, [data]);
-
-  //************************************ panel操作 ******************************************
-
-  const [openPanels, setOpenPanels] = useState<IOperateElementItem[]>([]);
-
-  const addPanel = useCallback((oel: IOperateElementItem) => {
-    if (!oel.setElement && isEmpty(oel.setProps) && !get(oel, "isExtra")) {
-      return;
-    }
-    setOpenPanels((prev) => [...prev, oel]);
-  }, []);
-
-  //************************************elements panel ******************************************
+  //************************************ elements panel ******************************************
 
   const [elementPanelShow, setElementPanelShow] = useState<boolean>(false);
+
+  const openElementsPanel = useCallback(() => setElementPanelShow(true), []);
 
   return (
     <OperatorContext.Provider
       value={{
+        //prop
         elements,
+        extraSetElementMap,
+        onExtraChange,
+        //
         data,
-        operator: {
-          addElement,
-          addElementById,
-          removeElement,
-          arrayMoveById,
-          setData,
-        },
-        hoveringRef,
-        changeRef,
-        addPanel,
+        setData,
+        setDataWithEmitChange,
+        setPropDataWithEmitChange,
+        openElementsPanel,
+        operatePanels,
       }}>
-      <Stack style={{ position: "relative", width: 300, minWidth: 300, height: "100%", ...style }} direction={"column"}>
-        {header}
-        <OperateArea operateAreaProps={operateAreaProps} onItemClick={onItemClick} />
+      <Stack style={{ height: "100%", ...style }} direction={"row"}>
+        <Stack
+          className={"LeftArea"}
+          style={{ position: "relative", width: 300, minWidth: 300, height: "100%" }}
+          direction={"column"}>
+          <OperateArea
+            onItemClick={(oel) => {
+              setOperatePanels([oel]);
+              onItemClick && onItemClick(oel);
+            }}
+          />
 
-        <Stack>
-          {map(extraOperateElements, (oel) => (
-            <OperateItem
+          <Stack>
+            {size(elements) > 0 && <Item label={"添加元素"} onClick={() => openElementsPanel()} />}
+            {map(extraOperateElements, (extraOEL) => (
+              <Item key={extraOEL.oid} label={extraOEL.name} onClick={() => addExtraPanel(extraOEL)} />
+            ))}
+          </Stack>
+
+          {map(extraPanels, (oel) => (
+            <OperatePanel
               key={oel.oid}
               oel={oel}
-              onClick={() => {
-                addPanel(oel);
+              onClose={(oid) => {
+                setExtraPanels((prev) => filter(prev, (o) => o.oid !== oid));
               }}
+              onOpen={(oel) => addExtraPanel(oel)}
             />
           ))}
-        </Stack>
 
-        {size(elements) > 0 && (
+          {elementPanelShow && (
+            <ElementsPanel
+              onClose={() => setElementPanelShow(false)}
+              onSuccess={(el) => {
+                const addOEL: IOperateElementItem = { ...el, oid: generateId() };
+                setDataWithEmitChange([...dataRef.current, addOEL]);
+                setElementPanelShow(false);
+              }}
+            />
+          )}
+        </Stack>
+        <Stack direction={"row"} style={{ flexGrow: 1, justifyContent: "center" }}>
+          {children}
+        </Stack>
+        {size(operatePanels) > 0 && (
           <Stack
-            onClick={() => {
-              setElementPanelShow(true);
+            style={{
+              position: "relative",
+              width: 300,
+              minWidth: 300,
+              height: "100%",
             }}>
-            {addElementMenu || "添加元素"}
+            {map(operatePanels, (oel) => (
+              <OperatePanel
+                key={oel.oid}
+                oel={oel}
+                onClose={(oid) => {
+                  setOperatePanels((prev) => filter(prev, (o) => o.oid !== oid));
+                }}
+              />
+            ))}
           </Stack>
         )}
-
-        {footer}
-
-        {map(openPanels, (oel) => (
-          <OperatePanel
-            key={oel.oid}
-            style={operatePanelProps}
-            oel={oel}
-            extraSetElementMap={extraSetElementMap}
-            onClose={(oid) => {
-              setOpenPanels((prev) => {
-                return filter(prev, (o) => o.oid !== oid);
-              });
-            }}
-            onOpen={(oel) => {
-              setOpenPanels((prev) => [...prev, oel]);
-            }}
-            onExtraChange={onExtraChange}
-          />
-        ))}
-
-        {elementPanelShow && <ElementsPanel onClose={() => setElementPanelShow(false)} style={elementsPanelProps} />}
       </Stack>
     </OperatorContext.Provider>
   );

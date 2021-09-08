@@ -1,14 +1,25 @@
 import React, { cloneElement, CSSProperties, isValidElement } from "react";
 import { IconButton, Stack } from "@material-ui/core";
-import { useOperator } from "./Operator";
 import { map } from "lodash";
 import { Close as CloseIcon } from "@material-ui/icons";
+import { useOperator } from "./Operator";
+import { IElementItem } from "./types";
+import { Item } from "./component";
 
-export const ElementsPanel = ({ style, onClose }: { style?: CSSProperties; onClose: () => void }) => {
-  const { elements, operator, changeRef } = useOperator();
+export const ElementsPanel = ({
+  style,
+  onClose,
+  onSuccess,
+}: {
+  style?: CSSProperties;
+  onClose: () => void;
+  onSuccess: (el: IElementItem) => void;
+}) => {
+  const { elements } = useOperator();
 
   return (
     <Stack
+      className={"ElementsPanel"}
       direction={"column"}
       spacing={"10px"}
       style={{
@@ -29,15 +40,11 @@ export const ElementsPanel = ({ style, onClose }: { style?: CSSProperties; onClo
 
       {map(elements, (el) => {
         if (!isValidElement(el.menuElement)) {
-          return null;
+          return <Item label={el.name} onClick={() => onSuccess(el)} />;
         }
         return cloneElement(el.menuElement, {
           key: el.id,
-          onClick: () => {
-            changeRef.current = true;
-            el.id && operator.addElementById(el.id);
-            onClose();
-          },
+          onClick: () => onSuccess(el),
         });
       })}
     </Stack>

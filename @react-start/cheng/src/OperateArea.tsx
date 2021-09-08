@@ -1,209 +1,182 @@
-/**
- * 操作区域
- */
-import React, {
-  cloneElement,
-  createContext,
-  CSSProperties,
-  Dispatch,
-  isValidElement,
-  SetStateAction,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { IElementItem, IOperateElementItem } from "./types";
-import { PropFun, useDrop, useDrag } from "@react-start/hooks";
-import { PlaceholderElement, StackElement } from "./Elements";
-import { debounce, get, map } from "lodash";
+import { Stack } from "@material-ui/core";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useOperator } from "./Operator";
-import { Stack, Menu, MenuItem } from "@material-ui/core";
+import { FlattenedItem, IOperateElementItem } from "./types";
+import {
+  closestCenter,
+  defaultDropAnimation,
+  DndContext,
+  DragEndEvent,
+  DragMoveEvent,
+  DragOverEvent,
+  DragOverlay,
+  DragStartEvent,
+  DropAnimation,
+  LayoutMeasuring,
+  LayoutMeasuringStrategy,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  buildTree,
+  flattenTree,
+  getProjection,
+  ProjectionType,
+  removeChildrenOf,
+  removeItem,
+  setProperty,
+} from "./utilities";
+import { reduce, size, map, find, findIndex } from "lodash";
+import { SortableTreeItem, TreeItem } from "./OperateAreaItem";
+import { createPortal } from "react-dom";
 
-const SubOperatorContext = createContext<{
-  //当前拖动的Element from：left
-  dragElement?: IElementItem;
-  //当前内部拖动元素 oid
-  currentOElementID?: string;
-  //可拖动的方法
-  getDragProps: PropFun<string>;
-  //设置拖动元素的方法
-  setDragElement: Dispatch<SetStateAction<IElementItem | undefined>>;
-}>({} as any);
-
-const useSubOperator = () => useContext(SubOperatorContext);
-
-export const OperateItem = ({ oel, onClick }: { oel: IOperateElementItem; onClick?: () => void }) => {
-  const { operator } = useOperator();
-  const { dragElement, currentOElementID, getDragProps } = useSubOperator();
-
-  const anchorElRef = useRef<null | HTMLElement>(null);
-  const [open, setOpen] = useState<boolean>(false);
-
-  if (!isValidElement(oel.menuElement)) {
-    return null;
-  }
-
-  if (oel.oid === PlaceholderElement.oid) {
-    return cloneElement(oel.menuElement, {
-      "data-oid": oel.oid,
-      children: dragElement?.menuElement,
-    });
-  }
-  return (
-    <div
-      ref={anchorElRef as any}
-      onContextMenu={(e) => {
-        if (!get(oel, "canDelete")) {
-          return;
-        }
-        e.preventDefault();
-        setOpen(true);
-      }}>
-      {cloneElement(oel.menuElement, {
-        "data-oid": oel.oid,
-        "data-id": oel.id,
-        data: oel,
-        ...(get(oel, "canDrag") ? getDragProps(oel.oid) : null),
-        style: {
-          borderTop: currentOElementID === oel.oid ? "2px solid blue" : "none",
-        },
-        onClick: () => {
-          onClick && onClick();
-        },
-      })}
-      <Menu
-        open={open}
-        anchorEl={anchorElRef.current}
-        onClose={() => setOpen(false)}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}>
-        <MenuItem
-          onClick={() => {
-            operator.removeElement(oel.oid);
-            setOpen(false);
-          }}>
-          删除
-        </MenuItem>
-      </Menu>
-    </div>
-  );
+const layoutMeasuring: Partial<LayoutMeasuring> = {
+  strategy: LayoutMeasuringStrategy.Always,
 };
 
-export const OperateArea = ({
-  operateAreaProps,
-  onItemClick,
-}: {
-  operateAreaProps?: CSSProperties;
-  onItemClick?: (oel: IOperateElementItem) => void;
-}) => {
-  const { data, operator, hoveringRef, changeRef, addPanel } = useOperator();
+const dropAnimation: DropAnimation = {
+  ...defaultDropAnimation,
+  dragSourceOpacity: 0.5,
+};
 
-  //当前拖动的element
-  const [dragElement, setDragElement] = useState<IElementItem>();
+const indentationWidth = 50;
 
-  //内部拖动调整位置 id
-  const [currentOElementID, setCurrentOElementID] = useState<string>();
+export const OperateArea = ({ onItemClick }: { onItemClick: (oel: IOperateElementItem) => void }) => {
+  const { data, setData, setDataWithEmitChange } = useOperator();
+  const dataRef = useRef<IOperateElementItem[]>(data);
+  dataRef.current = data;
 
-  //hover元素oid
-  const [locOID, setLocOID] = useState<string>();
-  const locIDRef = useRef<string>();
-  const debounceSetLocOID = useCallback(
-    debounce((oid: string, id: string) => {
-      setLocOID(oid);
-      locIDRef.current = id;
-    }, 10),
-    [],
-  );
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
+  const [offsetLeft, setOffsetLeft] = useState(0);
 
-  const [dropProps, { isHovering }] = useDrop<string>({
-    onDom: (id) => {
-      changeRef.current = true;
-      if (dragElement) {
-        if (locIDRef.current === StackElement.id) {
-          operator.addElementById(id, undefined, locOID);
-        } else {
-          operator.addElementById(id, locOID);
+  const resetState = useCallback(() => {
+    setOverId(null);
+    setActiveId(null);
+    setOffsetLeft(0);
+
+    document.body.style.setProperty("cursor", "");
+  }, []);
+
+  const flattenedItems = useMemo(() => {
+    const flattenedTree = flattenTree(data);
+    const collapsedItems = reduce<FlattenedItem, string[]>(
+      flattenedTree,
+      (acc, item) => {
+        if (item.collapsed && size(item.elementList) > 0) {
+          return [...acc, item.oid];
         }
-      }
-    },
-    onDragOver: (e) => {
-      const id = get(e.target, ["dataset", "id"]);
-      const oid = get(e.target, ["dataset", "oid"]);
+        return acc;
+      },
+      [],
+    );
+    return removeChildrenOf(flattenedTree, activeId ? [activeId, ...collapsedItems] : collapsedItems);
+  }, [activeId, data]);
 
-      if (oid === PlaceholderElement.oid) {
-        return;
-      }
-      oid && debounceSetLocOID(oid, id);
-    },
-  });
+  const projected =
+    activeId && overId ? getProjection(flattenedItems, activeId, overId, offsetLeft, indentationWidth) : null;
+  const projectedRef = useRef<ProjectionType | null>(projected);
+  projectedRef.current = projected;
 
-  hoveringRef.current = isHovering;
+  const sortedIds = useMemo(() => map<FlattenedItem, string>(flattenedItems, ({ oid }) => oid), [flattenedItems]);
+  const activeItem = activeId ? find(flattenedItems, ({ oid }) => oid === activeId) : null;
 
-  //左侧拖动添加
-  useEffect(() => {
-    if (dragElement && isHovering) {
-      operator.addElement(PlaceholderElement);
-    } else {
-      operator.removeElement(PlaceholderElement.oid);
-      setLocOID(undefined);
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  const handleDragStart = useCallback(({ active: { id: activeId } }: DragStartEvent) => {
+    setActiveId(activeId);
+    setOverId(activeId);
+
+    document.body.style.setProperty("cursor", "grabbing");
+  }, []);
+
+  const handleDragMove = useCallback(({ delta }: DragMoveEvent) => {
+    setOffsetLeft(delta.x);
+  }, []);
+
+  const handleDragOver = useCallback(({ over }: DragOverEvent) => {
+    setOverId(over?.id ?? null);
+  }, []);
+
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    resetState();
+
+    if (projected && over) {
+      const { depth, parentId } = projected;
+
+      const clonedItems: FlattenedItem[] = flattenTree(dataRef.current);
+      const overIndex = findIndex(clonedItems, ({ oid }) => oid === over.id);
+      const activeIndex = findIndex(clonedItems, ({ oid }) => oid === active.id);
+      const activeTreeItem = clonedItems[activeIndex];
+
+      clonedItems[activeIndex] = { ...activeTreeItem, depth, parentId };
+
+      const sortedItems = arrayMove(clonedItems, activeIndex, overIndex);
+      const newItems = buildTree(sortedItems);
+      setDataWithEmitChange(newItems);
     }
-  }, [dragElement, isHovering]);
+  };
 
-  //移动元素
-  useEffect(() => {
-    if (!isHovering) {
-      return;
-    }
-    if (dragElement && locOID) {
-      if (locIDRef.current === StackElement.id) {
-        return;
-      }
-      operator.arrayMoveById(PlaceholderElement.oid, locOID);
-      return;
-    }
-    if (currentOElementID && locOID) {
-      operator.arrayMoveById(currentOElementID, locOID, locIDRef.current === StackElement.id);
-    }
-  }, [dragElement, currentOElementID, locOID, isHovering]);
+  const handleDragCancel = useCallback(() => resetState(), []);
 
-  //拖动事件注册方法
-  const getDragProps = useDrag<string>({
-    onDragStart: (e, oid) => {
-      e.stopPropagation();
-      oid && setCurrentOElementID(oid);
-    },
-    onDragEnd: (e) => {
-      e.stopPropagation();
-      setCurrentOElementID(undefined);
-    },
-  });
+  const handleCollapse = useCallback((oid: string) => {
+    setData((prev) =>
+      setProperty(prev, oid, "collapsed", (value) => {
+        return !value;
+      }),
+    );
+  }, []);
+
+  const handleRemove = useCallback((oid: string) => {
+    setDataWithEmitChange((prev) => removeItem(prev, oid));
+  }, []);
 
   return (
-    <SubOperatorContext.Provider
-      value={{
-        dragElement,
-        currentOElementID,
-        getDragProps,
-        setDragElement,
-      }}>
-      <Stack style={{ flexGrow: 1, ...operateAreaProps }}>
-        <Stack {...dropProps}>
-          {map(data, (oel) => (
-            <OperateItem
-              key={oel.oid}
-              oel={oel}
-              onClick={() => {
-                onItemClick && onItemClick(oel);
-                addPanel(oel);
-              }}
-            />
-          ))}
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      layoutMeasuring={layoutMeasuring}
+      onDragStart={handleDragStart}
+      onDragMove={handleDragMove}
+      onDragOver={handleDragOver}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}>
+      <SortableContext items={sortedIds} strategy={verticalListSortingStrategy}>
+        <Stack className={"OperateArea"} style={{ flex: 1 }}>
+          {map(flattenedItems, (oel) => {
+            const { oid, depth, name, collapsed, elementList, isContainer } = oel;
+            return (
+              <SortableTreeItem
+                key={oid}
+                id={oid}
+                depth={oid === activeId && projected ? projected.depth : depth}
+                indentationWidth={indentationWidth}
+                label={name}
+                collapsed={isContainer && collapsed && size(elementList) > 0}
+                onCollapse={isContainer && size(elementList) > 0 ? handleCollapse : undefined}
+                onRemove={handleRemove}
+                onClick={() => onItemClick(oel)}
+              />
+            );
+          })}
         </Stack>
-      </Stack>
-    </SubOperatorContext.Provider>
+        {createPortal(
+          <DragOverlay dropAnimation={dropAnimation}>
+            {activeId && activeItem ? (
+              <TreeItem
+                id={activeId}
+                clone
+                depth={activeItem.depth}
+                indentationWidth={indentationWidth}
+                label={activeItem.name}
+              />
+            ) : null}
+          </DragOverlay>,
+          document.body,
+        )}
+      </SortableContext>
+    </DndContext>
   );
 };

@@ -1,9 +1,9 @@
 import React, { HTMLAttributes, useEffect, useState } from "react";
 import { get } from "lodash";
-import { OperateElementItemProp } from "../../@react-start/cheng";
 import { Stack } from "@material-ui/core";
+import { IOperateElementItem } from "@react-start/cheng";
 
-type Props = HTMLAttributes<HTMLDivElement> & { data?: OperateElementItemProp };
+type Props = HTMLAttributes<HTMLDivElement> & { data?: IOperateElementItem };
 
 const ElementOne = ({ data, ...props }: Props) => {
   return (

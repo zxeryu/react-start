@@ -22,6 +22,6 @@ module.exports = {
     historyApiFallback: true,
     contentBase: "./public",
     compress: true,
-    port: 3000,
+    port: 3100,
   },
 };
