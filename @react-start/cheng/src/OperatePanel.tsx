@@ -13,6 +13,7 @@ import { Close as CloseIcon } from "@material-ui/icons";
 import { map, get, size } from "lodash";
 import { BooleanSet, NumberSet, SelectSet, SetProps, StringSet } from "./input";
 import { useOperator } from "./Operator";
+import { Item } from "./component";
 
 const OSetPropsContext = createContext<{
   setProp: (propKey: string, prop: any) => void;
@@ -94,11 +95,7 @@ export const OperatePanel = ({ oel, onClose, onOpen, style }: OperatePanelProps)
             })}
 
         {size(oel.elementList) > 0 &&
-          map(oel.elementList, (oel) => (
-            <div key={oel.oid} onClick={() => onOpen && onOpen(oel)}>
-              {oel.name}
-            </div>
-          ))}
+          map(oel.elementList, (oel) => <Item key={oel.oid} label={oel.name} onClick={() => onOpen && onOpen(oel)} />)}
       </Stack>
     </OSetPropsContext.Provider>
   );

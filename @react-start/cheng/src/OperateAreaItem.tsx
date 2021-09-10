@@ -37,6 +37,7 @@ export interface TreeItemProps {
   onRemove?: (oid: string) => void;
   wrapperRef?: (node: HTMLElement) => void;
   onClick?: () => void;
+  canDrag?: boolean;
 }
 
 export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
@@ -44,6 +45,7 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
     {
       id,
       childCount,
+      canDrag,
       clone,
       depth,
       disableSelection,
@@ -58,7 +60,7 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
       label,
       wrapperRef,
       ...otherProps
-    },
+    }: TreeItemProps,
     ref,
   ) => {
     const { wrapperStyle, itemStyle, disableStyle }: { [key: string]: CSSProperties } = useMemo(
@@ -69,7 +71,12 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
         },
         itemStyle: {
           ...(clone
-            ? { padding: 5, paddingRight: 24, borderRadius: 4, boxShadow: "0px 15px 15px 0 rgba(34, 33, 81, 0.1)" }
+            ? {
+                padding: 5,
+                paddingRight: 24,
+                borderRadius: 4,
+                boxShadow: "0px 15px 15px 0 rgba(34, 33, 81, 0.1)",
+              }
             : undefined),
         },
         disableStyle: {
@@ -109,17 +116,29 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
             ...itemStyle,
             padding: 10,
           }}>
-          <DragHandle style={{ outline: "none", cursor: "grab", color: "#666" }} {...handleProps} />
+          {canDrag && <DragHandle style={{ outline: "none", cursor: "grab", color: "#666" }} {...handleProps} />}
           {onCollapse && <Arrow onClick={() => onCollapse(id)} />}
           <Typography variant={"subtitle2"} noWrap style={{ paddingLeft: ".5rem", flexGrow: 1, ...disableStyle }}>
             {label}
           </Typography>
           {!clone && onRemove && (
-            <IconButton size={"small"} onClick={(e) => setAnchorEl(e.currentTarget)}>
+            <IconButton
+              size={"small"}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setAnchorEl(e.currentTarget);
+              }}>
               <MoreVert />
             </IconButton>
           )}
-          <Menu open={!!anchorEl} anchorEl={anchorEl} onClose={() => setAnchorEl(null)}>
+          <Menu
+            open={!!anchorEl}
+            anchorEl={anchorEl}
+            onClose={(e: any) => {
+              e.stopPropagation();
+              setAnchorEl(null);
+            }}>
             <MenuItem value={"delete"} onClick={() => handleRemove(id)}>
               删除
             </MenuItem>

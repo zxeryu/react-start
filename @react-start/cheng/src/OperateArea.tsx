@@ -56,8 +56,6 @@ export const OperateArea = ({ onItemClick }: { onItemClick: (oel: IOperateElemen
     setOverId(null);
     setActiveId(null);
     setOffsetLeft(0);
-
-    document.body.style.setProperty("cursor", "");
   }, []);
 
   const flattenedItems = useMemo(() => {
@@ -88,8 +86,6 @@ export const OperateArea = ({ onItemClick }: { onItemClick: (oel: IOperateElemen
   const handleDragStart = useCallback(({ active: { id: activeId } }: DragStartEvent) => {
     setActiveId(activeId);
     setOverId(activeId);
-
-    document.body.style.setProperty("cursor", "grabbing");
   }, []);
 
   const handleDragMove = useCallback(({ delta }: DragMoveEvent) => {
@@ -145,8 +141,8 @@ export const OperateArea = ({ onItemClick }: { onItemClick: (oel: IOperateElemen
       onDragCancel={handleDragCancel}>
       <SortableContext items={sortedIds} strategy={verticalListSortingStrategy}>
         <Stack className={"OperateArea"} style={{ flex: 1 }}>
-          {map(flattenedItems, (oel) => {
-            const { oid, depth, name, collapsed, elementList, isContainer } = oel;
+          {map(flattenedItems, (oel: FlattenedItem) => {
+            const { oid, depth, name, collapsed, elementList, isContainer, canDelete, canDrag } = oel;
             return (
               <SortableTreeItem
                 key={oid}
@@ -154,9 +150,10 @@ export const OperateArea = ({ onItemClick }: { onItemClick: (oel: IOperateElemen
                 depth={oid === activeId && projected ? projected.depth : depth}
                 indentationWidth={indentationWidth}
                 label={name}
+                canDrag={canDrag}
                 collapsed={isContainer && collapsed && size(elementList) > 0}
                 onCollapse={isContainer && size(elementList) > 0 ? handleCollapse : undefined}
-                onRemove={handleRemove}
+                onRemove={canDelete ? handleRemove : undefined}
                 onClick={() => onItemClick(oel)}
               />
             );
