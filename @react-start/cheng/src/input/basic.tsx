@@ -1,7 +1,7 @@
 import { SetProp } from "../types";
 import React, { useState } from "react";
 import { Checkbox, FormControlLabel, MenuItem, TextField } from "@material-ui/core";
-import { isNumber, map } from "lodash";
+import { isNumber, map, isObject, get } from "lodash";
 import { useSetProp } from "../OperatePanel";
 
 export interface SetProps extends SetProp {
@@ -67,6 +67,7 @@ export const StringSet = ({ name, propKey, value, rows }: SetProps) => {
 
 export const SelectSet = ({ name, propKey, value, chooseValue }: SetProps) => {
   const { setProp } = useSetProp();
+  const [v, setV] = useState(value);
 
   return (
     <TextField
@@ -74,15 +75,21 @@ export const SelectSet = ({ name, propKey, value, chooseValue }: SetProps) => {
       select
       fullWidth
       label={name}
-      value={value}
+      value={v}
       onChange={(e) => {
-        setProp(propKey, e.target.value);
+        const v = e.target.value;
+        setProp(propKey, v);
+        setV(v);
       }}>
-      {map(chooseValue, (item) => (
-        <MenuItem key={item} value={item}>
-          {item}
-        </MenuItem>
-      ))}
+      {map(chooseValue, (item) => {
+        const value = isObject(item) ? get(item, "value") : item;
+        const label = isObject(item) ? get(item, "label") : item;
+        return (
+          <MenuItem key={value} value={value}>
+            {label}
+          </MenuItem>
+        );
+      })}
     </TextField>
   );
 };

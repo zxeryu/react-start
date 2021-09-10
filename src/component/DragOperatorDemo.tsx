@@ -45,7 +45,17 @@ const OneElement: IOperateElementItem = {
 const TestValueSet = (props: any) => {
   return (
     <div>
-      <SelectSet name={"选择值"} propKey={"selectValue"} {...props} chooseValue={[1, 2, 3]} />
+      <SelectSet
+        name={"选择值"}
+        propKey={"selectValue"}
+        {...props}
+        // chooseValue={[1, 2, 3]}
+        chooseValue={[
+          { label: "label-1", value: 1 },
+          { label: "label-2", value: 2 },
+          { label: "label-3", value: 3 },
+        ]}
+      />
     </div>
   );
 };
