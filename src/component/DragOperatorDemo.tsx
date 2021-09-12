@@ -69,7 +69,7 @@ const TwoElement: IOperateElementItem = {
     },
   },
   name: "ElementTwo",
-  canDrag: true,
+  // canDrag: true,
   id: "ElementTwo",
   oid: "ElementTwo-O",
 };
@@ -86,6 +86,7 @@ const TestPageSet = ({ data }: { data?: IOperateElementItem }) => {
         <Button onClick={() => setProp("customValue", 1)}>设置值 1</Button>
         <Button onClick={() => setProp("customValue", 2)}>设置值 2</Button>
         <Button onClick={() => setProp("customValue", 3)}>设置值 3</Button>
+        <div css={{ height: "90vh", backgroundColor: "grey" }} />
       </div>
     </div>
   );

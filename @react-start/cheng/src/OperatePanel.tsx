@@ -70,9 +70,18 @@ export const OperatePanel = ({ oel, onClose, onOpen, style }: OperatePanelProps)
         className={"OperatePanel"}
         direction={"column"}
         spacing={"10px"}
-        style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "white", ...style }}>
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          backgroundColor: "white",
+          overflowY: "auto",
+          ...style,
+        }}>
         <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
-          <div>{oel.name}</div>
+          <div style={{ paddingLeft: 10 }}>{oel.name}</div>
           <IconButton onClick={() => onClose(oel.oid)}>
             <CloseIcon />
           </IconButton>

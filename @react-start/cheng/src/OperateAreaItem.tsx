@@ -116,7 +116,11 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
             ...itemStyle,
             padding: 10,
           }}>
-          {canDrag && <DragHandle style={{ outline: "none", cursor: "grab", color: "#666" }} {...handleProps} />}
+          {canDrag ? (
+            <DragHandle style={{ outline: "none", cursor: "grab", color: "#666" }} {...handleProps} />
+          ) : (
+            <DragHandle style={{ visibility: "hidden" }} />
+          )}
           {onCollapse && <Arrow onClick={() => onCollapse(id)} />}
           <Typography variant={"subtitle2"} noWrap style={{ paddingLeft: ".5rem", flexGrow: 1, ...disableStyle }}>
             {label}

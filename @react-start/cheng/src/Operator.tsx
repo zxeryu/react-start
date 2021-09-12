@@ -7,11 +7,12 @@ import React, {
   SetStateAction,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
 } from "react";
 import { OperatePanel, OperatePanelProps } from "./OperatePanel";
-import { isFunction, map, filter, size } from "lodash";
+import { isFunction, map, filter, size, isEmpty } from "lodash";
 import { Stack } from "@material-ui/core";
 import { OperateArea } from "./OperateArea";
 import { Item } from "./component";
@@ -55,20 +56,23 @@ const OperatorContext = createContext<OperatorContextProps>({} as any);
 export const useOperator = () => useContext(OperatorContext);
 
 export const Operator = ({
-                           operateElements,
-                           elements,
-                           extraOperateElements,
-                           extraSetElementMap,
-                           //
-                           onExtraChange,
-                           onChange,
-                           onDragChange,
-                           onItemClick,
-                           //
-                           style,
-                           children,
-                         }: OperatorProps) => {
+  operateElements,
+  elements,
+  extraOperateElements,
+  extraSetElementMap,
+  //
+  onExtraChange,
+  onChange,
+  // onDragChange,
+  onItemClick,
+  //
+  style,
+  children,
+}: OperatorProps) => {
   const [data, setData] = useState<IOperateElementItem[]>(operateElements);
+  useEffect(() => {
+    setData(operateElements);
+  }, [operateElements]);
   const dataRef = useRef<IOperateElementItem[]>(operateElements);
   dataRef.current = data;
 
@@ -128,8 +132,12 @@ export const Operator = ({
           direction={"column"}>
           <OperateArea
             onItemClick={(oel) => {
-              setOperatePanels([oel]);
               onItemClick && onItemClick(oel);
+              if (!isEmpty(oel.setProps) || oel.setElement || size(oel.elementList) > 0) {
+                setOperatePanels([oel]);
+              } else {
+                setOperatePanels([]);
+              }
             }}
           />
 

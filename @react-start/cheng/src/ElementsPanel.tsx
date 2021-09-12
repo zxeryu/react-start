@@ -32,7 +32,7 @@ export const ElementsPanel = ({
         ...style,
       }}>
       <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
-        <div>添加元素</div>
+        <div style={{ paddingLeft: 10 }}>添加元素</div>
         <IconButton onClick={() => onClose()}>
           <CloseIcon />
         </IconButton>
