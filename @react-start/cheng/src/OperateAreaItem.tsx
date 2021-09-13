@@ -1,8 +1,9 @@
 import React, { CSSProperties, forwardRef, ReactNode, useCallback, useMemo, useState } from "react";
 import { DragHandle, ArrowForwardIos as Arrow, MoreVert } from "@material-ui/icons";
-import { Stack, Typography, IconButton, Menu, MenuItem } from "@material-ui/core";
+import { Stack, Typography, IconButton, Menu, MenuItem, TextField } from "@material-ui/core";
 import { AnimateLayoutChanges, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { get } from "lodash";
 
 const countStyle: CSSProperties = {
   position: "absolute",
@@ -35,6 +36,7 @@ export interface TreeItemProps {
   style?: CSSProperties;
   onCollapse?: (oid: string) => void;
   onRemove?: (oid: string) => void;
+  onNameChange?: (oid: string, name: string) => void;
   wrapperRef?: (node: HTMLElement) => void;
   onClick?: () => void;
   canDrag?: boolean;
@@ -56,6 +58,7 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
       collapsed,
       onCollapse,
       onRemove,
+      onNameChange,
       style,
       label,
       wrapperRef,
@@ -86,11 +89,17 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
       [clone, disableInteraction, disableSelection],
     );
 
+    //删除相关
+
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     const handleRemove = useCallback((id: string) => {
       onRemove && onRemove(id);
     }, []);
+
+    //编辑名称
+
+    const [editName, setEditName] = useState<boolean>(false);
 
     return (
       <li
@@ -122,10 +131,24 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
             <DragHandle style={{ visibility: "hidden" }} />
           )}
           {onCollapse && <Arrow onClick={() => onCollapse(id)} />}
-          <Typography variant={"subtitle2"} noWrap style={{ paddingLeft: ".5rem", flexGrow: 1, ...disableStyle }}>
-            {label}
-          </Typography>
-          {!clone && onRemove && (
+          {editName ? (
+            <TextField
+              size={"small"}
+              defaultValue={label}
+              onKeyDown={(e) => {
+                if (e.code === "Enter") {
+                  onNameChange && onNameChange(id, get(e.target, "value"));
+                  setEditName(false);
+                }
+              }}
+            />
+          ) : (
+            <Typography variant={"subtitle2"} noWrap style={{ paddingLeft: ".5rem", flexGrow: 1, ...disableStyle }}>
+              {label}
+            </Typography>
+          )}
+
+          {!clone && (onRemove || onNameChange) && (
             <IconButton
               size={"small"}
               onClick={(e) => {
@@ -145,6 +168,9 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
             }}>
             <MenuItem value={"delete"} onClick={() => handleRemove(id)}>
               删除
+            </MenuItem>
+            <MenuItem value={"editName"} onClick={() => setEditName(true)}>
+              修改名称
             </MenuItem>
           </Menu>
           {clone && childCount && <span style={{ ...countStyle, ...disableStyle }}>{childCount}</span>}

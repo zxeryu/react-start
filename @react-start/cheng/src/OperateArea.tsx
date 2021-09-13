@@ -28,7 +28,7 @@ import {
   removeItem,
   setProperty,
 } from "./utilities";
-import { reduce, size, map, find, findIndex } from "lodash";
+import { reduce, size, map, find, findIndex, get } from "lodash";
 import { SortableTreeItem, TreeItem } from "./OperateAreaItem";
 import { createPortal } from "react-dom";
 
@@ -129,6 +129,17 @@ export const OperateArea = ({ onItemClick }: { onItemClick: (oel: IOperateElemen
     setDataWithEmitChange((prev) => removeItem(prev, oid));
   }, []);
 
+  const handleNameChange = useCallback((oid: string, name: string) => {
+    setDataWithEmitChange((prev) => {
+      return map(prev, (oel) => {
+        if (oel.oid === oid) {
+          return { ...oel, props: { ...oel.props, rewriteName$: name } };
+        }
+        return oel;
+      });
+    });
+  }, []);
+
   return (
     <DndContext
       sensors={sensors}
@@ -142,18 +153,20 @@ export const OperateArea = ({ onItemClick }: { onItemClick: (oel: IOperateElemen
       <SortableContext items={sortedIds} strategy={verticalListSortingStrategy}>
         <Stack className={"OperateArea"} style={{ flex: 1 }}>
           {map(flattenedItems, (oel: FlattenedItem) => {
-            const { oid, depth, name, collapsed, elementList, isContainer, canDelete, canDrag } = oel;
+            const { oid, depth, name, collapsed, elementList, isContainer, canDelete, canDrag, canEditName, props } =
+              oel;
             return (
               <SortableTreeItem
                 key={oid}
                 id={oid}
                 depth={oid === activeId && projected ? projected.depth : depth}
                 indentationWidth={indentationWidth}
-                label={name}
+                label={get(props, "rewriteName$", name)}
                 canDrag={canDrag}
                 collapsed={isContainer && collapsed && size(elementList) > 0}
                 onCollapse={isContainer && size(elementList) > 0 ? handleCollapse : undefined}
                 onRemove={canDelete ? handleRemove : undefined}
+                onNameChange={canEditName ? handleNameChange : undefined}
                 onClick={() => onItemClick(oel)}
               />
             );

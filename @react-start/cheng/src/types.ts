@@ -31,6 +31,8 @@ export interface IElementItem {
   name?: string;
   //是否能拖动 默认true
   canDrag?: boolean;
+  //是否能修改名称
+  canEditName?: boolean;
   //不进入操作区，如：全局设置
   isExtra?: boolean;
   //是否可以删除

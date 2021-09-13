@@ -69,6 +69,7 @@ const TwoElement: IOperateElementItem = {
     },
   },
   name: "ElementTwo",
+  canEditName: true,
   // canDrag: true,
   id: "ElementTwo",
   oid: "ElementTwo-O",
@@ -98,6 +99,7 @@ const ThreeElement: IOperateElementItem = {
   name: "ElementThree",
   canDrag: true,
   canDelete: true,
+  canEditName: true,
   id: "ElementThree",
   oid: "ElementThree-O",
 };
@@ -254,7 +256,7 @@ export const DragOperatorDemo = () => {
             (pair, item) => {
               return {
                 ...pair,
-                [item.id!]: pick(item, "props"),
+                [item.oid!]: pick(item, "props"),
               };
             },
             {},
