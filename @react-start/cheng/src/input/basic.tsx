@@ -1,6 +1,6 @@
 import { SetProp } from "../types";
 import React, { useState } from "react";
-import { Checkbox, FormControlLabel, MenuItem, TextField } from "@material-ui/core";
+import { Checkbox, MenuItem, Stack, TextField } from "@material-ui/core";
 import { isNumber, map, isObject, get } from "lodash";
 import { useSetProp } from "../OperatePanel";
 
@@ -15,15 +15,17 @@ export const BooleanSet = ({ name, propKey, value }: SetProps) => {
   const [checked, setChecked] = useState<boolean>(value);
 
   return (
-    <FormControlLabel
-      checked={checked}
-      control={<Checkbox />}
-      label={name}
-      onChange={(e) => {
-        setProp(propKey, (e.target as any).checked);
-        setChecked((e.target as any).checked);
-      }}
-    />
+    <Stack direction={"row"} style={{ alignItems: "center" }}>
+      <Checkbox
+        style={{ padding: 2 }}
+        checked={checked}
+        onChange={(e) => {
+          setProp(propKey, e.target.checked);
+          setChecked(e.target.checked);
+        }}
+      />
+      <span>{name}</span>
+    </Stack>
   );
 };
 

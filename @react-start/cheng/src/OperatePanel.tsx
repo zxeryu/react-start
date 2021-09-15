@@ -69,7 +69,6 @@ export const OperatePanel = ({ oel, onClose, onOpen, style }: OperatePanelProps)
       <Stack
         className={"OperatePanel"}
         direction={"column"}
-        spacing={"10px"}
         style={{
           position: "absolute",
           top: 0,
@@ -80,16 +79,17 @@ export const OperatePanel = ({ oel, onClose, onOpen, style }: OperatePanelProps)
           overflowY: "auto",
           ...style,
         }}>
-        <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
-          <div style={{ paddingLeft: 10 }}>{oel.name}</div>
-          <IconButton onClick={() => onClose(oel.oid)}>
-            <CloseIcon />
-          </IconButton>
-        </Stack>
+        <div style={{ lineHeight: "40px" }}>{oel.name}</div>
 
-        {oel.setElement && isValidElement(oel.setElement)
-          ? cloneElement(oel.setElement, { data: oel })
-          : map(oel.setProps, (prop, propKey) => {
+        <IconButton style={{ position: "absolute", top: 0, right: 0 }} onClick={() => onClose(oel.oid)}>
+          <CloseIcon />
+        </IconButton>
+
+        {oel.setElement && isValidElement(oel.setElement) ? (
+          cloneElement(oel.setElement, { data: oel })
+        ) : (
+          <Stack direction={"column"} className={"OperatePanelItemStack"}>
+            {map(oel.setProps, (prop, propKey) => {
               if (prop.element && isValidElement(prop.element)) {
                 return cloneElement(prop.element, { key: propKey, value: get(oel.props, propKey) });
               }
@@ -98,10 +98,12 @@ export const OperatePanel = ({ oel, onClose, onOpen, style }: OperatePanelProps)
               const SetElement = get({ ...SetElementMap, ...extraSetElementMap }, elementKey);
 
               if (!SetElement) {
-                return prop.name;
+                return <div style={{ paddingTop: 8 }}>{prop.name}</div>;
               }
               return <SetElement key={propKey} propKey={propKey} {...prop} value={get(oel.props, propKey)} />;
             })}
+          </Stack>
+        )}
 
         {size(oel.elementList) > 0 &&
           map(oel.elementList, (oel) => <Item key={oel.oid} label={oel.name} onClick={() => onOpen && onOpen(oel)} />)}

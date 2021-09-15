@@ -59,7 +59,7 @@ const OperateMenu = ({
   }, [clone, onRemove, onNameChange]);
 
   return (
-    <>
+    <div style={{ height: 32 }}>
       {showMenu && (
         <IconButton
           size={"small"}
@@ -91,7 +91,7 @@ const OperateMenu = ({
           </MenuItem>
         )}
       </Menu>
-    </>
+    </div>
   );
 };
 
@@ -122,7 +122,7 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
     const { wrapperStyle, itemStyle, disableStyle }: { [key: string]: CSSProperties } = useMemo(
       () => ({
         wrapperStyle: {
-          ...(clone ? { display: "inline-block", pointerEvents: "none", padding: 5 } : undefined),
+          ...(clone ? { display: "inline-block", pointerEvents: "none" } : undefined),
           ...(disableInteraction ? { pointerEvents: "none" } : undefined),
         },
         itemStyle: {

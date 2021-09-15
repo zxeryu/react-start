@@ -68,6 +68,8 @@ export const Operator = ({
   //
   style,
   children,
+  //
+  ...otherProps
 }: OperatorProps) => {
   const [data, setData] = useState<IOperateElementItem[]>(operateElements);
   useEffect(() => {
@@ -125,7 +127,7 @@ export const Operator = ({
         openElementsPanel,
         operatePanels,
       }}>
-      <Stack style={{ height: "100%", ...style }} direction={"row"}>
+      <Stack style={{ height: "100%", ...style }} direction={"row"} {...otherProps}>
         <Stack
           className={"LeftArea"}
           style={{ position: "relative", width: 300, minWidth: 300, height: "100%" }}
@@ -175,6 +177,7 @@ export const Operator = ({
         </Stack>
         {size(operatePanels) > 0 && (
           <Stack
+            className={"RightArea"}
             style={{
               position: "relative",
               width: 300,

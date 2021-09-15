@@ -245,6 +245,27 @@ export const DragOperatorDemo = () => {
       </Button>
 
       <Operator
+        css={{
+          ".LeftArea": {
+            border: "1px solid #eee",
+            padding: "10px 10px 10px",
+          },
+          ".NormalItem": {
+            padding: "6px 0",
+          },
+          ".OperatePanel": {
+            padding: "0 10px",
+          },
+          ".RightArea .OperatePanel": {
+            border: "1px solid #eee",
+          },
+          ".RightArea .OperatePanel .OperatePanelItemStack": {
+            "*": { marginTop: 6 },
+          },
+          ".LeftArea .OperatePanel .OperatePanelItemStack": {
+            "*": { marginTop: 4 },
+          },
+        }}
         style={{ height: "80vh" }}
         elements={elements}
         operateElements={OElements}
@@ -276,6 +297,7 @@ export const DragOperatorDemo = () => {
         // footer={<div>Footer</div>}
       >
         <iframe
+          style={{ border: 0 }}
           ref={frameRef}
           src={"/DragShowPage"}
           css={{ ...(mode === "pc" ? { flex: 1 } : { width: 375 }), height: "80vh" }}
