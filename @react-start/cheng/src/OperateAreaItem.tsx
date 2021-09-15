@@ -1,9 +1,10 @@
-import React, { CSSProperties, forwardRef, ReactNode, useCallback, useMemo, useState } from "react";
+import React, { CSSProperties, forwardRef, ReactNode, useMemo, useState } from "react";
 import { DragHandle, ArrowForwardIos as Arrow, MoreVert } from "@material-ui/icons";
 import { Stack, Typography, IconButton, Menu, MenuItem, TextField } from "@material-ui/core";
 import { AnimateLayoutChanges, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { get } from "lodash";
+import { withoutBubble } from "./util";
 
 const countStyle: CSSProperties = {
   position: "absolute",
@@ -41,6 +42,58 @@ export interface TreeItemProps {
   onClick?: () => void;
   canDrag?: boolean;
 }
+
+const OperateMenu = ({
+  clone,
+  onRemove,
+  onNameChange,
+  id,
+  onNameEditClick,
+}: Pick<TreeItemProps, "clone" | "onRemove" | "onNameChange" | "id"> & {
+  onNameEditClick: () => void;
+}) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const showMenu = useMemo(() => {
+    return !clone && (onRemove || onNameChange);
+  }, [clone, onRemove, onNameChange]);
+
+  return (
+    <>
+      {showMenu && (
+        <IconButton
+          size={"small"}
+          onClick={withoutBubble((e) => {
+            setAnchorEl(e.currentTarget);
+          })}>
+          <MoreVert />
+        </IconButton>
+      )}
+      <Menu open={!!anchorEl} anchorEl={anchorEl} onClose={withoutBubble(() => setAnchorEl(null))}>
+        {onRemove && (
+          <MenuItem
+            value={"delete"}
+            onClick={withoutBubble(() => {
+              setAnchorEl(null);
+              onRemove(id);
+            })}>
+            删除
+          </MenuItem>
+        )}
+        {onNameChange && (
+          <MenuItem
+            value={"editName"}
+            onClick={withoutBubble(() => {
+              setAnchorEl(null);
+              onNameEditClick();
+            })}>
+            修改名称
+          </MenuItem>
+        )}
+      </Menu>
+    </>
+  );
+};
 
 export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
   (
@@ -89,14 +142,6 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
       [clone, disableInteraction, disableSelection],
     );
 
-    //删除相关
-
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-    const handleRemove = useCallback((id: string) => {
-      onRemove && onRemove(id);
-    }, []);
-
     //编辑名称
 
     const [editName, setEditName] = useState<boolean>(false);
@@ -141,6 +186,10 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
                   setEditName(false);
                 }
               }}
+              onBlur={(e) => {
+                onNameChange && onNameChange(id, get(e.target, "value"));
+                setEditName(false);
+              }}
             />
           ) : (
             <Typography variant={"subtitle2"} noWrap style={{ paddingLeft: ".5rem", flexGrow: 1, ...disableStyle }}>
@@ -148,31 +197,14 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
             </Typography>
           )}
 
-          {!clone && (onRemove || onNameChange) && (
-            <IconButton
-              size={"small"}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setAnchorEl(e.currentTarget);
-              }}>
-              <MoreVert />
-            </IconButton>
-          )}
-          <Menu
-            open={!!anchorEl}
-            anchorEl={anchorEl}
-            onClose={(e: any) => {
-              e.stopPropagation();
-              setAnchorEl(null);
-            }}>
-            <MenuItem value={"delete"} onClick={() => handleRemove(id)}>
-              删除
-            </MenuItem>
-            <MenuItem value={"editName"} onClick={() => setEditName(true)}>
-              修改名称
-            </MenuItem>
-          </Menu>
+          <OperateMenu
+            id={id}
+            clone={clone}
+            onRemove={onRemove}
+            onNameChange={onNameChange}
+            onNameEditClick={() => setEditName(true)}
+          />
+
           {clone && childCount && <span style={{ ...countStyle, ...disableStyle }}>{childCount}</span>}
         </Stack>
       </li>

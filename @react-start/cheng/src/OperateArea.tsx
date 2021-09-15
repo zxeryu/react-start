@@ -43,6 +43,9 @@ const dropAnimation: DropAnimation = {
 
 const indentationWidth = 50;
 
+//菜单名称key
+const OPERATE_CONFIG_NAME = "operate_config_name$";
+
 export const OperateArea = ({ onItemClick }: { onItemClick: (oel: IOperateElementItem) => void }) => {
   const { data, setData, setDataWithEmitChange } = useOperator();
   const dataRef = useRef<IOperateElementItem[]>(data);
@@ -133,7 +136,7 @@ export const OperateArea = ({ onItemClick }: { onItemClick: (oel: IOperateElemen
     setDataWithEmitChange((prev) => {
       return map(prev, (oel) => {
         if (oel.oid === oid) {
-          return { ...oel, props: { ...oel.props, rewriteName$: name } };
+          return { ...oel, props: { ...oel.props, [OPERATE_CONFIG_NAME]: name } };
         }
         return oel;
       });
@@ -161,7 +164,7 @@ export const OperateArea = ({ onItemClick }: { onItemClick: (oel: IOperateElemen
                 id={oid}
                 depth={oid === activeId && projected ? projected.depth : depth}
                 indentationWidth={indentationWidth}
-                label={get(props, "rewriteName$", name)}
+                label={get(props, OPERATE_CONFIG_NAME, name)}
                 canDrag={canDrag}
                 collapsed={isContainer && collapsed && size(elementList) > 0}
                 onCollapse={isContainer && size(elementList) > 0 ? handleCollapse : undefined}
