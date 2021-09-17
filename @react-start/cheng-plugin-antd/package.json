@@ -1,0 +1,32 @@
+{
+  "name": "@react-start/cheng-plugin-antd",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "author": "zx <zxpstudy@163.com>",
+  "homepage": "https://github.com/zxeryu/react-start#readme",
+  "license": "MIT",
+  "files": [
+    "dist/"
+  ],
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zxeryu/react-start.git"
+  },
+  "scripts": {
+    "build": "rollup -c rollup.config.js"
+  },
+  "bugs": {
+    "url": "https://github.com/zxeryu/react-start/issues"
+  },
+  "peerDependencies": {
+    "antd": "^4.16.x",
+    "lodash": "^4.x",
+    "@react-start/cheng-high": "*"
+  }
+}
