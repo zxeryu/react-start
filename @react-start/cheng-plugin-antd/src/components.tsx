@@ -1,22 +1,15 @@
-import React from "react";
-import { Button } from "antd";
-import { ButtonProps } from "antd/es";
-import { useHigh, useHighPage, HighConfig } from "@react-start/cheng-high";
+import React, { AnchorHTMLAttributes } from "react";
+import { HighConfig, useHighPage, withoutBubble } from "@react-start/cheng-high";
 
-export interface HighButtonProps extends ButtonProps, HighConfig {
-  iconName?: string;
-}
+export interface HighAProps extends AnchorHTMLAttributes<HTMLAnchorElement>, HighConfig {}
 
-export const HighButton = ({ highConfig, iconName, ...otherProps }: HighButtonProps) => {
-  const { getIcon } = useHigh();
+export const HighA = ({ highConfig, ...otherProps }: HighAProps) => {
   const { getStateValues, sendEvent } = useHighPage();
-
   return (
-    <Button
+    <a
       {...otherProps}
-      icon={iconName ? getIcon(iconName) : otherProps.icon}
       {...getStateValues(highConfig?.receiveStateList)}
-      onClick={(e) => {
+      onClick={withoutBubble((e: any) => {
         if (otherProps.onClick) {
           otherProps.onClick(e);
           return;
@@ -28,7 +21,7 @@ export const HighButton = ({ highConfig, iconName, ...otherProps }: HighButtonPr
         if (highConfig?.sendEventName) {
           sendEvent({ type: highConfig.sendEventName });
         }
-      }}
+      })}
     />
   );
 };
