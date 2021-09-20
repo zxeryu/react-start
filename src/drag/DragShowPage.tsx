@@ -60,9 +60,9 @@ export const DragShowPage = () => {
       {count}
       <button onClick={() => setCount((prevState) => prevState + 1)}>update</button>
       <Stack spacing={2}>
-        <ElementOne data={get(composeData, "ElementOne")} />
-        <ElementTwo data={get(composeData, "ElementTwo")} />
-        <ElementThree data={get(composeData, "ElementThree")} />
+        <ElementOne data={get(composeData, "ElementOne-O")} />
+        <ElementTwo data={get(composeData, "ElementTwo-O")} />
+        <ElementThree data={get(composeData, "ElementThree-O")} />
       </Stack>
     </div>
   );

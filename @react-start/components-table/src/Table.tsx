@@ -112,7 +112,7 @@ export const Table = <RecordType extends object = any>({
   return (
     <div style={{ clear: "both", maxWidth: "100%" }}>
       <RCTable
-        {...{ css: tableStyle }}
+        css={tableStyle as any}
         {...otherProps}
         data={pageData}
         rowKey={getRowKey}
