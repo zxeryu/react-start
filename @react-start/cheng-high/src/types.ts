@@ -1,3 +1,20 @@
+import { ReactNode } from "react";
+
+export type TValue = string | number;
+
+export interface IOption {
+  label: ReactNode;
+  value: TValue;
+  disable?: boolean;
+}
+
+export interface ITreeOption extends IOption {
+  children?: ITreeOption[];
+  isLeaf?: boolean;
+}
+
+export type TOptions = IOption[];
+
 export type HighAction = {
   //事件名称
   type: string;
@@ -24,14 +41,12 @@ export interface HConfig {
     //组件需要的属性名称；如不存在，用name的值作为属性名称传递给组件
     mapName?: string;
   }[];
+
+  highInject?: Pick<ElementConfigBase, "elementType$" | "oid" | "elementList">;
 }
 
 export interface HighConfig {
   highConfig?: HConfig;
-}
-
-export interface HighInject {
-  highInject: Pick<ElementConfigBase, "elementType$" | "oid" | "elementList">;
 }
 
 export interface HighSendEvent {
@@ -39,7 +54,7 @@ export interface HighSendEvent {
   onSend?: (action: HighAction) => void;
 }
 
-export interface HighProps extends HighConfig, HighInject, HighSendEvent {}
+export interface HighProps extends HighConfig, HighSendEvent {}
 
 export interface BaseHighProps extends HighProps {
   [key: string]: any;

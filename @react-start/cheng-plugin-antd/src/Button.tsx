@@ -1,13 +1,20 @@
 import React from "react";
 import { Button } from "antd";
 import { ButtonProps } from "antd/es";
-import { useHigh, useHighPage, HighConfig } from "@react-start/cheng-high";
+import { useHigh, useHighPage, HighProps } from "@react-start/cheng-high";
 
-export interface HighButtonProps extends ButtonProps, HighConfig {
+export interface HighButtonProps extends ButtonProps, HighProps {
   iconName?: string;
 }
 
-export const HighButton = ({ highConfig, iconName, ...otherProps }: HighButtonProps) => {
+export const HighButton = ({
+  //
+  highConfig,
+  onSend,
+  //
+  iconName,
+  ...otherProps
+}: HighButtonProps) => {
   const { getIcon } = useHigh();
   const { getStateValues, sendEvent } = useHighPage();
 
@@ -21,8 +28,8 @@ export const HighButton = ({ highConfig, iconName, ...otherProps }: HighButtonPr
           otherProps.onClick(e);
           return;
         }
-        if (highConfig?.onSend && highConfig?.sendEventName) {
-          highConfig.onSend({ type: highConfig.sendEventName });
+        if (onSend && highConfig?.sendEventName) {
+          onSend({ type: highConfig.sendEventName });
           return;
         }
         if (highConfig?.sendEventName) {

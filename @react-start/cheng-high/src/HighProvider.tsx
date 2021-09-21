@@ -11,8 +11,6 @@ import { ElementConfigBase, BaseHighProps, HighProps } from "./types";
 
 type ElementType = FunctionComponent | ForwardRefRenderFunction<any, any>;
 
-type HighExtraProps = Omit<HighProps, "highInject">;
-
 interface HighContextProps {
   // elements map
   elementsMap: { [key: string]: ElementType };
@@ -22,8 +20,8 @@ interface HighContextProps {
   getIcon: (iconName: string) => ReactNode | undefined;
   //
   getProps: (c: ElementConfigBase) => BaseHighProps;
-  renderElement: (c: ElementConfigBase, highProps?: HighExtraProps) => ReactNode;
-  renderElementList: (c: ElementConfigBase[], highProps?: HighExtraProps) => ReactNode[];
+  renderElement: (c: ElementConfigBase, highProps?: HighProps) => ReactNode;
+  renderElementList: (c: ElementConfigBase[], highProps?: HighProps) => ReactNode[];
 }
 
 const HighContext = createContext<HighContextProps>({} as any);
@@ -42,12 +40,15 @@ export const HighProvider = ({ children, elementsMap, iconMap }: HighProviderPro
     const highInject = pick(c, "elementType$", "oid", "elementList");
     return {
       ...c.elementProps$,
-      highInject,
+      highConfig: {
+        ...c.elementProps$?.highConfig,
+        highInject,
+      },
     } as BaseHighProps;
   }, []);
 
   const renderElement = useCallback(
-    (c: ElementConfigBase, highProps?: HighExtraProps) => {
+    (c: ElementConfigBase, highProps?: HighProps) => {
       const El = getElement(c.elementType$);
       if (!El) {
         return null;
@@ -58,7 +59,7 @@ export const HighProvider = ({ children, elementsMap, iconMap }: HighProviderPro
   );
 
   const renderElementList = useCallback(
-    (elementConfigList: ElementConfigBase[], highProps?: HighExtraProps) => {
+    (elementConfigList: ElementConfigBase[], highProps?: HighProps) => {
       return map(elementConfigList, (c) => renderElement(c, highProps));
     },
     [renderElement],

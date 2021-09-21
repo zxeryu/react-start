@@ -1,9 +1,9 @@
 import React, { AnchorHTMLAttributes } from "react";
-import { HighConfig, useHighPage, withoutBubble } from "@react-start/cheng-high";
+import { HighProps, useHighPage, withoutBubble } from "@react-start/cheng-high";
 
-export interface HighAProps extends AnchorHTMLAttributes<HTMLAnchorElement>, HighConfig {}
+export interface HighAProps extends AnchorHTMLAttributes<HTMLAnchorElement>, HighProps {}
 
-export const HighA = ({ highConfig, ...otherProps }: HighAProps) => {
+export const HighA = ({ highConfig, onSend, ...otherProps }: HighAProps) => {
   const { getStateValues, sendEvent } = useHighPage();
   return (
     <a
@@ -14,8 +14,8 @@ export const HighA = ({ highConfig, ...otherProps }: HighAProps) => {
           otherProps.onClick(e);
           return;
         }
-        if (highConfig?.onSend && highConfig?.sendEventName) {
-          highConfig.onSend({ type: highConfig.sendEventName });
+        if (onSend && highConfig?.sendEventName) {
+          onSend({ type: highConfig.sendEventName });
           return;
         }
         if (highConfig?.sendEventName) {

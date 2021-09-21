@@ -1,15 +1,21 @@
 import { HighButtonProps } from "./Button";
 import { HighAProps } from "./components";
+import { HighTableDropdownProps } from "./ProTableComponent";
 
-type ElementMap = {
+export interface ElementMap {
   HighButton: HighButtonProps;
   HighA: HighAProps;
-};
-
-export interface ElementProps<T extends keyof ElementMap> {
-  elementType$: T;
-  elementProps$: ElementMap[T];
-  oid?: string | number;
+  HighTableDropdown: HighTableDropdownProps;
 }
 
-export type ElementListProps = ElementProps<keyof ElementMap>[];
+export interface ElementProp<T extends ElementMap, K extends keyof T> {
+  elementType$: K;
+  elementProps$: T[K];
+  oid: string;
+  elementList?: ElementProp<T, keyof T>;
+}
+
+//对应cheng中的OElementItem
+export type ElementProps = ElementProp<ElementMap, keyof ElementMap>;
+
+export type ElementListProps = ElementProps[];
