@@ -7,19 +7,40 @@ export type HighAction = {
   global?: boolean;
 };
 
-export type HConfig = {
+export interface ElementConfigBase {
+  elementType$: string;
+  elementProps$: any;
+  oid: string;
+  elementList?: ElementConfigBase;
+}
+
+export interface HConfig {
   //默认发送事件名称
   sendEventName?: string;
-  //高阶组件中使用 如HighTable中使用HighButton
-  onSend?: (action: HighAction) => void;
+  //接受状态的描述
   receiveStateList?: {
     //state中的key值
     name: string;
     //组件需要的属性名称；如不存在，用name的值作为属性名称传递给组件
     mapName?: string;
   }[];
-};
+}
 
 export interface HighConfig {
   highConfig?: HConfig;
+}
+
+export interface HighInject {
+  highInject: Pick<ElementConfigBase, "elementType$" | "oid" | "elementList">;
+}
+
+export interface HighSendEvent {
+  //高阶组件中使用 如HighTable中使用HighButton
+  onSend?: (action: HighAction) => void;
+}
+
+export interface HighProps extends HighConfig, HighInject, HighSendEvent {}
+
+export interface BaseHighProps extends HighProps {
+  [key: string]: any;
 }
