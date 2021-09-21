@@ -1,9 +1,8 @@
 import React from "react";
 import { TableDropdown } from "@ant-design/pro-table";
 import { DropdownProps } from "@ant-design/pro-table/es/components/Dropdown";
-import { HighProps, TOptions } from "@react-start/cheng-high";
+import { HighProps, TOptions, useHighPage } from "@react-start/cheng-high";
 import { map } from "lodash";
-import { useHighPage } from "../../cheng-high";
 
 export interface HighTableDropdownProps extends Omit<DropdownProps, "menus">, HighProps {
   options?: TOptions;
@@ -24,7 +23,7 @@ export const HighTableDropdown = ({ highConfig, onSend, options, ...otherProps }
           return;
         }
         if (onSend) {
-          onSend({ type: highConfig.sendEventName, payload: key });
+          onSend({ type: highConfig.sendEventName, payload: { value: key } });
           return;
         }
         sendEvent({ type: highConfig.sendEventName });

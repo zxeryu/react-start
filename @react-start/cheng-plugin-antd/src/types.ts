@@ -1,10 +1,12 @@
 import { HighButtonProps } from "./Button";
 import { HighAProps } from "./components";
 import { HighTableDropdownProps } from "./ProTableComponent";
+import { HighTableProps } from "./ProTable";
 
 export interface ElementMap {
   HighButton: HighButtonProps;
   HighA: HighAProps;
+  HighTable: HighTableProps;
   HighTableDropdown: HighTableDropdownProps;
 }
 

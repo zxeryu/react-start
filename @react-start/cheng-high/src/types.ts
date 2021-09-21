@@ -15,6 +15,9 @@ export interface ITreeOption extends IOption {
 
 export type TOptions = IOption[];
 
+export declare type InternalNamePath = (string | number)[];
+export declare type NamePath = string | number | InternalNamePath;
+
 export type HighAction = {
   //事件名称
   type: string;
@@ -37,9 +40,11 @@ export interface HConfig {
   //接受状态的描述
   receiveStateList?: {
     //state中的key值
-    name: string;
+    name: NamePath;
     //组件需要的属性名称；如不存在，用name的值作为属性名称传递给组件
-    mapName?: string;
+    mapName?: NamePath;
+    //目标props是否是对象，如：HighTable 中的pagination
+    isObject?: boolean;
   }[];
 
   highInject?: Pick<ElementConfigBase, "elementType$" | "oid" | "elementList">;
