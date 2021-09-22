@@ -27,6 +27,8 @@ import { ProFormRadioGroupProps } from "@ant-design/pro-form/es/components/Radio
 import { ProFormSwitchProps } from "@ant-design/pro-form/lib/components/Switch";
 import { ProFormSliderProps } from "@ant-design/pro-form/es/components/Slider";
 import { ProFormMoneyProps } from "@ant-design/pro-form/es/components/Money";
+import { ProFormCaptchaProps } from "@ant-design/pro-form/es";
+import { ProFormDigitProps } from "@ant-design/pro-form/es/components/Digit";
 
 export interface HighFormGroupProps extends GroupProps, HighProps {}
 
@@ -66,17 +68,23 @@ export const HighFormPassword = ({ highConfig, ...otherProps }: HighFormPassword
   return <ProFormText.Password {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
 };
 
-export const HighFormCaptcha = ({ highConfig, ...otherProps }: any) => {
+export interface HighFormCaptchaProps extends ProFormCaptchaProps, HighProps {}
+
+export const HighFormCaptcha = ({ highConfig, ...otherProps }: HighFormCaptchaProps) => {
   const { getStateValues } = useHighPage();
   return <ProFormCaptcha {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
 };
 
-export const HighFormDigit = ({ highConfig, ...otherProps }: any) => {
+export interface HighFormDigitProps extends ProFormDigitProps, HighProps {}
+
+export const HighFormDigit = ({ highConfig, ...otherProps }: HighFormDigitProps) => {
   const { getStateValues } = useHighPage();
   return <ProFormDigit {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
 };
 
-export const HighFormDatePicker = ({ highConfig, ...otherProps }: any) => {
+export type HighFormDatePickerProps = DatePickerProps & HighProps;
+
+export const HighFormDatePicker = ({ highConfig, ...otherProps }: HighFormDatePickerProps) => {
   const { getStateValues } = useHighPage();
   return <ProFormDatePicker {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
 };
