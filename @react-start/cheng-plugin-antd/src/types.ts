@@ -29,6 +29,7 @@ export interface ElementMap {
   HighTableDropdown: HighTableDropdownProps;
   //
   HighForm: HighFormProps;
+  HighSearchForm: HighFormProps;
   HighFormGroup: HighFormGroupProps;
   HighFormItem: HighFormItemProps;
   HighFormText: HighFormTextProps;

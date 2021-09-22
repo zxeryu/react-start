@@ -1,7 +1,7 @@
 import React, { createContext, ReactNode, useContext, useReducer, Reducer, useCallback, useRef } from "react";
 import { reduce, get, set, isArray, head, isObject, tail } from "lodash";
 import { Subject } from "rxjs";
-import { HighAction as Action, HConfig } from "./types";
+import { HighAction as Action, HConfig, HighSendEvent } from "./types";
 
 type Values = { [key: string]: any };
 
@@ -18,6 +18,14 @@ interface HighPageContextProps {
   subject$: Subject<Action>;
   //发送事件
   sendEvent: (action: Action) => void;
+  sendEventSimple: (
+    highConfig?: HConfig,
+    onSend?: HighSendEvent["onSend"],
+    extra?: {
+      key?: string;
+      payload?: any;
+    },
+  ) => void;
 }
 
 const HighPageContext = createContext<HighPageContextProps>({} as any);
@@ -92,9 +100,33 @@ export const HighPageProvider = ({ children }: { children: ReactNode }) => {
     subject$.next(action);
   }, []);
 
+  const sendEventSimple = useCallback(
+    (
+      highConfig?: HConfig,
+      onSend?: HighSendEvent["onSend"],
+      extra?: {
+        key?: string;
+        payload?: any;
+      },
+    ) => {
+      if (!highConfig?.sendEventName) {
+        return;
+      }
+      const suffix = extra?.key ? `:${extra.key}` : "";
+      const type = `${highConfig?.sendEventName}${suffix}`;
+      const action = { type, payload: extra?.payload };
+      if (onSend) {
+        onSend(action);
+        return;
+      }
+      sendEvent(action);
+    },
+    [],
+  );
+
   return (
     <HighPageContext.Provider
-      value={{ state, dispatch, getStateValues, setDataToRef, getDataFromRef, subject$, sendEvent }}>
+      value={{ state, dispatch, getStateValues, setDataToRef, getDataFromRef, subject$, sendEvent, sendEventSimple }}>
       {children}
     </HighPageContext.Provider>
   );
