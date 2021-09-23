@@ -7,6 +7,7 @@ import { ReWriteComponent } from "./component/ReWriteComponent";
 import { DragShowPage } from "./drag/DragShowPage";
 import { TableRCDemo } from "./component/TableRCDemo";
 import { RxDemo } from "./component/RxDemo";
+import { AntdDemo } from "./plugin-antd/Demo";
 
 const Routes = {
   FormDemo,
@@ -16,6 +17,7 @@ const Routes = {
   DragShowPage,
   TableRCDemo,
   RxDemo,
+  AntdDemo,
 };
 
 export const App = () => {
