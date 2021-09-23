@@ -1,7 +1,7 @@
 import { HighButtonProps } from "./Button";
 import { HighAProps } from "./components";
 import { HighTableDropdownProps } from "./ProTableComponent";
-import { HighTableProps } from "./ProTable";
+import { HighEditTableProps, HighTableProps } from "./ProTable";
 import { HighFormProps } from "./ProForm";
 import {
   HighFormCaptchaProps,
@@ -19,6 +19,7 @@ import {
   HighFormSliderProps,
   HighFormSwitchProps,
   HighFormTextProps,
+  HighProFormFieldProps,
 } from "./ProFormComponent";
 import { HighCardProps, HighPageContainerProps } from "./Layout";
 
@@ -27,6 +28,7 @@ export interface ElementMap {
   HighA: HighAProps;
   //
   HighTable: HighTableProps;
+  HighEditTable: HighEditTableProps;
   HighTableDropdown: HighTableDropdownProps;
   //
   HighForm: HighFormProps;
@@ -47,6 +49,7 @@ export interface ElementMap {
   HighFormRate: any;
   HighFormSlider: HighFormSliderProps;
   HighFormMoney: HighFormMoneyProps;
+  HighProFormField: HighProFormFieldProps;
   //
   HighPageContainer: HighPageContainerProps;
   HighCard: HighCardProps;

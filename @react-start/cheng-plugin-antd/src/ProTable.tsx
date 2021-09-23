@@ -1,32 +1,25 @@
 import React, { useCallback, useMemo, useRef } from "react";
-import Table, { ActionType, ProTableProps } from "@ant-design/pro-table";
-import { HighProps, useHighPage, useHigh } from "@react-start/cheng-high";
+import Table, { ActionType, ProTableProps, EditableProTable } from "@ant-design/pro-table";
+import { HighProps, useHighPage } from "@react-start/cheng-high";
 import { ElementListProps } from "./types";
 import { Space } from "antd";
 import { TablePaginationConfig } from "antd/lib/table/interface";
+import { EditableProTableProps } from "@ant-design/pro-table/es/components/EditableTable";
 
 type ParamsType = Record<string, any>;
 
-export interface HighTableProps extends ProTableProps<any, ParamsType, "text">, HighProps {
+export interface HighTableProps extends ProTableProps<any, ParamsType>, HighProps {
   toolBarList?: ElementListProps;
   operateList?: ElementListProps;
 }
 
-export const HighTable = ({ highConfig, onSend, toolBarList, operateList, columns, ...otherProps }: HighTableProps) => {
-  const { renderElementList } = useHigh();
-  const { getStateValues, sendEvent } = useHighPage();
+export const useColumnsWithOperate = (
+  columns?: HighTableProps["columns"],
+  operateList?: ElementListProps,
+): HighTableProps["columns"] => {
+  const { renderElementList, sendEvent } = useHighPage();
 
-  const actionRef = useRef<ActionType>();
-
-  const handleToolBarRender = useCallback(() => {
-    return renderElementList(toolBarList || [], {
-      onSend: (action) => {
-        sendEvent({ type: action.type, payload: actionRef.current });
-      },
-    });
-  }, [toolBarList]);
-
-  const hColumns: HighTableProps["columns"] = useMemo(() => {
+  return useMemo(() => {
     if (!columns) {
       return columns;
     }
@@ -52,6 +45,22 @@ export const HighTable = ({ highConfig, onSend, toolBarList, operateList, column
       },
     ];
   }, [columns, operateList]);
+};
+
+export const HighTable = ({ highConfig, onSend, toolBarList, operateList, columns, ...otherProps }: HighTableProps) => {
+  const { renderElementList, getStateValues, sendEvent } = useHighPage();
+
+  const actionRef = useRef<ActionType>();
+
+  const handleToolBarRender = useCallback(() => {
+    return renderElementList(toolBarList || [], {
+      onSend: (action) => {
+        sendEvent({ type: action.type, payload: { ...action.payload, table: actionRef.current } });
+      },
+    });
+  }, [toolBarList]);
+
+  const hColumns = useColumnsWithOperate(columns, operateList);
 
   const stateProps = getStateValues(highConfig?.receiveStateList, otherProps);
 
@@ -100,6 +109,47 @@ export const HighTable = ({ highConfig, onSend, toolBarList, operateList, column
       toolBarRender={otherProps.toolBarRender || handleToolBarRender}
       {...stateProps}
       pagination={getPagination()}
+    />
+  );
+};
+
+export interface HighEditTableProps extends EditableProTableProps<any, ParamsType>, HighProps {
+  operateList?: ElementListProps;
+}
+
+export const HighEditTable = ({ highConfig, onSend, operateList, columns, ...otherProps }: HighEditTableProps) => {
+  const { getStateValues, sendEventSimple } = useHighPage();
+
+  const hColumns = useColumnsWithOperate(columns, operateList);
+
+  return (
+    <EditableProTable
+      {...otherProps}
+      columns={hColumns}
+      editable={{
+        ...otherProps.editable,
+        onChange: (editableKeys, editableRows) => {
+          sendEventSimple(highConfig, onSend, { key: "editable:onChange", payload: { editableKeys, editableRows } });
+        },
+        onValuesChange: (record, dataSource) => {
+          sendEventSimple(highConfig, onSend, { key: "editable:onValuesChange", payload: { record, dataSource } });
+        },
+        onSave: (key, record, originRow, newLineConfig) => {
+          sendEventSimple(highConfig, onSend, {
+            key: "editable:onSave",
+            payload: { key, record, originRow, newLineConfig },
+          });
+          return Promise.resolve();
+        },
+        onDelete: (key, row) => {
+          sendEventSimple(highConfig, onSend, {
+            key: "editable:onDelete",
+            payload: { key, row },
+          });
+          return Promise.resolve();
+        },
+      }}
+      {...getStateValues(highConfig?.receiveStateList, otherProps)}
     />
   );
 };

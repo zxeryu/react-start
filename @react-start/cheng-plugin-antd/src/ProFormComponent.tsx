@@ -12,6 +12,8 @@ import ProForm, {
   ProFormRate,
   ProFormSlider,
   ProFormMoney,
+  ProFormField,
+  ProFormFieldProps,
 } from "@ant-design/pro-form";
 import { GroupProps } from "@ant-design/pro-form/es/interface";
 import { HighProps, useHigh, ElementConfigBase, useHighPage } from "@react-start/cheng-high";
@@ -148,4 +150,11 @@ export interface HighFormMoneyProps extends ProFormMoneyProps, HighProps {}
 export const HighFormMoney = ({ highConfig, ...otherProps }: HighFormMoneyProps) => {
   const { getStateValues } = useHighPage();
   return <ProFormMoney {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
+};
+
+export interface HighProFormFieldProps extends ProFormFieldProps, HighProps {}
+
+export const HighProFormField = ({ highConfig, ...otherProps }: HighProFormFieldProps) => {
+  const { getStateValues } = useHighPage();
+  return <ProFormField {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
 };
