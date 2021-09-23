@@ -20,6 +20,7 @@ import {
   HighFormSwitchProps,
   HighFormTextProps,
 } from "./ProFormComponent";
+import { HighCardProps, HighPageContainerProps } from "./Layout";
 
 export interface ElementMap {
   HighButton: HighButtonProps;
@@ -46,6 +47,9 @@ export interface ElementMap {
   HighFormRate: any;
   HighFormSlider: HighFormSliderProps;
   HighFormMoney: HighFormMoneyProps;
+  //
+  HighPageContainer: HighPageContainerProps;
+  HighCard: HighCardProps;
 }
 
 export interface ElementProp<T extends ElementMap, K extends keyof T> {

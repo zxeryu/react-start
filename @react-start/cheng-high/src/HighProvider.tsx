@@ -11,17 +11,19 @@ import { ElementConfigBase, BaseHighProps, HighProps } from "./types";
 
 type ElementType = FunctionComponent | ForwardRefRenderFunction<any, any>;
 
-interface HighContextProps {
+type ElementsMap = { [key: string]: ElementType };
+
+export interface HighContextProps {
   // elements map
-  elementsMap: { [key: string]: ElementType };
-  getElement: (elementName: string) => ElementType | undefined;
+  elementsMap: ElementsMap;
+  getElement: (elementName: string, priorityMap?: ElementsMap) => ElementType | undefined;
   // icons map
   iconMap?: { [key: string]: ReactNode };
   getIcon: (iconName: string) => ReactNode | undefined;
   //
   getProps: (c: ElementConfigBase) => BaseHighProps;
-  renderElement: (c: ElementConfigBase, highProps?: HighProps) => ReactNode;
-  renderElementList: (c: ElementConfigBase[], highProps?: HighProps) => ReactNode[];
+  renderElement: (c?: ElementConfigBase, highProps?: HighProps, priorityMap?: ElementsMap) => ReactNode;
+  renderElementList: (c: ElementConfigBase[], highProps?: HighProps, priorityMap?: ElementsMap) => ReactNode[];
 }
 
 const HighContext = createContext<HighContextProps>({} as any);
@@ -33,7 +35,10 @@ export interface HighProviderProps extends Pick<HighContextProps, "elementsMap" 
 }
 
 export const HighProvider = ({ children, elementsMap, iconMap }: HighProviderProps) => {
-  const getElement = useCallback((elementName: string) => get(elementsMap, elementName), [elementsMap]);
+  const getElement = useCallback(
+    (elementName: string, priorityMap?: ElementsMap) => get(priorityMap, elementName) || get(elementsMap, elementName),
+    [elementsMap],
+  );
   const getIcon = useCallback((iconName: string) => get(iconMap, iconName), [iconMap]);
 
   const getProps = useCallback((c: ElementConfigBase) => {
@@ -48,10 +53,13 @@ export const HighProvider = ({ children, elementsMap, iconMap }: HighProviderPro
   }, []);
 
   const renderElement = useCallback(
-    (c: ElementConfigBase, highProps?: HighProps) => {
-      const El = getElement(c.elementType$);
+    (c?: ElementConfigBase, highProps?: HighProps, priorityMap?: ElementsMap) => {
+      if (!c) {
+        return undefined;
+      }
+      const El = getElement(c.elementType$, priorityMap);
       if (!El) {
-        return null;
+        return undefined;
       }
       return <El key={c.oid} {...getProps(c)} {...highProps} />;
     },
@@ -59,8 +67,8 @@ export const HighProvider = ({ children, elementsMap, iconMap }: HighProviderPro
   );
 
   const renderElementList = useCallback(
-    (elementConfigList: ElementConfigBase[], highProps?: HighProps) => {
-      return map(elementConfigList, (c) => renderElement(c, highProps));
+    (elementConfigList: ElementConfigBase[], highProps?: HighProps, priorityMap?: ElementsMap) => {
+      return map(elementConfigList, (c) => renderElement(c, highProps, priorityMap));
     },
     [renderElement],
   );

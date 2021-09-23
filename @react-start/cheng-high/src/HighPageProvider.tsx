@@ -1,11 +1,24 @@
-import React, { createContext, ReactNode, useContext, useReducer, Reducer, useCallback, useRef } from "react";
-import { reduce, get, set, isArray, head, isObject, tail } from "lodash";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useReducer,
+  Reducer,
+  useCallback,
+  useRef,
+  ElementType,
+} from "react";
+import { reduce, get, set, isArray, head, isObject, tail, indexOf } from "lodash";
 import { Subject } from "rxjs";
-import { HighAction as Action, HConfig, HighSendEvent } from "./types";
+import { HighAction as Action, HConfig, HighSendEvent, ElementConfigBase, HighProps } from "./types";
+import { HighProviderProps, useHigh } from "./HighProvider";
 
 type Values = { [key: string]: any };
 
 interface HighPageContextProps {
+  getElement: (elementName: string) => ElementType | undefined;
+  renderElement: (c?: ElementConfigBase, highProps?: HighProps) => ReactNode;
+  renderElementList: (c: ElementConfigBase[], highProps?: HighProps) => ReactNode[];
   //状态值
   state: Values;
   //修改状态
@@ -24,6 +37,7 @@ interface HighPageContextProps {
     extra?: {
       key?: string;
       payload?: any;
+      defaultSend?: boolean;
     },
   ) => void;
 }
@@ -32,8 +46,35 @@ const HighPageContext = createContext<HighPageContextProps>({} as any);
 
 export const useHighPage = () => useContext(HighPageContext);
 
+export interface HighPageProviderProps {
+  elementsMap?: HighProviderProps["elementsMap"];
+  children: ReactNode;
+}
+
 // deal dynamic data
-export const HighPageProvider = ({ children }: { children: ReactNode }) => {
+export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProviderProps) => {
+  const {
+    getElement: getElementOrigin,
+    renderElement: renderElementOrigin,
+    renderElementList: renderElementListOrigin,
+  } = useHigh();
+
+  const getElement = useCallback(
+    (elementName: string) => getElementOrigin(elementName, elementsMap),
+    [getElementOrigin, elementsMap],
+  );
+
+  const renderElement = useCallback(
+    (c?: ElementConfigBase, highProps?: HighProps) => renderElementOrigin(c, highProps, elementsMap),
+    [renderElementOrigin, elementsMap],
+  );
+
+  const renderElementList = useCallback(
+    (elementConfigList: ElementConfigBase[], highProps?: HighProps) =>
+      renderElementListOrigin(elementConfigList, highProps, elementsMap),
+    [renderElementListOrigin, elementsMap],
+  );
+
   /************************** 页面状态 *****************************/
 
   const [state, dispatch] = useReducer<Reducer<Values, Action>>((prevState, action) => {
@@ -107,9 +148,15 @@ export const HighPageProvider = ({ children }: { children: ReactNode }) => {
       extra?: {
         key?: string;
         payload?: any;
+        defaultSend?: boolean; //默认是否发送该事件
       },
     ) => {
       if (!highConfig?.sendEventName) {
+        return;
+      }
+      //如默认不发送，且没有注册，不走发送事件
+      const defaultSend = get(extra, "defaultSend", true);
+      if (!defaultSend && indexOf(highConfig?.registerEvent || [], extra?.key) === -1) {
         return;
       }
       const suffix = extra?.key ? `:${extra.key}` : "";
@@ -126,7 +173,19 @@ export const HighPageProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <HighPageContext.Provider
-      value={{ state, dispatch, getStateValues, setDataToRef, getDataFromRef, subject$, sendEvent, sendEventSimple }}>
+      value={{
+        getElement,
+        renderElement,
+        renderElementList,
+        state,
+        dispatch,
+        getStateValues,
+        setDataToRef,
+        getDataFromRef,
+        subject$,
+        sendEvent,
+        sendEventSimple,
+      }}>
       {children}
     </HighPageContext.Provider>
   );
