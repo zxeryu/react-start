@@ -32,7 +32,6 @@
     "@reactorx/core": "^0.22.4",
     "antd": "^4.16.13",
     "formik": "^2.2.6",
-    "rc-table": "^7.17.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.3.0",
