@@ -4,7 +4,6 @@ import { FormDemo } from "./component/FormDemo";
 import { DragOperatorDemo } from "./component/DragOperatorDemo";
 import { ReWriteComponent } from "./component/ReWriteComponent";
 import { DragShowPage } from "./drag/DragShowPage";
-import { TableRCDemo } from "./component/TableRCDemo";
 import { RxDemo } from "./component/RxDemo";
 import { AntdDemo } from "./plugin-antd/Demo";
 
@@ -13,7 +12,6 @@ const Routes = {
   DragOperatorDemo,
   ReWriteComponent,
   DragShowPage,
-  TableRCDemo,
   RxDemo,
   AntdDemo,
 };
