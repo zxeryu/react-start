@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { map, get } from "lodash";
 import { FormDemo } from "./component/FormDemo";
-import { HighDemo } from "./component/HighDemo";
 import { DragOperatorDemo } from "./component/DragOperatorDemo";
 import { ReWriteComponent } from "./component/ReWriteComponent";
 import { DragShowPage } from "./drag/DragShowPage";
@@ -11,7 +10,6 @@ import { AntdDemo } from "./plugin-antd/Demo";
 
 const Routes = {
   FormDemo,
-  HighDemo,
   DragOperatorDemo,
   ReWriteComponent,
   DragShowPage,
