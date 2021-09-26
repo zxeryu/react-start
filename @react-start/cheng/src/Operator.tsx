@@ -143,7 +143,7 @@ export const Operator = ({
             }}
           />
 
-          <Stack>
+          <Stack className={"LeftAreaBottom"}>
             {size(elements) > 0 && <Item label={"添加元素"} onClick={() => openElementsPanel()} />}
             {map(extraOperateElements, (extraOEL) => (
               <Item key={extraOEL.oid} label={extraOEL.name} onClick={() => addExtraPanel(extraOEL)} />

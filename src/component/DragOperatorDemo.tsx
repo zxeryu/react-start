@@ -265,6 +265,12 @@ export const DragOperatorDemo = () => {
           ".LeftArea .OperatePanel .OperatePanelItemStack": {
             "*": { marginTop: 4 },
           },
+          ".LeftArea .LeftAreaBottom": {
+            minHeight: 300,
+          },
+          ".LeftArea .LeftAreaBottom .NormalItem": {
+            color: "red",
+          },
         }}
         style={{ height: "80vh" }}
         elements={elements}
