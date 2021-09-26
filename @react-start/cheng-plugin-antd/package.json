@@ -1,6 +1,6 @@
 {
   "name": "@react-start/cheng-plugin-antd",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "> TODO: description",
   "author": "zx <zxpstudy@163.com>",
   "homepage": "https://github.com/zxeryu/react-start#readme",
@@ -25,13 +25,13 @@
     "url": "https://github.com/zxeryu/react-start/issues"
   },
   "peerDependencies": {
-    "antd": "^4.16.x",
     "@ant-design/icons": "^4.6.x",
     "@ant-design/pro-card": "^1.x",
     "@ant-design/pro-form": "^1.x",
     "@ant-design/pro-layout": "^6.x",
     "@ant-design/pro-table": "^2.x",
-    "lodash": "^4.x",
-    "@react-start/cheng-high": "*"
+    "@react-start/cheng-high": "*",
+    "antd": "^4.16.x",
+    "lodash": "^4.x"
   }
 }

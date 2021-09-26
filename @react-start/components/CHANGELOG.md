@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.1](https://github.com/zxeryu/react-start/compare/@react-start/components@0.4.0...@react-start/components@0.4.1) (2021-09-26)
+
+### Bug Fixes
+
+- **components:** high layout ([53d46e2](https://github.com/zxeryu/react-start/commit/53d46e25dbfe644c33933c1c91eb187b185ef99d))
+- **components:** remove high ([2133685](https://github.com/zxeryu/react-start/commit/2133685d99bdcc0832d563f084c135b728dd39d7))
+
 # [0.4.0](https://github.com/zxeryu/react-start/compare/@react-start/components@0.3.0...@react-start/components@0.4.0) (2021-07-15)
 
 ### Bug Fixes

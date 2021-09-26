@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.1](https://github.com/zxeryu/react-start/compare/@react-start/cheng@0.2.0...@react-start/cheng@0.2.1) (2021-09-26)
+
+### Bug Fixes
+
+- **cheng:** chooseValue ([2123810](https://github.com/zxeryu/react-start/commit/2123810eac696e6cee6a83477e7504c3d5c705ac))
+- **cheng:** css transmit ([0fa318c](https://github.com/zxeryu/react-start/commit/0fa318c988bac3c66c9d5d87d389b9f553b6e709))
+- **cheng:** drag flag & cursor style ([64008b1](https://github.com/zxeryu/react-start/commit/64008b1efe42e2dd591c7bae26f0090a0e34bee8))
+- **cheng:** onChange emit ([589b821](https://github.com/zxeryu/react-start/commit/589b82156d63fe365bf8171d881c3cf19e863c5f))
+- **cheng:** onItemClick ([faaac23](https://github.com/zxeryu/react-start/commit/faaac2346b5d3aedd30629534a4f7b3f1dd3dc69))
+- **cheng:** open panel bug ([9ff305a](https://github.com/zxeryu/react-start/commit/9ff305aa78b544978762e43cae9619d96533d3e3))
+- **cheng:** operate menu for tree item ([e981b8a](https://github.com/zxeryu/react-start/commit/e981b8a61d79b2bef4ea8ab9965dc87c12836611))
+- **cheng:** rewrite name ([9e24eb2](https://github.com/zxeryu/react-start/commit/9e24eb207a89cab352954dc823389af657262f16))
+- **cheng:** style && bug ([ebaadc9](https://github.com/zxeryu/react-start/commit/ebaadc932890be409e1667ed54b8a67166531337))
+- **cheng:** style penetrate ([d6afb3e](https://github.com/zxeryu/react-start/commit/d6afb3e3cb63496749608a1cf6b04c7ce9d91d3d))
+
 # [0.2.0](https://github.com/zxeryu/react-start/compare/@react-start/cheng@0.1.5...@react-start/cheng@0.2.0) (2021-07-26)
 
 ### Bug Fixes
