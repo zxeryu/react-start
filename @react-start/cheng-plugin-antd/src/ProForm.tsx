@@ -127,13 +127,54 @@ export const HighSearchForm = ({
 
 export interface HighModalFormProps extends Omit<ModalFormProps, "trigger">, HighProps {
   trigger: ElementProps;
+  record?: Record<string, any>;
 }
 
-export const HighModalForm = ({ highConfig, trigger, ...otherProps }: HighModalFormProps) => {
-  const { renderElementList, renderElement } = useHighPage();
+export const HighModalForm = ({ highConfig, onSend, trigger, record, ...otherProps }: HighModalFormProps) => {
+  const { renderElementList, renderElement, getStateValues, sendEventSimple } = useHighPage();
+
+  const stateProps = getStateValues(highConfig?.receiveStateList, otherProps);
+  const recordRef = useRef<Record<string, any>>();
+  recordRef.current = stateProps?.record || record;
+
+  const formRef = useRef<ProFormInstance>();
+
+  const handleVisibleChange = useCallback((visible: boolean) => {
+    sendEventSimple(highConfig, onSend, { key: "onVisibleChange", payload: visible });
+  }, []);
+
+  const handleFinish = useCallback((values) => {
+    sendEventSimple(highConfig, onSend, {
+      key: "onFinish",
+      payload: { form: formRef.current, values: { ...recordRef.current, ...values } },
+    });
+    return Promise.resolve();
+  }, []);
+
+  const handleValuesChange = useCallback((changedValues, values) => {
+    sendEventSimple(highConfig, onSend, {
+      key: "onValuesChange",
+      payload: { form: formRef.current, changedValues, values },
+    });
+  }, []);
 
   return (
-    <ModalForm {...otherProps} trigger={renderElement(trigger) as any}>
+    <ModalForm
+      formRef={formRef}
+      {...otherProps}
+      {...stateProps}
+      initialValues={stateProps?.record || record || otherProps.initialValues}
+      submitter={{
+        render: (props, dom) => {
+          return dom;
+        },
+        ...otherProps.submitter,
+        ...stateProps?.submitter,
+      }}
+      onVisibleChange={handleVisibleChange}
+      onValuesChange={handleValuesChange}
+      onFinish={handleFinish}
+      trigger={renderElement(trigger) as any}>
       {renderElementList(get(highConfig, ["highInject", "elementList"], []))}
     </ModalForm>
   );
@@ -141,13 +182,47 @@ export const HighModalForm = ({ highConfig, trigger, ...otherProps }: HighModalF
 
 export interface HighDrawerFormProps extends Omit<DrawerFormProps, "trigger">, HighProps {
   trigger: ElementProps;
+  record?: Record<string, any>;
 }
 
-export const HighDrawerForm = ({ highConfig, trigger, ...otherProps }: HighDrawerFormProps) => {
-  const { renderElementList, renderElement } = useHighPage();
+export const HighDrawerForm = ({ highConfig, onSend, trigger, record, ...otherProps }: HighDrawerFormProps) => {
+  const { renderElementList, renderElement, getStateValues, sendEventSimple } = useHighPage();
+
+  const stateProps = getStateValues(highConfig?.receiveStateList, otherProps);
+  const recordRef = useRef<Record<string, any>>();
+  recordRef.current = stateProps?.record || record;
+
+  const formRef = useRef<ProFormInstance>();
+
+  const handleVisibleChange = useCallback((visible: boolean) => {
+    sendEventSimple(highConfig, onSend, { key: "onVisibleChange", payload: visible });
+  }, []);
+
+  const handleFinish = useCallback((values) => {
+    sendEventSimple(highConfig, onSend, {
+      key: "onFinish",
+      payload: { form: formRef.current, values: { ...recordRef.current, ...values } },
+    });
+    return Promise.resolve();
+  }, []);
+
+  const handleValuesChange = useCallback((changedValues, values) => {
+    sendEventSimple(highConfig, onSend, {
+      key: "onValuesChange",
+      payload: { form: formRef.current, changedValues, values },
+    });
+  }, []);
 
   return (
-    <DrawerForm {...otherProps} trigger={renderElement(trigger) as any}>
+    <DrawerForm
+      formRef={formRef}
+      {...otherProps}
+      {...stateProps}
+      initialValues={stateProps?.record || record || otherProps.initialValues}
+      onVisibleChange={handleVisibleChange}
+      onValuesChange={handleValuesChange}
+      onFinish={handleFinish}
+      trigger={renderElement(trigger) as any}>
       {renderElementList(get(highConfig, ["highInject", "elementList"], []))}
     </DrawerForm>
   );
