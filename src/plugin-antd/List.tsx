@@ -8,8 +8,9 @@ import {
   ElementProps,
   ElementListProps,
 } from "@react-start/cheng-plugin-antd";
-import { HighPageProvider, useHigh } from "@react-start/cheng-high";
+import { HighPageProvider } from "@react-start/cheng-high";
 import { ListEventHandler } from "./ListEventHandler";
+import { useHighPage } from "../../@react-start/cheng-high/src";
 
 type GithubIssueItem = {
   url: string;
@@ -269,8 +270,8 @@ const formConfig: ElementProps = {
 const configList = [formConfig, tableConfig];
 
 const Content = () => {
-  const { renderElementList } = useHigh();
-  return <div>{renderElementList(configList)}</div>;
+  const { renderElementList } = useHighPage();
+  return <>{renderElementList(configList)}</>;
 };
 
 export const List = () => {
