@@ -125,17 +125,20 @@ export const HighSearchForm = ({
   );
 };
 
-export interface HighModalFormProps extends Omit<ModalFormProps, "trigger">, HighProps {
+interface OverlayFormWrapperProps extends HighProps {
   trigger: ElementProps;
-  record?: Record<string, any>;
 }
 
-export const HighModalForm = ({ highConfig, onSend, trigger, record, ...otherProps }: HighModalFormProps) => {
+const OverlayFormWrapper = <T extends OverlayFormWrapperProps>({
+  Component,
+  highConfig,
+  onSend,
+  trigger,
+  ...otherProps
+}: T & {
+  Component: typeof ModalForm | typeof DrawerForm;
+}) => {
   const { renderElementList, renderElement, getStateValues, sendEventSimple } = useHighPage();
-
-  const stateProps = getStateValues(highConfig?.receiveStateList, otherProps);
-  const recordRef = useRef<Record<string, any>>();
-  recordRef.current = stateProps?.record || record;
 
   const formRef = useRef<ProFormInstance>();
 
@@ -146,7 +149,7 @@ export const HighModalForm = ({ highConfig, onSend, trigger, record, ...otherPro
   const handleFinish = useCallback((values) => {
     sendEventSimple(highConfig, onSend, {
       key: "onFinish",
-      payload: { form: formRef.current, values: { ...recordRef.current, ...values } },
+      payload: { form: formRef.current, values },
     });
     return Promise.resolve();
   }, []);
@@ -158,74 +161,32 @@ export const HighModalForm = ({ highConfig, onSend, trigger, record, ...otherPro
     });
   }, []);
 
+  const stateProps = getStateValues(highConfig?.receiveStateList, otherProps);
+
   return (
-    <ModalForm
+    <Component
       formRef={formRef}
       {...otherProps}
       {...stateProps}
-      initialValues={stateProps?.record || record || otherProps.initialValues}
-      submitter={{
-        render: (props, dom) => {
-          return dom;
-        },
-        ...otherProps.submitter,
-        ...stateProps?.submitter,
-      }}
       onVisibleChange={handleVisibleChange}
       onValuesChange={handleValuesChange}
       onFinish={handleFinish}
       trigger={renderElement(trigger) as any}>
       {renderElementList(get(highConfig, ["highInject", "elementList"], []))}
-    </ModalForm>
+    </Component>
   );
 };
 
-export interface HighDrawerFormProps extends Omit<DrawerFormProps, "trigger">, HighProps {
-  trigger: ElementProps;
-  record?: Record<string, any>;
-}
+export interface HighModalFormProps extends Omit<ModalFormProps, "trigger">, OverlayFormWrapperProps {}
 
-export const HighDrawerForm = ({ highConfig, onSend, trigger, record, ...otherProps }: HighDrawerFormProps) => {
-  const { renderElementList, renderElement, getStateValues, sendEventSimple } = useHighPage();
+export const HighModalForm = (props: HighModalFormProps) => {
+  return <OverlayFormWrapper Component={ModalForm} {...props} />;
+};
 
-  const stateProps = getStateValues(highConfig?.receiveStateList, otherProps);
-  const recordRef = useRef<Record<string, any>>();
-  recordRef.current = stateProps?.record || record;
+export interface HighDrawerFormProps extends Omit<DrawerFormProps, "trigger">, OverlayFormWrapperProps {}
 
-  const formRef = useRef<ProFormInstance>();
-
-  const handleVisibleChange = useCallback((visible: boolean) => {
-    sendEventSimple(highConfig, onSend, { key: "onVisibleChange", payload: visible });
-  }, []);
-
-  const handleFinish = useCallback((values) => {
-    sendEventSimple(highConfig, onSend, {
-      key: "onFinish",
-      payload: { form: formRef.current, values: { ...recordRef.current, ...values } },
-    });
-    return Promise.resolve();
-  }, []);
-
-  const handleValuesChange = useCallback((changedValues, values) => {
-    sendEventSimple(highConfig, onSend, {
-      key: "onValuesChange",
-      payload: { form: formRef.current, changedValues, values },
-    });
-  }, []);
-
-  return (
-    <DrawerForm
-      formRef={formRef}
-      {...otherProps}
-      {...stateProps}
-      initialValues={stateProps?.record || record || otherProps.initialValues}
-      onVisibleChange={handleVisibleChange}
-      onValuesChange={handleValuesChange}
-      onFinish={handleFinish}
-      trigger={renderElement(trigger) as any}>
-      {renderElementList(get(highConfig, ["highInject", "elementList"], []))}
-    </DrawerForm>
-  );
+export const HighDrawerForm = (props: HighDrawerFormProps) => {
+  return <OverlayFormWrapper Component={DrawerForm} {...props} />;
 };
 
 export interface HighFormListProps extends ProFormListProps, HighProps {}
