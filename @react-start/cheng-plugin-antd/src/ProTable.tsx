@@ -5,12 +5,15 @@ import { ElementListProps } from "./types";
 import { Space } from "antd";
 import { TablePaginationConfig } from "antd/lib/table/interface";
 import { EditableProTableProps } from "@ant-design/pro-table/es/components/EditableTable";
+import { useUrlSearchParams } from "@umijs/use-params";
+import { get } from "lodash";
 
 type ParamsType = Record<string, any>;
 
 export interface HighTableProps extends ProTableProps<any, ParamsType>, HighProps {
   toolBarList?: ElementListProps;
   operateList?: ElementListProps;
+  syncPageToUrl?: boolean;
 }
 
 export const useColumnsWithOperate = (
@@ -47,8 +50,21 @@ export const useColumnsWithOperate = (
   }, [columns, operateList]);
 };
 
-export const HighTable = ({ highConfig, onSend, toolBarList, operateList, columns, ...otherProps }: HighTableProps) => {
-  const { renderElementList, getStateValues, sendEvent } = useHighPage();
+export const HighTable = ({
+  highConfig,
+  onSend,
+  toolBarList,
+  operateList,
+  columns,
+  syncPageToUrl,
+  ...otherProps
+}: HighTableProps) => {
+  const [urlState, setUrlState] = useUrlSearchParams({
+    page: get(otherProps, ["pagination", "current"], 1),
+    pageSize: get(otherProps, ["pagination", "pageSize"], 10),
+  });
+
+  const { renderElementList, getStateValues, sendEvent, sendEventSimple } = useHighPage();
 
   const actionRef = useRef<ActionType>();
 
@@ -71,9 +87,14 @@ export const HighTable = ({ highConfig, onSend, toolBarList, operateList, column
       return;
     }
 
-    if (highConfig?.sendEventName) {
-      sendEvent({ type: `${highConfig!.sendEventName}:pagination:onChange`, payload: { page, pageSize } });
+    if (syncPageToUrl) {
+      setUrlState({ page, pageSize });
     }
+
+    sendEventSimple(highConfig, onSend, {
+      key: "pagination:onChange",
+      payload: { page, pageSize },
+    });
   }, []);
 
   const handleOnPageShowSizeChange: TablePaginationConfig["onShowSizeChange"] = useCallback((current, size) => {
@@ -83,9 +104,21 @@ export const HighTable = ({ highConfig, onSend, toolBarList, operateList, column
       return;
     }
 
-    if (highConfig?.sendEventName) {
-      sendEvent({ type: `${highConfig!.sendEventName}:pagination:onShowSizeChange`, payload: { current, size } });
+    if (syncPageToUrl) {
+      setUrlState({ page: current, pageSize: size });
     }
+
+    sendEventSimple(highConfig, onSend, {
+      key: "pagination:onShowSizeChange",
+      payload: { current, size },
+    });
+  }, []);
+
+  const handleReload = useCallback(() => {
+    sendEventSimple(highConfig, onSend, {
+      key: "reload",
+      payload: { table: actionRef.current },
+    });
   }, []);
 
   const getPagination = () => {
@@ -95,10 +128,14 @@ export const HighTable = ({ highConfig, onSend, toolBarList, operateList, column
     return {
       ...otherProps.pagination,
       ...stateProps?.pagination,
+      current: syncPageToUrl ? Number(urlState.page) : stateProps?.pagination?.current,
+      pageSize: syncPageToUrl ? Number(urlState.pageSize) : stateProps?.pagination?.pageSize,
       onChange: handleOnPageChange,
       onShowSizeChange: handleOnPageShowSizeChange,
     } as TablePaginationConfig;
   };
+
+  const reload = get(stateProps, ["options", "reload"]) || get(otherProps, ["options", "reload"]);
 
   return (
     <Table
@@ -108,6 +145,11 @@ export const HighTable = ({ highConfig, onSend, toolBarList, operateList, column
       columns={hColumns}
       toolBarRender={otherProps.toolBarRender || handleToolBarRender}
       {...stateProps}
+      options={{
+        ...otherProps.options,
+        ...stateProps?.options,
+        reload: reload ? handleReload : false,
+      }}
       pagination={getPagination()}
     />
   );
