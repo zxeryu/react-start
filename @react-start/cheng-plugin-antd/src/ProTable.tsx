@@ -6,7 +6,7 @@ import { Space } from "antd";
 import { TablePaginationConfig } from "antd/lib/table/interface";
 import { EditableProTableProps } from "@ant-design/pro-table/es/components/EditableTable";
 import { useUrlSearchParams } from "@umijs/use-params";
-import { get } from "lodash";
+import { get, map } from "lodash";
 
 type ParamsType = Record<string, any>;
 
@@ -20,7 +20,7 @@ export const useColumnsWithOperate = (
   columns?: HighTableProps["columns"],
   operateList?: ElementListProps,
 ): HighTableProps["columns"] => {
-  const { renderElementList, sendEvent } = useHighPage();
+  const { renderElement, sendEvent } = useHighPage();
 
   return useMemo(() => {
     if (!columns) {
@@ -34,14 +34,19 @@ export const useColumnsWithOperate = (
         render: (_, record, index, action, schema) => {
           return (
             <Space>
-              {renderElementList(operateList || [], {
-                onSend: ({ type, payload }) => {
-                  sendEvent({
-                    type,
-                    payload: { ...payload, record, index, action, schema },
-                  });
-                },
-              })}
+              {map(operateList || [], (c) =>
+                renderElement(
+                  { ...c, oid: `${c.oid}-${index}` },
+                  {
+                    onSend: ({ type, payload }) => {
+                      sendEvent({
+                        type,
+                        payload: { ...payload, record, index, action, schema },
+                      });
+                    },
+                  },
+                ),
+              )}
             </Space>
           );
         },
@@ -59,10 +64,14 @@ export const HighTable = ({
   syncPageToUrl,
   ...otherProps
 }: HighTableProps) => {
-  const [urlState, setUrlState] = useUrlSearchParams({
-    page: get(otherProps, ["pagination", "current"], 1),
-    pageSize: get(otherProps, ["pagination", "pageSize"], 10),
-  });
+  const [urlState, setUrlState] = useUrlSearchParams(
+    syncPageToUrl
+      ? {
+          page: get(otherProps, ["pagination", "current"], 1),
+          pageSize: get(otherProps, ["pagination", "pageSize"], 10),
+        }
+      : {},
+  );
 
   const { renderElementList, getStateValues, sendEvent, sendEventSimple } = useHighPage();
 
