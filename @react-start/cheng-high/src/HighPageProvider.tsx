@@ -7,6 +7,7 @@ import React, {
   useCallback,
   useRef,
   ElementType,
+  MutableRefObject,
 } from "react";
 import { reduce, get, set, isArray, head, isObject, tail, indexOf } from "lodash";
 import { Subject } from "rxjs";
@@ -21,6 +22,7 @@ interface HighPageContextProps {
   renderElementList: (c: ElementConfigBase[], highProps?: HighProps) => ReactNode[];
   //状态值
   state: Values;
+  stateRef: MutableRefObject<Values>;
   //修改状态
   dispatch: (action: Action) => void;
   //根据key list 从state中获取对应的数据
@@ -80,6 +82,9 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
   const [state, dispatch] = useReducer<Reducer<Values, Action>>((prevState, action) => {
     return { ...prevState, [action.type]: action.payload };
   }, {});
+
+  const stateRef = useRef<Values>(state);
+  stateRef.current = state;
 
   const getStateValues = useCallback(
     (items?: HConfig["receiveStateList"], props?: Record<string, any>) => {
@@ -178,6 +183,7 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
         renderElement,
         renderElementList,
         state,
+        stateRef,
         dispatch,
         getStateValues,
         setDataToRef,
