@@ -7,18 +7,21 @@ import { TablePaginationConfig } from "antd/lib/table/interface";
 import { EditableProTableProps } from "@ant-design/pro-table/es/components/EditableTable";
 import { useUrlSearchParams } from "@umijs/use-params";
 import { get, map } from "lodash";
+import { ProColumns } from "@ant-design/pro-table/lib/typing";
 
 type ParamsType = Record<string, any>;
 
 export interface HighTableProps extends ProTableProps<any, ParamsType>, HighProps {
   toolBarList?: ElementListProps;
   operateList?: ElementListProps;
+  operateColumn?: ProColumns<any, ParamsType>;
   syncPageToUrl?: boolean;
 }
 
 export const useColumnsWithOperate = (
   columns?: HighTableProps["columns"],
   operateList?: ElementListProps,
+  operateColumn?: HighTableProps["operateColumn"],
 ): HighTableProps["columns"] => {
   const { renderElement, sendEvent } = useHighPage();
 
@@ -31,6 +34,7 @@ export const useColumnsWithOperate = (
       {
         title: "操作",
         valueType: "option",
+        ...(operateColumn as any),
         render: (_, record, index, action, schema) => {
           return (
             <Space>
@@ -52,7 +56,7 @@ export const useColumnsWithOperate = (
         },
       },
     ];
-  }, [columns, operateList]);
+  }, [columns, operateList, operateColumn]);
 };
 
 export const HighTable = ({
@@ -60,6 +64,7 @@ export const HighTable = ({
   onSend,
   toolBarList,
   operateList,
+  operateColumn,
   columns,
   syncPageToUrl,
   ...otherProps
@@ -85,7 +90,7 @@ export const HighTable = ({
     });
   }, [toolBarList]);
 
-  const hColumns = useColumnsWithOperate(columns, operateList);
+  const hColumns = useColumnsWithOperate(columns, operateList, operateColumn);
 
   const stateProps = getStateValues(highConfig?.receiveStateList, otherProps);
 
@@ -166,12 +171,20 @@ export const HighTable = ({
 
 export interface HighEditTableProps extends EditableProTableProps<any, ParamsType>, HighProps {
   operateList?: ElementListProps;
+  operateColumn?: ProColumns<any, ParamsType>;
 }
 
-export const HighEditTable = ({ highConfig, onSend, operateList, columns, ...otherProps }: HighEditTableProps) => {
+export const HighEditTable = ({
+  highConfig,
+  onSend,
+  operateList,
+  operateColumn,
+  columns,
+  ...otherProps
+}: HighEditTableProps) => {
   const { getStateValues, sendEventSimple } = useHighPage();
 
-  const hColumns = useColumnsWithOperate(columns, operateList);
+  const hColumns = useColumnsWithOperate(columns, operateList, operateColumn);
 
   return (
     <EditableProTable
