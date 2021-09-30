@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.1](https://github.com/zxeryu/react-start/compare/@react-start/cheng-high@0.1.0...@react-start/cheng-high@0.1.1) (2021-09-30)
+
+### Bug Fixes
+
+- **cheng-high:** support stateRef ([d9a9779](https://github.com/zxeryu/react-start/commit/d9a977956d718cb5ce85cf6a79d79e58ac7dc757))
+
 # 0.1.0 (2021-09-26)
 
 ### Bug Fixes
