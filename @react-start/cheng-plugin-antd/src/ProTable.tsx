@@ -36,11 +36,12 @@ export const useColumnsWithOperate = (
         valueType: "option",
         ...(operateColumn as any),
         render: (_, record, index, action, schema) => {
+          const key = record ? JSON.stringify(record) : Date.now().valueOf();
           return (
             <Space>
               {map(operateList || [], (c) =>
                 renderElement(
-                  { ...c, oid: `${c.oid}-${index}` },
+                  { ...c, oid: `${c.oid}-${index}-${key}` },
                   {
                     onSend: ({ type, payload }) => {
                       sendEvent({
