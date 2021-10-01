@@ -1,8 +1,10 @@
 import { SetProp } from "../types";
-import React, { useState } from "react";
-import { Checkbox, MenuItem, Stack, TextField } from "@material-ui/core";
+import React, { useRef, useState } from "react";
+import { Checkbox, MenuItem, TextField, FormControlLabel, InputAdornment, IconButton } from "@material-ui/core";
+import { Close, ArrowDropDown } from "@material-ui/icons";
 import { isNumber, map, isObject, get } from "lodash";
 import { useSetProp } from "../OperatePanel";
+import { useHover } from "@react-start/hooks";
 
 export interface SetProps extends SetProp {
   propKey: string;
@@ -15,17 +17,16 @@ export const BooleanSet = ({ name, propKey, value }: SetProps) => {
   const [checked, setChecked] = useState<boolean>(value);
 
   return (
-    <Stack direction={"row"} style={{ alignItems: "center" }}>
-      <Checkbox
-        style={{ padding: 2 }}
-        checked={checked}
-        onChange={(e) => {
-          setProp(propKey, e.target.checked);
-          setChecked(e.target.checked);
-        }}
-      />
-      <span>{name}</span>
-    </Stack>
+    <FormControlLabel
+      checked={checked}
+      control={<Checkbox />}
+      label={name}
+      onChange={(e) => {
+        const checked = get(e.target, "checked");
+        setProp(propKey, checked);
+        setChecked(checked);
+      }}
+    />
   );
 };
 
@@ -71,8 +72,12 @@ export const SelectSet = ({ name, propKey, value, chooseValue }: SetProps) => {
   const { setProp } = useSetProp();
   const [v, setV] = useState(value);
 
+  const ref = useRef<any>();
+  const isHovering = useHover(ref);
+
   return (
     <TextField
+      ref={ref}
       size={"small"}
       select
       fullWidth
@@ -82,6 +87,26 @@ export const SelectSet = ({ name, propKey, value, chooseValue }: SetProps) => {
         const v = e.target.value;
         setProp(propKey, v);
         setV(v);
+      }}
+      SelectProps={{
+        IconComponent: null as any,
+      }}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position={"end"}>
+            {v && isHovering ? (
+              <IconButton
+                style={{ padding: 2 }}
+                onClick={() => {
+                  setProp(propKey, undefined), setV(undefined);
+                }}>
+                <Close fontSize={"small"} />
+              </IconButton>
+            ) : (
+              <ArrowDropDown />
+            )}
+          </InputAdornment>
+        ),
       }}>
       {map(chooseValue, (item) => {
         const value = isObject(item) ? get(item, "value") : item;

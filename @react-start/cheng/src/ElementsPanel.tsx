@@ -40,7 +40,7 @@ export const ElementsPanel = ({
 
       {map(elements, (el) => {
         if (!isValidElement(el.menuElement)) {
-          return <Item label={el.name} onClick={() => onSuccess(el)} />;
+          return <Item key={el.id} label={el.name} onClick={() => onSuccess(el)} />;
         }
         return cloneElement(el.menuElement, {
           key: el.id,

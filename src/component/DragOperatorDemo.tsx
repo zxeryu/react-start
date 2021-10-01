@@ -180,7 +180,24 @@ const CardElement: IElementItem = {
   id: "Card",
 };
 
-const elements: IElementItem[] = [OneElement, TwoElement, ThreeElement, CardElement];
+const elements: IElementItem[] = [
+  OneElement,
+  TwoElement,
+  ThreeElement,
+  CardElement,
+  {
+    id: "HighButton",
+    name: "Button",
+    canDrag: true,
+    setProps: {
+      children: {
+        name: "内容",
+        type: "string",
+        inputType: "input",
+      },
+    },
+  },
+];
 
 const OElements: IOperateElementItem[] = [OneElement, TwoElement, ThreeElement, FourElement];
 
@@ -260,10 +277,10 @@ export const DragOperatorDemo = () => {
             border: "1px solid #eee",
           },
           ".RightArea .OperatePanel .OperatePanelItemStack": {
-            "*": { marginTop: 6 },
+            "> *": { marginTop: 6 },
           },
           ".LeftArea .OperatePanel .OperatePanelItemStack": {
-            "*": { marginTop: 4 },
+            "> *": { marginTop: 4 },
           },
           ".LeftArea .LeftAreaBottom": {
             minHeight: 300,
