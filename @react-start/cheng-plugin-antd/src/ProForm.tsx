@@ -180,13 +180,13 @@ const OverlayFormWrapper = <T extends OverlayFormWrapperProps>({
 export interface HighModalFormProps extends Omit<ModalFormProps, "trigger">, OverlayFormWrapperProps {}
 
 export const HighModalForm = (props: HighModalFormProps) => {
-  return <OverlayFormWrapper Component={ModalForm} {...props} />;
+  return <OverlayFormWrapper<HighModalFormProps> Component={ModalForm} {...props} />;
 };
 
 export interface HighDrawerFormProps extends Omit<DrawerFormProps, "trigger">, OverlayFormWrapperProps {}
 
 export const HighDrawerForm = (props: HighDrawerFormProps) => {
-  return <OverlayFormWrapper Component={DrawerForm} {...props} />;
+  return <OverlayFormWrapper<HighDrawerFormProps> Component={DrawerForm} {...props} />;
 };
 
 export interface HighFormListProps extends ProFormListProps, HighProps {}

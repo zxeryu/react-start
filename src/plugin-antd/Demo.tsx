@@ -1,9 +1,8 @@
 import React from "react";
-import { HighProvider } from "@react-start/cheng-high";
+import { HighProvider, HighA } from "@react-start/cheng-high";
 import {
   HighButton,
   HighTable,
-  HighA,
   HighTableDropdown,
   HighForm,
   HighSearchForm as HighSearchFormOrigin,

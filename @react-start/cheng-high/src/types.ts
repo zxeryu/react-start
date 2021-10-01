@@ -37,8 +37,11 @@ export interface ElementConfigBase {
 export interface HConfig {
   //默认发送事件名称
   sendEventName?: string;
-  //有些事件默认是不发送的，比如：HighForm中 onFieldsChange
-  //需要注册才发送事件
+  /**
+   * 需要注册才发送事件
+   * 有些事件默认是不发送的，比如：HighForm中 onFieldsChange；
+   * origin元素大部分默认是不发送onClick事件的（a等标签除外），需注册onClick
+   */
   registerEvent?: string[];
   //接受状态的描述
   receiveStateList?: {
