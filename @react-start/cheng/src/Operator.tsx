@@ -18,6 +18,7 @@ import { OperateArea } from "./OperateArea";
 import { Item } from "./component";
 import { ElementsPanel } from "./ElementsPanel";
 import { generateId } from "./util";
+import { findTarget } from "./utilities";
 
 type TValue = IOperateElementItem[] | ((prevState: IOperateElementItem[]) => IOperateElementItem[]);
 
@@ -86,11 +87,10 @@ export const Operator = ({
 
   //设置单个属性
   const setPropDataWithEmitChange = useCallback((oid: string, key: string, value: any) => {
-    const nextData = map(dataRef.current, (item) => {
-      if (item.oid === oid) {
-        return { ...item, props: { ...item.props, [key]: value } };
-      }
-      return item;
+    const nextData = [...dataRef.current];
+    findTarget(nextData, oid, (arr, index) => {
+      const item = arr[index];
+      arr[index] = { ...item, props: { ...item.props, [key]: value } };
     });
     setData(nextData);
     onChange && onChange(nextData);

@@ -175,7 +175,13 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
           ) : (
             <DragHandle style={{ visibility: "hidden" }} />
           )}
-          {onCollapse && <Arrow onClick={() => onCollapse(id)} />}
+          {onCollapse && (
+            <Arrow
+              style={{ transform: `rotate(${collapsed ? 90 : 0}deg)` }}
+              fontSize={"small"}
+              onClick={() => onCollapse(id)}
+            />
+          )}
           {editName ? (
             <TextField
               size={"small"}

@@ -21,6 +21,7 @@ import {
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import {
   buildTree,
+  findTarget,
   flattenTree,
   getProjection,
   ProjectionType,
@@ -134,12 +135,12 @@ export const OperateArea = ({ onItemClick }: { onItemClick: (oel: IOperateElemen
 
   const handleNameChange = useCallback((oid: string, name: string) => {
     setDataWithEmitChange((prev) => {
-      return map(prev, (oel) => {
-        if (oel.oid === oid) {
-          return { ...oel, props: { ...oel.props, [OPERATE_CONFIG_NAME]: name } };
-        }
-        return oel;
+      const nextData = [...prev];
+      findTarget(nextData, oid, (arr, index) => {
+        const item = arr[index];
+        arr[index] = { ...item, props: { ...item.props, [OPERATE_CONFIG_NAME]: name } };
       });
+      return nextData;
     });
   }, []);
 
