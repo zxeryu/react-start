@@ -1,7 +1,7 @@
-import { Stack } from "@material-ui/core";
+import { Button, Stack } from "@material-ui/core";
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { useOperator } from "./Operator";
-import { FlattenedItem, IOperateElementItem } from "./types";
+import { OperatorContextProps, OperatorProps, useOperator } from "./Operator";
+import { FlattenedItem, IElementItem, IOperateElementItem } from "./types";
 import {
   closestCenter,
   defaultDropAnimation,
@@ -29,9 +29,11 @@ import {
   removeItem,
   setProperty,
 } from "./utilities";
-import { reduce, size, map, find, findIndex, get } from "lodash";
+import { reduce, size, map, find, findIndex, get, isArray } from "lodash";
 import { SortableTreeItem, TreeItem } from "./OperateAreaItem";
 import { createPortal } from "react-dom";
+import { ElementsDialog } from "./ElementsPanel";
+import { generateId } from "./util";
 
 const layoutMeasuring: Partial<LayoutMeasuring> = {
   strategy: LayoutMeasuringStrategy.Always,
@@ -45,10 +47,26 @@ const dropAnimation: DropAnimation = {
 const indentationWidth = 50;
 
 //菜单名称key
-const OPERATE_CONFIG_NAME = "operate_config_name$";
+export const OPERATE_CONFIG_NAME = "operate_config_name$";
 
-export const OperateArea = ({ onItemClick }: { onItemClick: (oel: IOperateElementItem) => void }) => {
-  const { data, setData, setDataWithEmitChange } = useOperator();
+export const getOelName = (oel: IOperateElementItem) => {
+  return get(oel, ["props", OPERATE_CONFIG_NAME]) || get(oel, "name");
+};
+
+export const OperateContent = ({
+  data,
+  setData,
+  setDataWithEmitChange,
+  onItemClick,
+  isShowAddTrigger,
+  isChild,
+}: Pick<OperatorContextProps, "data" | "setData" | "setDataWithEmitChange"> &
+  Pick<OperatorProps, "onItemClick"> & {
+    isShowAddTrigger?: boolean;
+    isChild?: boolean;
+  }) => {
+  const { setOperatePanel, addOperatePanel } = useOperator();
+
   const dataRef = useRef<IOperateElementItem[]>(data);
   dataRef.current = data;
 
@@ -121,6 +139,19 @@ export const OperateArea = ({ onItemClick }: { onItemClick: (oel: IOperateElemen
 
   const handleDragCancel = useCallback(() => resetState(), []);
 
+  /***************** click **********************/
+
+  const handleClick = useCallback((oel: IOperateElementItem) => {
+    onItemClick && onItemClick(oel);
+    if (isChild) {
+      addOperatePanel(oel);
+    } else {
+      setOperatePanel(oel);
+    }
+  }, []);
+
+  /***************** 展开、关闭 **********************/
+
   const handleCollapse = useCallback((oid: string) => {
     setData((prev) =>
       setProperty(prev, oid, "collapsed", (value) => {
@@ -129,9 +160,13 @@ export const OperateArea = ({ onItemClick }: { onItemClick: (oel: IOperateElemen
     );
   }, []);
 
+  /***************** 删除 **********************/
+
   const handleRemove = useCallback((oid: string) => {
     setDataWithEmitChange((prev) => removeItem(prev, oid));
   }, []);
+
+  /***************** 修改名称 **********************/
 
   const handleNameChange = useCallback((oid: string, name: string) => {
     setDataWithEmitChange((prev) => {
@@ -144,53 +179,115 @@ export const OperateArea = ({ onItemClick }: { onItemClick: (oel: IOperateElemen
     });
   }, []);
 
+  /***************** 添加元素 **********************/
+
+  const [open, setOpen] = useState<boolean>(false);
+  const addOelIDRef = useRef<string>();
+  const handleAddChild = useCallback((oid: string) => {
+    addOelIDRef.current = oid;
+    setOpen(true);
+  }, []);
+
+  const handleAddSuccess = useCallback((el: IElementItem) => {
+    const addOEL: IOperateElementItem = { ...el, oid: generateId() };
+    //指定元素添加
+    if (addOelIDRef.current) {
+      setDataWithEmitChange((prev) => {
+        const nextData = [...prev];
+        findTarget(nextData, addOelIDRef.current!, (arr, index) => {
+          const item = arr[index];
+          if (isArray(item.elementList)) {
+            item.elementList = [...item.elementList, addOEL];
+          } else {
+            item.elementList = [addOEL];
+          }
+        });
+        return nextData;
+      });
+    } else {
+      setDataWithEmitChange([...dataRef.current, addOEL]);
+    }
+    setOpen(false);
+    addOelIDRef.current = "";
+  }, []);
+
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      layoutMeasuring={layoutMeasuring}
-      onDragStart={handleDragStart}
-      onDragMove={handleDragMove}
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
-      onDragCancel={handleDragCancel}>
-      <SortableContext items={sortedIds} strategy={verticalListSortingStrategy}>
-        <Stack className={"OperateArea"} style={{ flex: 1 }}>
-          {map(flattenedItems, (oel: FlattenedItem) => {
-            const { oid, depth, name, collapsed, elementList, isContainer, canDelete, canDrag, canEditName, props } =
-              oel;
-            return (
-              <SortableTreeItem
-                key={oid}
-                id={oid}
-                depth={oid === activeId && projected ? projected.depth : depth}
-                indentationWidth={indentationWidth}
-                label={get(props, OPERATE_CONFIG_NAME, name)}
-                canDrag={canDrag}
-                collapsed={isContainer && collapsed && size(elementList) > 0}
-                onCollapse={isContainer && size(elementList) > 0 ? handleCollapse : undefined}
-                onRemove={canDelete ? handleRemove : undefined}
-                onNameChange={canEditName ? handleNameChange : undefined}
-                onClick={() => onItemClick(oel)}
-              />
-            );
-          })}
-        </Stack>
-        {createPortal(
-          <DragOverlay dropAnimation={dropAnimation}>
-            {activeId && activeItem ? (
-              <TreeItem
-                id={activeId}
-                clone
-                depth={activeItem.depth}
-                indentationWidth={indentationWidth}
-                label={activeItem.name}
-              />
-            ) : null}
-          </DragOverlay>,
-          document.body,
-        )}
-      </SortableContext>
-    </DndContext>
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        layoutMeasuring={layoutMeasuring}
+        onDragStart={handleDragStart}
+        onDragMove={handleDragMove}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}>
+        <SortableContext items={sortedIds} strategy={verticalListSortingStrategy}>
+          <Stack className={"OperateArea"} style={{ flex: 1 }}>
+            {map(flattenedItems, (oel: FlattenedItem) => {
+              const { oid, depth, name, collapsed, elementList, isContainer, canDelete, canDrag, canEditName, props } =
+                oel;
+              return (
+                <SortableTreeItem
+                  key={oid}
+                  id={oid}
+                  depth={oid === activeId && projected ? projected.depth : depth}
+                  indentationWidth={indentationWidth}
+                  label={get(props, OPERATE_CONFIG_NAME, name)}
+                  canDrag={canDrag}
+                  collapsed={isContainer && collapsed && size(elementList) > 0}
+                  onCollapse={isContainer && size(elementList) > 0 ? handleCollapse : undefined}
+                  onRemove={canDelete ? handleRemove : undefined}
+                  onNameChange={canEditName ? handleNameChange : undefined}
+                  onAddChild={isContainer ? handleAddChild : undefined}
+                  onClick={() => handleClick(oel)}
+                />
+              );
+            })}
+          </Stack>
+          {createPortal(
+            <DragOverlay dropAnimation={dropAnimation}>
+              {activeId && activeItem ? (
+                <TreeItem
+                  id={activeId}
+                  clone
+                  depth={activeItem.depth}
+                  indentationWidth={indentationWidth}
+                  label={activeItem.name}
+                />
+              ) : null}
+            </DragOverlay>,
+            document.body,
+          )}
+        </SortableContext>
+      </DndContext>
+      {isShowAddTrigger && (
+        <Button fullWidth onClick={() => setOpen(true)}>
+          添加元素
+        </Button>
+      )}
+      {open && (
+        <ElementsDialog
+          onClose={() => {
+            setOpen(false);
+            addOelIDRef.current = "";
+          }}
+          onSuccess={handleAddSuccess}
+        />
+      )}
+    </>
+  );
+};
+
+export const OperateArea = ({ onItemClick }: Pick<OperatorProps, "onItemClick">) => {
+  const { data, setData, setDataWithEmitChange } = useOperator();
+
+  return (
+    <OperateContent
+      data={data}
+      setData={setData}
+      setDataWithEmitChange={setDataWithEmitChange}
+      onItemClick={onItemClick}
+    />
   );
 };

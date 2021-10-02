@@ -33,7 +33,12 @@ const OneElement: IOperateElementItem = {
     size: { name: "数字", type: "number", inputType: "input" },
     text: { name: "文本", type: "string", inputType: "input", rows: 5 },
     customValue: { name: "自定义部分", type: "custom" },
+    element: { name: "元素", type: "element" },
+    elementList: { name: "元素集合", type: "elementList" },
   },
+  elementList: [],
+  isContainer: true,
+  canDelete: true,
   name: "ElementOne",
   canDrag: true,
   id: "ElementOne",
@@ -308,7 +313,7 @@ export const DragOperatorDemo = () => {
 
           console.log("@@@@@@@@@@", composeData);
 
-          frameRef.current?.contentWindow?.postMessage({ type: "compose", data: composeData }, "*");
+          // frameRef.current?.contentWindow?.postMessage({ type: "compose", data: composeData }, "*");
         }}
         onExtraChange={(id, key, value) => {
           console.log("@@@@@@@@@", id, key, value);

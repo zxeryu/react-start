@@ -1,7 +1,7 @@
 import { arrayMove } from "@dnd-kit/sortable";
-import { get, size } from "lodash";
+import { get, size, findIndex } from "lodash";
 
-import type { FlattenedItem, TreeItem, TreeItems } from "./types";
+import type { FlattenedItem, IOperateElementItem, TreeItem, TreeItems } from "./types";
 
 const getDragDepth = (offset: number, indentationWidth: number) => {
   return Math.round(offset / indentationWidth);
@@ -60,9 +60,7 @@ export const getProjection = (
     depth = minDepth;
   }
 
-  return { depth, maxDepth, minDepth, parentId: getParentId() };
-
-  function getParentId() {
+  const getParentId = () => {
     if (depth === 0 || !previousItem) {
       return null;
     }
@@ -81,7 +79,9 @@ export const getProjection = (
       .find((item) => item.depth === depth)?.parentId;
 
     return newParent ?? null;
-  }
+  };
+
+  return { depth, maxDepth, minDepth, parentId: getParentId() };
 };
 
 const flatten = (items: TreeItems, parentId: string | null = null, depth = 0): FlattenedItem[] => {
@@ -207,4 +207,23 @@ export const removeChildrenOf = (items: FlattenedItem[], ids: string[]) => {
 
     return true;
   });
+};
+
+export const findTarget = (
+  items: IOperateElementItem[],
+  oid: string,
+  cb: (arr: IOperateElementItem[], index: number) => void,
+) => {
+  const index = findIndex(items, (el) => el.oid === oid);
+  if (index > -1) {
+    cb(items, index);
+    return;
+  }
+  const len = size(items);
+  for (let i = 0; i < len; i++) {
+    const els = items[i]?.elementList;
+    if (els && size(els) > 0) {
+      findTarget(els, oid, cb);
+    }
+  }
 };

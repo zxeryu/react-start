@@ -98,7 +98,8 @@ export const SelectSet = ({ name, propKey, value, chooseValue }: SetProps) => {
               <IconButton
                 style={{ padding: 2 }}
                 onClick={() => {
-                  setProp(propKey, undefined), setV(undefined);
+                  setProp(propKey, undefined);
+                  setV(undefined);
                 }}>
                 <Close fontSize={"small"} />
               </IconButton>

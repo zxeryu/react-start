@@ -1,5 +1,5 @@
 import React, { cloneElement, CSSProperties, isValidElement } from "react";
-import { IconButton, Stack } from "@material-ui/core";
+import { IconButton, Stack, Dialog, DialogTitle, DialogContent } from "@material-ui/core";
 import { map } from "lodash";
 import { Close as CloseIcon } from "@material-ui/icons";
 import { useOperator } from "./Operator";
@@ -29,6 +29,7 @@ export const ElementsPanel = ({
         bottom: 0,
         left: 0,
         backgroundColor: "white",
+        overflowY: "auto",
         ...style,
       }}>
       <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
@@ -48,5 +49,31 @@ export const ElementsPanel = ({
         });
       })}
     </Stack>
+  );
+};
+
+export const ElementsDialog = ({
+  onClose,
+  onSuccess,
+}: {
+  onClose: () => void;
+  onSuccess: (el: IElementItem) => void;
+}) => {
+  const { elements } = useOperator();
+  return (
+    <Dialog open onClose={onClose}>
+      <DialogTitle>选择元素</DialogTitle>
+      <DialogContent>
+        {map(elements, (el) => {
+          if (!isValidElement(el.menuElement)) {
+            return <Item key={el.id} label={el.name} onClick={() => onSuccess(el)} />;
+          }
+          return cloneElement(el.menuElement, {
+            key: el.id,
+            onClick: () => onSuccess(el),
+          });
+        })}
+      </DialogContent>
+    </Dialog>
   );
 };

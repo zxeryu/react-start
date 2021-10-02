@@ -50,6 +50,10 @@ export interface OperatorContextProps extends Pick<OperatorProps, "elements" | "
   openElementsPanel: () => void;
   //打开的OperatePanels
   operatePanels: IOperateElementItem[];
+  //重置operatePanels
+  setOperatePanel: (oel: IOperateElementItem) => void;
+  //添加operatePanels
+  addOperatePanel: (oel: IOperateElementItem) => void;
 }
 
 const OperatorContext = createContext<OperatorContextProps>({} as any);
@@ -106,6 +110,20 @@ export const Operator = ({
   //************************************ current panels ******************************************
   const [operatePanels, setOperatePanels] = useState<IOperateElementItem[]>([]);
 
+  const setOperatePanel = useCallback((oel: IOperateElementItem) => {
+    if (!isEmpty(oel.setProps) || oel.setElement || size(oel.elementList) > 0) {
+      setOperatePanels([oel]);
+    } else {
+      setOperatePanels([]);
+    }
+  }, []);
+
+  const addOperatePanel = useCallback((oel: IOperateElementItem) => {
+    if (!isEmpty(oel.setProps) || oel.setElement || size(oel.elementList) > 0) {
+      setOperatePanels((prev) => [...prev, oel]);
+    }
+  }, []);
+
   //************************************ elements panel ******************************************
 
   const [elementPanelShow, setElementPanelShow] = useState<boolean>(false);
@@ -126,6 +144,8 @@ export const Operator = ({
         setPropDataWithEmitChange,
         openElementsPanel,
         operatePanels,
+        setOperatePanel,
+        addOperatePanel,
       }}>
       <Stack style={{ height: "100%", ...style }} direction={"row"} {...otherProps}>
         <Stack
@@ -135,11 +155,6 @@ export const Operator = ({
           <OperateArea
             onItemClick={(oel) => {
               onItemClick && onItemClick(oel);
-              if (!isEmpty(oel.setProps) || oel.setElement || size(oel.elementList) > 0) {
-                setOperatePanels([oel]);
-              } else {
-                setOperatePanels([]);
-              }
             }}
           />
 
@@ -189,6 +204,7 @@ export const Operator = ({
                 key={oel.oid}
                 oel={oel}
                 onClose={(oid) => {
+                  console.log("########", operatePanels);
                   setOperatePanels((prev) => filter(prev, (o) => o.oid !== oid));
                 }}
               />

@@ -14,6 +14,8 @@ import { map, get, size } from "lodash";
 import { BooleanSet, NumberSet, SelectSet, SetProps, StringSet } from "./input";
 import { useOperator } from "./Operator";
 import { Item } from "./component";
+import { ElementListSet, ElementSet } from "./input/ElementSet";
+import { getOelName } from "./OperateArea";
 
 const OSetPropsContext = createContext<{
   setProp: (propKey: string, prop: any) => void;
@@ -49,6 +51,8 @@ const SetElementMap: OperatePanelProps["extraSetElementMap"] = {
   string: StringSet,
   number: NumberSet,
   boolean: BooleanSet,
+  element: ElementSet,
+  elementList: ElementListSet,
 };
 
 export const OperatePanel = ({ oel, onClose, onOpen, style }: OperatePanelProps) => {
@@ -79,7 +83,7 @@ export const OperatePanel = ({ oel, onClose, onOpen, style }: OperatePanelProps)
           overflowY: "auto",
           ...style,
         }}>
-        <div style={{ lineHeight: "40px" }}>{oel.name}</div>
+        <div style={{ lineHeight: "40px" }}>{getOelName(oel)}</div>
 
         <IconButton style={{ position: "absolute", top: 0, right: 0 }} onClick={() => onClose(oel.oid)}>
           <CloseIcon />
@@ -95,7 +99,7 @@ export const OperatePanel = ({ oel, onClose, onOpen, style }: OperatePanelProps)
               }
 
               const elementKey = getSetElementKey(prop.inputType, prop.type);
-              const SetElement = get({ ...SetElementMap, ...extraSetElementMap }, elementKey);
+              const SetElement = get(extraSetElementMap, elementKey) || get(SetElementMap, elementKey);
 
               if (!SetElement) {
                 return <div style={{ paddingTop: 8 }}>{prop.name}</div>;
@@ -105,8 +109,14 @@ export const OperatePanel = ({ oel, onClose, onOpen, style }: OperatePanelProps)
           </Stack>
         )}
 
-        {size(oel.elementList) > 0 &&
-          map(oel.elementList, (oel) => <Item key={oel.oid} label={oel.name} onClick={() => onOpen && onOpen(oel)} />)}
+        {size(oel.elementList) > 0 && (
+          <>
+            <div>children:</div>
+            {map(oel.elementList, (oel) => (
+              <Item key={oel.oid} label={oel.name} onClick={() => onOpen && onOpen(oel)} />
+            ))}
+          </>
+        )}
       </Stack>
     </OSetPropsContext.Provider>
   );

@@ -38,6 +38,7 @@ export interface TreeItemProps {
   onCollapse?: (oid: string) => void;
   onRemove?: (oid: string) => void;
   onNameChange?: (oid: string, name: string) => void;
+  onAddChild?: (oid: string) => void;
   wrapperRef?: (node: HTMLElement) => void;
   onClick?: () => void;
   canDrag?: boolean;
@@ -47,15 +48,16 @@ const OperateMenu = ({
   clone,
   onRemove,
   onNameChange,
+  onAddChild,
   id,
   onNameEditClick,
-}: Pick<TreeItemProps, "clone" | "onRemove" | "onNameChange" | "id"> & {
+}: Pick<TreeItemProps, "clone" | "onRemove" | "onNameChange" | "onAddChild" | "id"> & {
   onNameEditClick: () => void;
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const showMenu = useMemo(() => {
-    return !clone && (onRemove || onNameChange);
+    return !clone && (onRemove || onNameChange || onAddChild);
   }, [clone, onRemove, onNameChange]);
 
   return (
@@ -90,6 +92,16 @@ const OperateMenu = ({
             修改名称
           </MenuItem>
         )}
+        {onAddChild && (
+          <MenuItem
+            value={"addChild"}
+            onClick={withoutBubble(() => {
+              setAnchorEl(null);
+              onAddChild(id);
+            })}>
+            添加子元素
+          </MenuItem>
+        )}
       </Menu>
     </div>
   );
@@ -112,6 +124,7 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
       onCollapse,
       onRemove,
       onNameChange,
+      onAddChild,
       style,
       label,
       wrapperRef,
@@ -208,6 +221,7 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
             clone={clone}
             onRemove={onRemove}
             onNameChange={onNameChange}
+            onAddChild={onAddChild}
             onNameEditClick={() => setEditName(true)}
           />
 
