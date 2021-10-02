@@ -2,15 +2,16 @@ import { ReactNode } from "react";
 
 export interface SetProp {
   required?: boolean; //默认非必填
-  type?: "string" | "number" | "boolean" | "array" | "title" | string; //boolean：默认选项； array：多选；
+  type?: "string" | "number" | "boolean" | "array" | "title" | "element" | "elementList" | "object" | string; //boolean：默认选项； array：多选；
   inputType?: "select" | "input" | "json"; //默认select
   rows?: number; //if type===input rows行数
   chooseValue?: (string | number)[] | { label: string; value: string | number }[]; //type 为boolean 或 inputType为input时候不需要
   name?: string;
   element?: ReactNode;
+  subSetProp?: ISetProps; //object
 }
 
-interface ISetProps {
+export interface ISetProps {
   [key: string]: SetProp;
 }
 

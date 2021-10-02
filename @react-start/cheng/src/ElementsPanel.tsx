@@ -61,7 +61,7 @@ export const ElementsDialog = ({
 }) => {
   const { elements } = useOperator();
   return (
-    <Dialog open onClose={onClose}>
+    <Dialog open onClose={onClose} fullWidth maxWidth={"md"}>
       <DialogTitle>选择元素</DialogTitle>
       <DialogContent>
         {map(elements, (el) => {

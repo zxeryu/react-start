@@ -35,6 +35,28 @@ const OneElement: IOperateElementItem = {
     customValue: { name: "自定义部分", type: "custom" },
     element: { name: "元素", type: "element" },
     elementList: { name: "元素集合", type: "elementList" },
+    footer: {
+      name: "footer",
+      type: "object",
+      subSetProp: {
+        showOne: { name: "第一部分", type: "boolean" },
+        showTwo: { name: "第二部分", type: "boolean" },
+        showThree: { name: "第三部分", type: "boolean" },
+        size: { name: "数字", type: "number", inputType: "input" },
+        text: { name: "文本", type: "string", inputType: "input", rows: 5 },
+        customValue: { name: "自定义部分", type: "custom" },
+        element: { name: "元素", type: "element" },
+        elementList: { name: "元素集合", type: "elementList" },
+        subFooter: {
+          name: "subFooter",
+          type: "object",
+          subSetProp: {
+            size: { name: "数字", type: "number", inputType: "input" },
+            text: { name: "文本", type: "string", inputType: "input", rows: 5 },
+          },
+        },
+      },
+    },
   },
   elementList: [],
   isContainer: true,
@@ -281,12 +303,7 @@ export const DragOperatorDemo = () => {
           ".RightArea .OperatePanel": {
             border: "1px solid #eee",
           },
-          ".RightArea .OperatePanel .OperatePanelItemStack": {
-            "> *": { marginTop: 6 },
-          },
-          ".LeftArea .OperatePanel .OperatePanelItemStack": {
-            "> *": { marginTop: 4 },
-          },
+
           ".LeftArea .LeftAreaBottom": {
             minHeight: 300,
           },
@@ -313,7 +330,7 @@ export const DragOperatorDemo = () => {
 
           console.log("@@@@@@@@@@", composeData);
 
-          // frameRef.current?.contentWindow?.postMessage({ type: "compose", data: composeData }, "*");
+          frameRef.current?.contentWindow?.postMessage({ type: "compose", data: composeData }, "*");
         }}
         onExtraChange={(id, key, value) => {
           console.log("@@@@@@@@@", id, key, value);
