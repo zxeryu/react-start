@@ -18,8 +18,9 @@ export const BooleanSet = ({ name, propKey, value }: SetProps) => {
 
   return (
     <FormControlLabel
+      style={{ marginLeft: 0 }}
       checked={checked}
-      control={<Checkbox />}
+      control={<Checkbox style={{ padding: 2 }} />}
       label={name}
       onChange={(e) => {
         const checked = get(e.target, "checked");

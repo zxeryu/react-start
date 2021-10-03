@@ -1,10 +1,10 @@
 import React, { cloneElement, CSSProperties, isValidElement } from "react";
-import { IconButton, Stack, Dialog, DialogTitle, DialogContent } from "@material-ui/core";
+import { IconButton, Stack } from "@material-ui/core";
 import { map } from "lodash";
 import { Close as CloseIcon } from "@material-ui/icons";
 import { useOperator } from "./Operator";
 import { IElementItem } from "./types";
-import { Item } from "./component";
+import { Dialog, Item } from "./component";
 
 export const ElementsPanel = ({
   style,
@@ -60,20 +60,18 @@ export const ElementsDialog = ({
   onSuccess: (el: IElementItem) => void;
 }) => {
   const { elements } = useOperator();
+
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth={"md"}>
-      <DialogTitle>选择元素</DialogTitle>
-      <DialogContent>
-        {map(elements, (el) => {
-          if (!isValidElement(el.menuElement)) {
-            return <Item key={el.id} label={el.name} onClick={() => onSuccess(el)} />;
-          }
-          return cloneElement(el.menuElement, {
-            key: el.id,
-            onClick: () => onSuccess(el),
-          });
-        })}
-      </DialogContent>
+    <Dialog open noFooter title={"选择元素"} onClose={onClose}>
+      {map(elements, (el) => {
+        if (!isValidElement(el.menuElement)) {
+          return <Item key={el.id} label={el.name} onClick={() => onSuccess(el)} />;
+        }
+        return cloneElement(el.menuElement, {
+          key: el.id,
+          onClick: () => onSuccess(el),
+        });
+      })}
     </Dialog>
   );
 };

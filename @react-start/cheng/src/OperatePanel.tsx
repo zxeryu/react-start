@@ -6,19 +6,20 @@ import React, {
   isValidElement,
   cloneElement,
   CSSProperties,
-  useState,
 } from "react";
-import { IElementItem, IOperateElementItem, SetProp } from "./types";
-import { IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@material-ui/core";
+import { IElementItem, IOperateElementItem } from "./types";
+import { IconButton, Stack } from "@material-ui/core";
 import { Close as CloseIcon } from "@material-ui/icons";
 import { map, get, size } from "lodash";
 import { BooleanSet, NumberSet, SelectSet, SetProps, StringSet } from "./input";
 import { useOperator } from "./Operator";
-import { Item } from "./component";
+import { Item, SubTitle } from "./component";
 import { ElementListSet, ElementSet } from "./input/ElementSet";
 import { getOelName } from "./OperateArea";
+import { ObjectSet } from "./input/ObjectSet";
+import { ArraySet } from "./input/ArraySet";
 
-const OSetPropsContext = createContext<{
+export const OSetPropsContext = createContext<{
   oel: IOperateElementItem;
   setProp: (propKey: string, prop: any) => void;
 }>({} as any);
@@ -55,6 +56,7 @@ const SetElementMap: OperatePanelProps["extraSetElementMap"] = {
   boolean: BooleanSet,
   element: ElementSet,
   elementList: ElementListSet,
+  array: ArraySet,
 };
 
 export const SetPropList = ({ setProps, data }: { setProps: IElementItem["setProps"]; data: any }) => {
@@ -74,67 +76,12 @@ export const SetPropList = ({ setProps, data }: { setProps: IElementItem["setPro
         }
 
         if (!SetElement) {
-          return (
-            <div key={propKey + prop.name} style={{ paddingTop: 8 }}>
-              {prop.name}
-            </div>
-          );
+          return <SubTitle key={propKey + prop.name} label={prop.name} />;
         }
 
         return <SetElement key={propKey} propKey={propKey} {...prop} value={get(data, propKey)} />;
       })}
     </Stack>
-  );
-};
-
-export const ObjectSet = ({
-  objectProp,
-  objectPropKey,
-  value,
-}: {
-  objectProp: SetProp;
-  objectPropKey: string;
-  value: any;
-}) => {
-  const { oel, setProp } = useSetProp();
-
-  const [open, setOpen] = useState<boolean>(false);
-
-  const [data, setData] = useState<Record<string, any>>(value || {});
-
-  const setPropObject = useCallback((key: string, value: any) => {
-    setData((prev) => ({ ...prev, [key]: value }));
-  }, []);
-
-  return (
-    <>
-      <Button fullWidth onClick={() => setOpen(true)}>
-        {objectProp.name}
-      </Button>
-      <Dialog open={open} fullWidth maxWidth={"sm"}>
-        <DialogTitle>{objectProp.name}</DialogTitle>
-        <DialogContent>
-          <OSetPropsContext.Provider value={{ oel, setProp: setPropObject }}>
-            <SetPropList setProps={objectProp.subSetProp} data={data} />
-          </OSetPropsContext.Provider>
-        </DialogContent>
-        <DialogActions>
-          <Button variant={"outlined"} onClick={() => setOpen(false)}>
-            取消
-          </Button>
-          <Button
-            variant={"contained"}
-            onClick={() => {
-              if (objectPropKey) {
-                setProp(objectPropKey, data);
-              }
-              setOpen(false);
-            }}>
-            确定
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
   );
 };
 

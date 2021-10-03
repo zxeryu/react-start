@@ -3,6 +3,7 @@ import { IOperateElementItem } from "../types";
 import { isFunction, size, get } from "lodash";
 import { useSetProp } from "../OperatePanel";
 import { OPERATE_CONFIG_NAME, OperateContent } from "../OperateArea";
+import { SubTitle } from "../component";
 
 export const ElementSet = (props: any) => {
   const { setProp } = useSetProp();
@@ -15,7 +16,7 @@ export const ElementSet = (props: any) => {
 
   return (
     <div>
-      <div style={{ paddingBottom: 4 }}>{get(props.value, OPERATE_CONFIG_NAME) || get(props, "name")}</div>
+      <SubTitle label={get(props.value, OPERATE_CONFIG_NAME) || get(props, "name")} />
       <OperateContent
         isShowAddTrigger={isShowAddTrigger}
         isChild
@@ -42,7 +43,7 @@ export const ElementListSet = (props: any) => {
 
   return (
     <div>
-      <div style={{ paddingBottom: 4 }}>{get(props.value, OPERATE_CONFIG_NAME) || get(props, "name")}</div>
+      <SubTitle label={get(props.value, OPERATE_CONFIG_NAME) || get(props, "name")} />
       <OperateContent
         isShowAddTrigger
         isChild

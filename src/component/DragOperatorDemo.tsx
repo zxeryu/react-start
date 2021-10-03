@@ -330,7 +330,7 @@ export const DragOperatorDemo = () => {
 
           console.log("@@@@@@@@@@", composeData);
 
-          frameRef.current?.contentWindow?.postMessage({ type: "compose", data: composeData }, "*");
+          // frameRef.current?.contentWindow?.postMessage({ type: "compose", data: composeData }, "*");
         }}
         onExtraChange={(id, key, value) => {
           console.log("@@@@@@@@@", id, key, value);
