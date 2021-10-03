@@ -16,6 +16,8 @@ export interface ISetProps {
 }
 
 export interface IElementItem {
+  //是否是操作组件
+  isElementItem?: boolean;
   //展示的组件
   menuElement?: ReactNode;
   //set element

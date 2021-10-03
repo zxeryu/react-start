@@ -12,13 +12,13 @@ import React, {
   useState,
 } from "react";
 import { OperatePanel, OperatePanelProps } from "./OperatePanel";
-import { isFunction, map, filter, size, isEmpty } from "lodash";
+import { isFunction, map, filter, size } from "lodash";
 import { Stack } from "@material-ui/core";
 import { OperateArea } from "./OperateArea";
 import { Item } from "./component";
 import { ElementsPanel } from "./ElementsPanel";
 import { generateId } from "./util";
-import { findTarget } from "./utilities";
+import { findTarget, isValidOperate } from "./utilities";
 
 type TValue = IOperateElementItem[] | ((prevState: IOperateElementItem[]) => IOperateElementItem[]);
 
@@ -37,7 +37,8 @@ export interface OperatorProps {
   children?: ReactNode;
 }
 
-export interface OperatorContextProps extends Pick<OperatorProps, "elements" | "extraSetElementMap" | "onExtraChange"> {
+export interface OperatorContextProps
+  extends Pick<OperatorProps, "elements" | "extraSetElementMap" | "onExtraChange" | "onItemClick"> {
   //操作对象
   data: IOperateElementItem[];
   //改变data对象
@@ -46,14 +47,6 @@ export interface OperatorContextProps extends Pick<OperatorProps, "elements" | "
   setDataWithEmitChange: (value: TValue) => void;
   //改变单个属性
   setPropDataWithEmitChange: (oid: string, key: string, value: any) => void;
-  //打开添加元素弹窗
-  openElementsPanel: () => void;
-  //打开的OperatePanels
-  operatePanels: IOperateElementItem[];
-  //重置operatePanels
-  setOperatePanel: (oel: IOperateElementItem) => void;
-  //添加operatePanels
-  addOperatePanel: (oel: IOperateElementItem) => void;
 }
 
 const OperatorContext = createContext<OperatorContextProps>({} as any);
@@ -110,20 +103,6 @@ export const Operator = ({
   //************************************ current panels ******************************************
   const [operatePanels, setOperatePanels] = useState<IOperateElementItem[]>([]);
 
-  const setOperatePanel = useCallback((oel: IOperateElementItem) => {
-    if (!isEmpty(oel.setProps) || oel.setElement || size(oel.elementList) > 0) {
-      setOperatePanels([oel]);
-    } else {
-      setOperatePanels([]);
-    }
-  }, []);
-
-  const addOperatePanel = useCallback((oel: IOperateElementItem) => {
-    if (!isEmpty(oel.setProps) || oel.setElement || size(oel.elementList) > 0) {
-      setOperatePanels((prev) => [...prev, oel]);
-    }
-  }, []);
-
   //************************************ elements panel ******************************************
 
   const [elementPanelShow, setElementPanelShow] = useState<boolean>(false);
@@ -137,15 +116,12 @@ export const Operator = ({
         elements,
         extraSetElementMap,
         onExtraChange,
+        onItemClick,
         //
         data,
         setData,
         setDataWithEmitChange,
         setPropDataWithEmitChange,
-        openElementsPanel,
-        operatePanels,
-        setOperatePanel,
-        addOperatePanel,
       }}>
       <Stack style={{ height: "100%", ...style }} direction={"row"} {...otherProps}>
         <Stack
@@ -155,6 +131,12 @@ export const Operator = ({
           <OperateArea
             onItemClick={(oel) => {
               onItemClick && onItemClick(oel);
+
+              if (isValidOperate(oel)) {
+                setOperatePanels([oel]);
+              } else {
+                setOperatePanels([]);
+              }
             }}
           />
 
@@ -204,8 +186,12 @@ export const Operator = ({
                 key={oel.oid}
                 oel={oel}
                 onClose={(oid) => {
-                  console.log("########", operatePanels);
                   setOperatePanels((prev) => filter(prev, (o) => o.oid !== oid));
+                }}
+                onOpen={(oel) => {
+                  if (isValidOperate(oel)) {
+                    setOperatePanels((prev) => [...prev, oel]);
+                  }
                 }}
               />
             ))}

@@ -1,5 +1,5 @@
 import { arrayMove } from "@dnd-kit/sortable";
-import { get, size, findIndex } from "lodash";
+import { get, size, findIndex, isEmpty } from "lodash";
 
 import type { FlattenedItem, IOperateElementItem, TreeItem, TreeItems } from "./types";
 
@@ -226,4 +226,8 @@ export const findTarget = (
       findTarget(els, oid, cb);
     }
   }
+};
+
+export const isValidOperate = (oel: IOperateElementItem) => {
+  return !isEmpty(oel.setProps) || oel.setElement || size(oel.elementList) > 0;
 };

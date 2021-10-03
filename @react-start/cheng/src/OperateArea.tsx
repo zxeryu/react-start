@@ -59,14 +59,10 @@ export const OperateContent = ({
   setDataWithEmitChange,
   onItemClick,
   isShowAddTrigger,
-  isChild,
 }: Pick<OperatorContextProps, "data" | "setData" | "setDataWithEmitChange"> &
   Pick<OperatorProps, "onItemClick"> & {
     isShowAddTrigger?: boolean;
-    isChild?: boolean;
   }) => {
-  const { setOperatePanel, addOperatePanel } = useOperator();
-
   const dataRef = useRef<IOperateElementItem[]>(data);
   dataRef.current = data;
 
@@ -138,17 +134,6 @@ export const OperateContent = ({
   };
 
   const handleDragCancel = useCallback(() => resetState(), []);
-
-  /***************** click **********************/
-
-  const handleClick = useCallback((oel: IOperateElementItem) => {
-    onItemClick && onItemClick(oel);
-    if (isChild) {
-      addOperatePanel(oel);
-    } else {
-      setOperatePanel(oel);
-    }
-  }, []);
 
   /***************** 展开、关闭 **********************/
 
@@ -240,7 +225,7 @@ export const OperateContent = ({
                   onRemove={canDelete ? handleRemove : undefined}
                   onNameChange={canEditName ? handleNameChange : undefined}
                   onAddChild={isContainer ? handleAddChild : undefined}
-                  onClick={() => handleClick(oel)}
+                  onClick={() => onItemClick && onItemClick(oel)}
                 />
               );
             })}

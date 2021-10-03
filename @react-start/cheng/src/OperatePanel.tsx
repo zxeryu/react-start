@@ -11,13 +11,20 @@ import { IElementItem, IOperateElementItem } from "./types";
 import { IconButton, Stack } from "@material-ui/core";
 import { Close as CloseIcon } from "@material-ui/icons";
 import { map, get, size } from "lodash";
-import { BooleanSet, NumberSet, SelectSet, SetProps, StringSet } from "./input";
+import {
+  BooleanSet,
+  NumberSet,
+  SelectSet,
+  SetProps,
+  StringSet,
+  ElementSet,
+  ElementListSet,
+  ObjectSet,
+  ArraySet,
+} from "./input";
 import { useOperator } from "./Operator";
 import { Item, SubTitle } from "./component";
-import { ElementListSet, ElementSet } from "./input/ElementSet";
 import { getOelName } from "./OperateArea";
-import { ObjectSet } from "./input/ObjectSet";
-import { ArraySet } from "./input/ArraySet";
 
 export const OSetPropsContext = createContext<{
   oel: IOperateElementItem;
@@ -85,6 +92,25 @@ export const SetPropList = ({ setProps, data }: { setProps: IElementItem["setPro
   );
 };
 
+export const OperateSetContent = ({ oel, onOpen }: Pick<OperatePanelProps, "oel" | "onOpen">) => (
+  <>
+    {oel.setElement && isValidElement(oel.setElement) ? (
+      cloneElement(oel.setElement, { data: oel })
+    ) : (
+      <SetPropList setProps={oel.setProps} data={oel.props} />
+    )}
+
+    {size(oel.elementList) > 0 && (
+      <>
+        <SubTitle label={"children"} />
+        {map(oel.elementList, (subOel) => (
+          <Item key={subOel.oid} label={subOel.name} onClick={() => onOpen && onOpen(subOel)} />
+        ))}
+      </>
+    )}
+  </>
+);
+
 export const OperatePanel = ({ oel, onClose, onOpen, style }: OperatePanelProps) => {
   const { setPropDataWithEmitChange, onExtraChange } = useOperator();
   const setProp = useCallback((key: string, value: any) => {
@@ -119,20 +145,7 @@ export const OperatePanel = ({ oel, onClose, onOpen, style }: OperatePanelProps)
           <CloseIcon />
         </IconButton>
 
-        {oel.setElement && isValidElement(oel.setElement) ? (
-          cloneElement(oel.setElement, { data: oel })
-        ) : (
-          <SetPropList setProps={oel.setProps} data={oel.props} />
-        )}
-
-        {size(oel.elementList) > 0 && (
-          <>
-            <div>children:</div>
-            {map(oel.elementList, (oel) => (
-              <Item key={oel.oid} label={oel.name} onClick={() => onOpen && onOpen(oel)} />
-            ))}
-          </>
-        )}
+        <OperateSetContent oel={oel} onOpen={onOpen} />
       </Stack>
     </OSetPropsContext.Provider>
   );
