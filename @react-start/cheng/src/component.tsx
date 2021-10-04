@@ -39,6 +39,7 @@ export const Dialog = ({
   onClose,
   onOk,
   noFooter,
+  outClosable = true,
   children,
   ...props
 }: Omit<DialogProps, "onClose"> & {
@@ -46,9 +47,22 @@ export const Dialog = ({
   onClose?: () => void;
   onOk?: () => void;
   noFooter?: boolean;
+  outClosable?: boolean;
 }) => {
   return (
-    <DialogOrigin fullWidth maxWidth={"sm"} onClose={onClose} PaperProps={{ style: { top: 0 } }} {...props}>
+    <DialogOrigin
+      fullWidth
+      maxWidth={"sm"}
+      onClose={outClosable ? onClose : undefined}
+      css={{
+        ".MuiDialog-container": {
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+          paddingTop: 60,
+        },
+      }}
+      {...props}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>{children}</DialogContent>
       {!noFooter && (

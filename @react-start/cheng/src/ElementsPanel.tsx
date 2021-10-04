@@ -62,16 +62,24 @@ export const ElementsDialog = ({
   const { elements } = useOperator();
 
   return (
-    <Dialog open noFooter title={"选择元素"} onClose={onClose}>
-      {map(elements, (el) => {
-        if (!isValidElement(el.menuElement)) {
-          return <Item key={el.id} label={el.name} onClick={() => onSuccess(el)} />;
-        }
-        return cloneElement(el.menuElement, {
-          key: el.id,
-          onClick: () => onSuccess(el),
-        });
-      })}
+    <Dialog open noFooter maxWidth={"lg"} title={"选择元素"} onClose={onClose}>
+      <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
+        {map(elements, (el) => {
+          return (
+            <Item
+              key={el.id}
+              style={{
+                border: "1px solid #eee",
+                borderRadius: 4,
+                margin: "4px 8px",
+                padding: "6px 10px",
+              }}
+              label={el.name}
+              onClick={() => onSuccess(el)}
+            />
+          );
+        })}
+      </div>
     </Dialog>
   );
 };

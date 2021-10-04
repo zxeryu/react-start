@@ -1,5 +1,5 @@
 import { PageContainerProps } from "@ant-design/pro-layout/lib/components/PageContainer";
-import { HighProps, useHigh, useHighPage } from "@react-start/cheng-high";
+import { HighProps, useHighPage } from "@react-start/cheng-high";
 import { ElementListProps, ElementProps } from "./types";
 import { PageContainer, WaterMark } from "@ant-design/pro-layout";
 import { get } from "lodash";
@@ -10,8 +10,10 @@ import { ProCardDividerProps } from "@ant-design/pro-card/lib/components/Divider
 import { WaterMarkProps } from "@ant-design/pro-layout/lib/components/WaterMark";
 
 export interface HighPageContainerProps
-  extends Omit<PageContainerProps, "footer" | "content" | "extraContent" | "tabBarExtraContent">,
+  extends Omit<PageContainerProps, "footer" | "content" | "extraContent" | "tabBarExtraContent" | "tags" | "extra">,
     HighProps {
+  tags?: ElementListProps;
+  extra?: ElementProps;
   footer?: ElementListProps;
   content?: ElementProps;
   extraContent?: ElementProps;
@@ -20,25 +22,34 @@ export interface HighPageContainerProps
 
 export const HighPageContainer = ({
   highConfig,
+  onSend,
   //
-  footer,
+  tags,
+  extra,
+  //
   content,
   extraContent,
+  //
   tabBarExtraContent,
+  footer,
   //
   ...otherProps
 }: HighPageContainerProps) => {
-  const { renderElementList, renderElement } = useHigh();
-  const { getStateValues } = useHighPage();
+  const { renderElementList, renderElement, getStateValues, sendEventSimple } = useHighPage();
 
   return (
     <PageContainer
       {...otherProps}
       {...getStateValues(highConfig?.receiveStateList, otherProps)}
+      tags={renderElementList(tags || []) as any}
+      extra={extra ? renderElement(extra) : undefined}
       footer={renderElementList(footer || [])}
       content={content ? renderElement(content) : undefined}
       extraContent={extraContent ? renderElement(extraContent) : undefined}
-      tabBarExtraContent={tabBarExtraContent ? renderElement(tabBarExtraContent) : undefined}>
+      tabBarExtraContent={tabBarExtraContent ? renderElement(tabBarExtraContent) : undefined}
+      onTabChange={(activeKey) => {
+        sendEventSimple(highConfig, onSend, { payload: { activeKey } });
+      }}>
       {renderElementList(get(highConfig, ["highInject", "elementList"], []))}
     </PageContainer>
   );
@@ -56,16 +67,22 @@ export const HighCard = ({ highConfig, onSend, extra, actions, ...otherProps }: 
     sendEventSimple(highConfig, onSend, { key: "onTabChange", payload: { activeKey } });
   }, []);
 
+  const stateProps = getStateValues(highConfig?.receiveStateList, otherProps);
+
   return (
     <ProCard
       {...otherProps}
+      {...stateProps}
       tabs={{
         ...otherProps.tabs,
+        ...stateProps?.tabs,
         onChange: handleTabChange,
       }}
-      {...getStateValues(highConfig?.receiveStateList, otherProps)}
       extra={extra ? renderElement(extra) : undefined}
-      actions={renderElementList(actions || [])}>
+      actions={renderElementList(actions || [])}
+      onCollapse={(collapsed) => {
+        sendEventSimple(highConfig, onSend, { key: "onCollapse", payload: { collapsed } });
+      }}>
       {renderElementList(get(highConfig, ["highInject", "elementList"], []))}
     </ProCard>
   );

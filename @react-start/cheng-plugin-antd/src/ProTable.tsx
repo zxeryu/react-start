@@ -187,12 +187,16 @@ export const HighEditTable = ({
 
   const hColumns = useColumnsWithOperate(columns, operateList, operateColumn);
 
+  const stateProps = getStateValues(highConfig?.receiveStateList, otherProps);
+
   return (
     <EditableProTable
       {...otherProps}
       columns={hColumns}
+      {...stateProps}
       editable={{
         ...otherProps.editable,
+        ...stateProps?.editable,
         onChange: (editableKeys, editableRows) => {
           sendEventSimple(highConfig, onSend, { key: "editable:onChange", payload: { editableKeys, editableRows } });
         },
@@ -214,7 +218,9 @@ export const HighEditTable = ({
           return Promise.resolve();
         },
       }}
-      {...getStateValues(highConfig?.receiveStateList, otherProps)}
+      onChange={(value) => {
+        sendEventSimple(highConfig, onSend, { key: "onChange", payload: { value } });
+      }}
     />
   );
 };

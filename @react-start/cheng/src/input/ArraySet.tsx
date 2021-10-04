@@ -1,97 +1,96 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useState } from "react";
 import { Button, Stack, IconButton } from "@material-ui/core";
-import { Edit, Delete } from "@material-ui/icons";
+import { ContentCopy, Delete } from "@material-ui/icons";
 import { OSetPropsContext, SetPropList, useSetProp } from "../OperatePanel";
-import { ISetProps } from "../types";
 import { Dialog, SubTitle } from "../component";
-import { isNumber, map, filter, get } from "lodash";
-import { OPERATE_CONFIG_NAME } from "../OperateArea";
+import { map, filter, get } from "lodash";
 
-export const ArraySet = ({
-  name,
-  propKey,
-  subSetProp,
-  value,
-}: {
-  name: string;
-  propKey: string;
-  value: any;
-  subSetProp: ISetProps;
-}) => {
+export const BaseArraySet = (props: any) => {
   const { oel, setProp } = useSetProp();
   const [open, setOpen] = useState<boolean>(false);
 
-  const indexRef = useRef<number>();
-  const currentRef = useRef<any>();
-
-  const [data, setData] = useState<any[]>(value || []);
-
-  const setPropArray = useCallback((key: string, value: any) => {
-    currentRef.current = { ...currentRef.current, [key]: value };
-  }, []);
-
-  const handleSubmit = useCallback(() => {
-    const nextData = [...data];
-    if (isNumber(indexRef.current)) {
-      nextData.splice(indexRef.current, 1, currentRef.current);
-    } else {
-      nextData.push(currentRef.current);
+  const [data, setData] = useState<any[]>(() => {
+    if (!props.value) {
+      return [];
     }
-    setData(nextData);
-    if (propKey) {
-      setProp(propKey, nextData);
+    if (props.single) {
+      return map(props.value, (i) => i.value);
     }
-    setOpen(false);
-  }, [data]);
+    return props.value;
+  });
 
   return (
     <>
-      <SubTitle style={{ paddingBottom: 4 }} label={get(value, OPERATE_CONFIG_NAME) || name} />
-      {map(data, (item, index) => (
-        <Stack direction={"row"} style={{ justifyContent: "space-between", alignItems: "center" }}>
-          <span>item-{index + 1}</span>
-          <div>
-            <IconButton
-              onClick={() => {
-                setOpen(true);
-                currentRef.current = item;
-                indexRef.current = index;
-              }}>
-              <Edit fontSize={"small"} />
-            </IconButton>
-            <IconButton
-              onClick={() => {
-                setData((prev) => {
-                  return filter(prev, (_, i) => i !== index);
-                });
-              }}>
-              <Delete fontSize={"small"} />
-            </IconButton>
-          </div>
-        </Stack>
-      ))}
-      <Button
-        fullWidth
-        onClick={() => {
-          setOpen(true);
-          currentRef.current = undefined;
-          indexRef.current = undefined;
-        }}>
-        添加item
+      <SubTitle label={get(props, "name")} />
+      <Button fullWidth onClick={() => setOpen(true)}>
+        设置数组
       </Button>
-      {open && (
-        <Dialog
-          open
-          onClose={() => {
-            setOpen(false);
-            currentRef.current = undefined;
-          }}
-          onOk={handleSubmit}>
-          <OSetPropsContext.Provider value={{ oel, setProp: setPropArray }}>
-            <SetPropList setProps={subSetProp} data={currentRef.current} />
-          </OSetPropsContext.Provider>
-        </Dialog>
-      )}
+      <Dialog
+        open={open}
+        title={props.name}
+        outClosable={false}
+        onClose={() => setOpen(false)}
+        onOk={() => {
+          //设置props
+          if (props.propKey) {
+            if (props.single) {
+              setProp(
+                props.propKey,
+                map(data, (i) => i.value),
+              );
+            } else {
+              setProp(props.propKey, data);
+            }
+          }
+
+          setOpen(false);
+        }}>
+        {map(data, (item, index) => {
+          const setPropArray = (key: string, value: any) => {
+            setData((prev) => {
+              return map(prev, (sub, i) => {
+                if (i === index) {
+                  return { ...sub, [key]: value };
+                }
+                return sub;
+              });
+            });
+          };
+          return (
+            <div>
+              <Stack direction={"row"} style={{ alignItems: "center", justifyContent: "space-between" }}>
+                <div>{index + 1}</div>
+                <div>
+                  <IconButton
+                    onClick={() => {
+                      setData((prev) => [...prev, item]);
+                    }}>
+                    <ContentCopy fontSize={"small"} />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => {
+                      setData((prev) => {
+                        return filter(prev, (_, i) => i !== index);
+                      });
+                    }}>
+                    <Delete fontSize={"small"} />
+                  </IconButton>
+                </div>
+              </Stack>
+              <OSetPropsContext.Provider value={{ oel, setProp: setPropArray }}>
+                <SetPropList setProps={props.subSetProp} data={item} />
+              </OSetPropsContext.Provider>
+            </div>
+          );
+        })}
+        <Button fullWidth onClick={() => setData((prev) => [...prev, {}])}>
+          添加
+        </Button>
+      </Dialog>
     </>
   );
 };
+
+export const ArraySet = (props: any) => <BaseArraySet {...props} />;
+
+export const ArraySingleSet = (props: any) => <BaseArraySet single {...props} />;

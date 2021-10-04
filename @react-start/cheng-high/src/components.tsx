@@ -15,6 +15,7 @@ export const CommonWrapper = <T extends CommonWrapperProps>({
   highConfig,
   onSend,
   bubble = true,
+  noChild,
   //
   children,
   ...otherProps
@@ -22,6 +23,7 @@ export const CommonWrapper = <T extends CommonWrapperProps>({
   Component: any;
   defaultSend?: boolean;
   children?: ReactNode;
+  noChild?: boolean;
 }) => {
   const { getStateValues, sendEventSimple, renderElementList } = useHighPage();
 
@@ -29,11 +31,14 @@ export const CommonWrapper = <T extends CommonWrapperProps>({
     sendEventSimple(highConfig, onSend, { payload: { e }, defaultSend });
   }, []);
 
+  const stateProps = getStateValues(highConfig?.receiveStateList);
+
+  if (noChild) {
+    return <Component {...otherProps} {...stateProps} onClick={bubble ? handleClick : withoutBubble(handleClick)} />;
+  }
+
   return (
-    <Component
-      {...otherProps}
-      {...getStateValues(highConfig?.receiveStateList)}
-      onClick={bubble ? handleClick : withoutBubble(handleClick)}>
+    <Component {...otherProps} {...stateProps} onClick={bubble ? handleClick : withoutBubble(handleClick)}>
       {children}
       {renderElementList(get(highConfig, ["highInject", "elementList"], []))}
     </Component>
@@ -67,7 +72,7 @@ const Img = (props: ImgHTMLAttributes<HTMLImageElement>) => {
 };
 
 export const HighImg = (props: HighImgProps) => {
-  return <CommonWrapper Component={Img} {...props} />;
+  return <CommonWrapper Component={Img} noChild {...props} />;
 };
 
 export interface HighPProps extends HTMLAttributes<HTMLParagraphElement>, CommonWrapperProps {}

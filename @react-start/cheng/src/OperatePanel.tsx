@@ -21,6 +21,7 @@ import {
   ElementListSet,
   ObjectSet,
   ArraySet,
+  ArraySingleSet,
 } from "./input";
 import { useOperator } from "./Operator";
 import { Item, SubTitle } from "./component";
@@ -64,6 +65,7 @@ const SetElementMap: OperatePanelProps["extraSetElementMap"] = {
   element: ElementSet,
   elementList: ElementListSet,
   array: ArraySet,
+  arraySingle: ArraySingleSet,
 };
 
 export const SetPropList = ({ setProps, data }: { setProps: IElementItem["setProps"]; data: any }) => {

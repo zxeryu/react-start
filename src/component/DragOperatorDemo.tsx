@@ -57,6 +57,21 @@ const OneElement: IOperateElementItem = {
         },
       },
     },
+    test: {
+      name: "test",
+      type: "array",
+      subSetProp: {
+        aaa: { name: "aaa", type: "string", inputType: "input" },
+        bbb: { name: "bbb", type: "string", inputType: "input" },
+      },
+    },
+    arraySingleTest: {
+      name: "数组（single）",
+      type: "arraySingle",
+      subSetProp: {
+        value: { name: "value", type: "number", inputType: "input" },
+      },
+    },
   },
   elementList: [],
   isContainer: true,
