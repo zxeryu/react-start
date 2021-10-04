@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/zxeryu/react-start/compare/@react-start/cheng@0.2.1...@react-start/cheng@0.3.0) (2021-10-04)
+
+### Bug Fixes
+
+- perf array set ([8371f26](https://github.com/zxeryu/react-start/commit/8371f2631c794daaaea14edc07faa3e2526a04de))
+- **cheng:** operate set by dialog ([da786f5](https://github.com/zxeryu/react-start/commit/da786f57b39f56c0fb268fe92bb17288cfaecf67))
+- **cheng:** set tree data ([e092d33](https://github.com/zxeryu/react-start/commit/e092d331621d3c4e9eccb7bd9ca582a4bc223a18))
+
+### Features
+
+- **cheng:** array set ([3329e31](https://github.com/zxeryu/react-start/commit/3329e31836c558810f6218cbdc5753017f3f98b3))
+- **cheng:** element set ([deda155](https://github.com/zxeryu/react-start/commit/deda15550d07824b26346ceace9379ca978d82a7))
+- **cheng:** object set ([2397248](https://github.com/zxeryu/react-start/commit/23972487d01d347246e0959aaf78f8a8bb546e81))
+
+### Performance Improvements
+
+- **cheng:** close for select ([3932d52](https://github.com/zxeryu/react-start/commit/3932d52fbd8e52393b7dc66632f3f567dd1dab2d))
+
 ## [0.2.1](https://github.com/zxeryu/react-start/compare/@react-start/cheng@0.2.0...@react-start/cheng@0.2.1) (2021-09-26)
 
 ### Bug Fixes

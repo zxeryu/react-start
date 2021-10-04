@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.2](https://github.com/zxeryu/react-start/compare/@react-start/cheng-plugin-antd@0.1.1...@react-start/cheng-plugin-antd@0.1.2) (2021-10-04)
+
+### Bug Fixes
+
+- perf array set ([8371f26](https://github.com/zxeryu/react-start/commit/8371f2631c794daaaea14edc07faa3e2526a04de))
+- **cheng-high:** high dom element ([e86a695](https://github.com/zxeryu/react-start/commit/e86a695a1ec3da21d229a4e5b852d7423aa6cdd4))
+- **cheng-plugin-antd:** operateKey for highTable ([e09e4c3](https://github.com/zxeryu/react-start/commit/e09e4c31a8fae6f40ce0f58ddc7c66c01198bdbd))
+
 ## [0.1.1](https://github.com/zxeryu/react-start/compare/@react-start/cheng-plugin-antd@0.1.0...@react-start/cheng-plugin-antd@0.1.1) (2021-09-30)
 
 ### Bug Fixes
