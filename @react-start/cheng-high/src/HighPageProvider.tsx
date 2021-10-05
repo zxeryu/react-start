@@ -9,10 +9,11 @@ import React, {
   ElementType,
   MutableRefObject,
 } from "react";
-import { reduce, get, set, isArray, head, isObject, tail, indexOf } from "lodash";
+import { get, set, isString, indexOf, size, map, filter, pick } from "lodash";
 import { Subject } from "rxjs";
 import { HighAction as Action, HConfig, HighSendEvent, ElementConfigBase, HighProps } from "./types";
 import { HighProviderProps, useHigh } from "./HighProvider";
+import { getFirstPropNameFromNamePath } from "./util";
 
 type Values = { [key: string]: any };
 
@@ -88,40 +89,20 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
 
   const getStateValues = useCallback(
     (items?: HConfig["receiveStateList"], props?: Record<string, any>) => {
-      if (!items) {
+      if (!items || size(items) <= 0) {
         return undefined;
       }
-      return reduce(
-        items,
-        (pair, item) => {
-          const targetName = item.mapName || item.name;
-          let firstPropName: string | number;
-          if (isArray(targetName)) {
-            firstPropName = head(targetName) as string | number;
-          } else {
-            firstPropName = targetName;
-          }
-          //props中的配置
-          const targetProps = get(props || {}, firstPropName);
-          //需要订阅的状态值
-          const value = get(state, item.name);
-          //目标属性是对象
-          let mergeProps;
-          if (isObject(targetProps)) {
-            mergeProps = { ...targetProps };
-            //未标记的话模式用name属性
-            const path = item.mapName || item.name;
+      //浅拷贝，如果有必要续改为深拷贝
+      const nextProps = { ...props };
+      //赋值 && 返回一级属性名称
+      const firstPropNameList = map(items, (item) => {
+        const targetName = item.mapName || item.name;
+        //赋值
+        set(nextProps, targetName, get(state, item.name));
+        return getFirstPropNameFromNamePath(targetName);
+      });
 
-            set(mergeProps, isArray(path) ? tail(path) : path, value);
-          }
-          const isO = get(item, "isObject");
-          return {
-            ...pair,
-            [firstPropName]: isObject(targetProps) ? mergeProps : isO ? { value } : value,
-          };
-        },
-        {},
-      );
+      return pick(nextProps, filter(firstPropNameList, (firstName) => isString(firstName) && !!firstName) as string[]);
     },
     [state],
   );
