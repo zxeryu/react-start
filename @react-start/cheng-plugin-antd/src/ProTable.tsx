@@ -30,7 +30,18 @@ export const useColumnsWithOperate = (
       return columns;
     }
     return [
-      ...columns,
+      ...map(columns, (item) => {
+        const elementConfig = get(item, "element");
+        if (elementConfig) {
+          item.render = (_, record, index) => {
+            const value = get(record, item.dataIndex!);
+            const key = record ? JSON.stringify(record) : Date.now().valueOf();
+            elementConfig.elementProps$ = { ...elementConfig.elementProps$, ...item.fieldProps, value, record, index };
+            return renderElement({ ...elementConfig, oid: `${elementConfig.oid}-${index}-${key}-${item.dataIndex}` });
+          };
+        }
+        return item;
+      }),
       {
         title: "操作",
         valueType: "option",
