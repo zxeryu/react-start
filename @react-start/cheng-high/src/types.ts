@@ -65,7 +65,9 @@ export interface HighSendEvent {
   onSend?: (action: HighAction) => void;
 }
 
-export interface HighProps extends HighConfig, HighSendEvent {}
+export interface HighProps extends HighConfig, HighSendEvent {
+  hidden?: boolean;
+}
 
 export interface BaseHighProps extends HighProps {
   [key: string]: any;

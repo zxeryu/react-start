@@ -1,10 +1,13 @@
-import React, { useMemo } from "react";
+import React from "react";
 import ProForm, {
   ProFormText,
   ProFormCaptcha,
   ProFormDigit,
   ProFormDatePicker,
+  ProFormTimePicker,
   ProFormDateTimePicker,
+  ProFormDateRangePicker,
+  ProFormDateTimeRangePicker,
   ProFormSelect,
   ProFormCheckbox,
   ProFormRadio,
@@ -15,9 +18,9 @@ import ProForm, {
   ProFormField,
   ProFormFieldProps,
 } from "@ant-design/pro-form";
+import { ComponentWrapper, HighProps } from "@react-start/cheng-high";
+
 import { GroupProps } from "@ant-design/pro-form/es/interface";
-import { HighProps, useHigh, ElementConfigBase, useHighPage } from "@react-start/cheng-high";
-import { get, head } from "lodash";
 import { ProFormItemProps } from "@ant-design/pro-form/es/components/FormItem";
 import { ProFormFieldItemProps } from "@ant-design/pro-form/lib/interface";
 import { DatePickerProps, InputProps } from "antd";
@@ -31,130 +34,94 @@ import { ProFormSliderProps } from "@ant-design/pro-form/es/components/Slider";
 import { ProFormMoneyProps } from "@ant-design/pro-form/es/components/Money";
 import { ProFormCaptchaProps } from "@ant-design/pro-form/es";
 import { ProFormDigitProps } from "@ant-design/pro-form/es/components/Digit";
+import { RangePickerProps } from "antd/lib/date-picker";
 
 export interface HighFormGroupProps extends GroupProps, HighProps {}
-
-export const HighFormGroup = ({ highConfig, ...otherProps }: HighFormGroupProps) => {
-  const { renderElementList } = useHigh();
-  return (
-    <ProForm.Group {...otherProps}>
-      {renderElementList(get(highConfig, ["highInject", "elementList"], []))}
-    </ProForm.Group>
-  );
-};
+export const HighFormGroup = (props: HighFormGroupProps) => (
+  <ComponentWrapper Component={ProForm.Group} renderChild {...props} />
+);
 
 export interface HighFormItemProps extends ProFormItemProps, HighProps {}
-
-export const HighFormItem = ({ highConfig, ...otherProps }: HighFormItemProps) => {
-  const { renderElement } = useHigh();
-
-  const c: ElementConfigBase | undefined = useMemo(
-    () => head(highConfig?.highInject?.elementList as any),
-    [highConfig?.highInject?.elementList],
-  );
-
-  return <ProForm.Item {...otherProps}>{c ? renderElement(c) : null}</ProForm.Item>;
-};
+export const HighFormItem = (props: HighFormItemProps) => (
+  <ComponentWrapper Component={ProForm.Item} renderChild {...props} />
+);
 
 export interface HighFormTextProps extends ProFormFieldItemProps<InputProps>, HighProps {}
-
-export const HighFormText = ({ highConfig, ...otherProps }: HighFormTextProps) => {
-  const { getStateValues } = useHighPage();
-  return <ProFormText {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
-};
+export const HighFormText = (props: HighFormTextProps) => <ComponentWrapper Component={ProFormText} {...props} />;
 
 export interface HighFormPasswordProps extends ProFormFieldItemProps<PasswordProps>, HighProps {}
-
-export const HighFormPassword = ({ highConfig, ...otherProps }: HighFormPasswordProps) => {
-  const { getStateValues } = useHighPage();
-  return <ProFormText.Password {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
-};
+export const HighFormPassword = (props: HighFormPasswordProps) => (
+  <ComponentWrapper Component={ProFormText.Password} {...props} />
+);
 
 export interface HighFormCaptchaProps extends ProFormCaptchaProps, HighProps {}
-
-export const HighFormCaptcha = ({ highConfig, ...otherProps }: HighFormCaptchaProps) => {
-  const { getStateValues } = useHighPage();
-  return <ProFormCaptcha {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
-};
+export const HighFormCaptcha = (props: HighFormCaptchaProps) => (
+  <ComponentWrapper Component={ProFormCaptcha} {...props} />
+);
 
 export interface HighFormDigitProps extends ProFormDigitProps, HighProps {}
+export const HighFormDigit = (props: HighFormDigitProps) => <ComponentWrapper Component={ProFormDigit} {...props} />;
 
-export const HighFormDigit = ({ highConfig, ...otherProps }: HighFormDigitProps) => {
-  const { getStateValues } = useHighPage();
-  return <ProFormDigit {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
-};
+export type HighFormDatePickerProps = ProFormFieldItemProps<DatePickerProps> & HighProps;
+export const HighFormDatePicker = (props: HighFormDatePickerProps) => (
+  <ComponentWrapper Component={ProFormDatePicker} {...props} />
+);
 
-export type HighFormDatePickerProps = DatePickerProps & HighProps;
+export type HighFormDateRangePickerProps = ProFormFieldItemProps<RangePickerProps> & HighProps;
+export const HighFormDateRangePicker = (props: HighFormDateRangePickerProps) => (
+  <ComponentWrapper Component={ProFormDateRangePicker} {...props} />
+);
 
-export const HighFormDatePicker = ({ highConfig, ...otherProps }: HighFormDatePickerProps) => {
-  const { getStateValues } = useHighPage();
-  return <ProFormDatePicker {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
-};
+export type HighFormTimePickerProps = ProFormFieldItemProps<DatePickerProps> & HighProps;
+export const HighFormTimePicker = (props: HighFormTimePickerProps) => (
+  <ComponentWrapper Component={ProFormTimePicker} {...props} />
+);
+
+export type HighFormTimeRangePickerProps = ProFormFieldItemProps<DatePickerProps> & HighProps;
+export const HighFormTimeRangePicker = (props: HighFormTimeRangePickerProps) => (
+  <ComponentWrapper Component={ProFormTimePicker.RangePicker} {...props} />
+);
 
 export interface HighFormDateTimePickerProps extends ProFormFieldItemProps<DatePickerProps>, HighProps {}
+export const HighFormDateTimePicker = (props: HighFormDateTimePickerProps) => (
+  <ComponentWrapper Component={ProFormDateTimePicker} {...props} />
+);
 
-export const HighFormDateTimePicker = ({ highConfig, ...otherProps }: HighFormDateTimePickerProps) => {
-  const { getStateValues } = useHighPage();
-  return <ProFormDateTimePicker {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
-};
+export type HighFormDateTimeRangePickerProps = ProFormFieldItemProps<RangePickerProps> & HighProps;
+export const HighFormDateTimeRangePicker = (props: HighFormDateTimeRangePickerProps) => (
+  <ComponentWrapper Component={ProFormDateTimeRangePicker} {...props} />
+);
 
 export interface HighFormSelectProps extends ProFormSelectProps, HighProps {}
-
-export const HighFormSelect = ({ highConfig, ...otherProps }: HighFormSelectProps) => {
-  const { getStateValues } = useHighPage();
-  return <ProFormSelect {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
-};
+export const HighFormSelect = (props: HighFormSelectProps) => <ComponentWrapper Component={ProFormSelect} {...props} />;
 
 export interface HighFormCheckboxProps extends ProFormCheckboxProps, HighProps {}
-
-export const HighFormCheckbox = ({ highConfig, ...otherProps }: HighFormCheckboxProps) => {
-  const { getStateValues } = useHighPage();
-  return <ProFormCheckbox {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
-};
+export const HighFormCheckbox = (props: HighFormCheckboxProps) => (
+  <ComponentWrapper Component={ProFormCheckbox} {...props} />
+);
 
 export interface HighFormCheckboxGroupProps extends ProFormCheckboxGroupProps, HighProps {}
-
-export const HighFormCheckboxGroup = ({ highConfig, ...otherProps }: HighFormCheckboxGroupProps) => {
-  const { getStateValues } = useHighPage();
-  return <ProFormCheckbox.Group {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
-};
+export const HighFormCheckboxGroup = (props: HighFormCheckboxGroupProps) => (
+  <ComponentWrapper Component={ProFormCheckbox.Group} {...props} />
+);
 
 export interface HighFormRadioGroupProps extends ProFormRadioGroupProps, HighProps {}
-
-export const HighFormRadioGroup = ({ highConfig, ...otherProps }: HighFormRadioGroupProps) => {
-  const { getStateValues } = useHighPage();
-  return <ProFormRadio.Group {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
-};
+export const HighFormRadioGroup = (props: HighFormRadioGroupProps) => (
+  <ComponentWrapper Component={ProFormRadio.Group} {...props} />
+);
 
 export interface HighFormSwitchProps extends ProFormSwitchProps, HighProps {}
+export const HighFormSwitch = (props: HighFormSwitchProps) => <ComponentWrapper Component={ProFormSwitch} {...props} />;
 
-export const HighFormSwitch = ({ highConfig, ...otherProps }: HighFormSwitchProps) => {
-  const { getStateValues } = useHighPage();
-  return <ProFormSwitch {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
-};
-
-export const HighFormRate = ({ highConfig, ...otherProps }: any) => {
-  const { getStateValues } = useHighPage();
-  return <ProFormRate {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
-};
+export const HighFormRate = (props: any) => <ComponentWrapper Component={ProFormRate} {...props} />;
 
 export interface HighFormSliderProps extends ProFormSliderProps, HighProps {}
-
-export const HighFormSlider = ({ highConfig, ...otherProps }: HighFormSliderProps) => {
-  const { getStateValues } = useHighPage();
-  return <ProFormSlider {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
-};
+export const HighFormSlider = (props: HighFormSliderProps) => <ComponentWrapper Component={ProFormSlider} {...props} />;
 
 export interface HighFormMoneyProps extends ProFormMoneyProps, HighProps {}
-
-export const HighFormMoney = ({ highConfig, ...otherProps }: HighFormMoneyProps) => {
-  const { getStateValues } = useHighPage();
-  return <ProFormMoney {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
-};
+export const HighFormMoney = (props: HighFormMoneyProps) => <ComponentWrapper Component={ProFormMoney} {...props} />;
 
 export interface HighProFormFieldProps extends ProFormFieldProps, HighProps {}
-
-export const HighProFormField = ({ highConfig, ...otherProps }: HighProFormFieldProps) => {
-  const { getStateValues } = useHighPage();
-  return <ProFormField {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)} />;
-};
+export const HighProFormField = (props: HighProFormFieldProps) => (
+  <ComponentWrapper Component={ProFormField} {...props} />
+);

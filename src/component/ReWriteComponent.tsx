@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { PickerModal, DatePicker, DatePickerModal, CascaderModal } from "@react-start/components";
+import { PickerModal, DatePicker, DatePickerModal, CascaderModal, ITreeOption } from "@react-start/components";
 import { size, debounce, last } from "lodash";
-import { ITreeOption } from "../../@react-start/components/src/type";
 
 const TestOptions = [
   { label: "000", value: "0" },
@@ -222,7 +221,7 @@ const CascaderDemo = () => {
     [],
   );
 
-  const [value, setValue] = useState<string>("id-2-1-2");
+  const [value, setValue] = useState<string>();
 
   return (
     <div>

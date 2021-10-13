@@ -9,9 +9,9 @@ import React, {
   ElementType,
   MutableRefObject,
 } from "react";
-import { get, set, isString, indexOf, size, map, filter, pick } from "lodash";
+import { get, set, isString, indexOf, size, map, filter, pick, isArray } from "lodash";
 import { Subject } from "rxjs";
-import { HighAction as Action, HConfig, HighSendEvent, ElementConfigBase, HighProps } from "./types";
+import { HighAction as Action, HConfig, HighSendEvent, ElementConfigBase, HighProps, HighConfig } from "./types";
 import { HighProviderProps, useHigh } from "./HighProvider";
 import { getFirstPropNameFromNamePath } from "./util";
 
@@ -21,6 +21,11 @@ interface HighPageContextProps {
   getElement: (elementName: string) => ElementType | undefined;
   renderElement: (c?: ElementConfigBase, highProps?: HighProps) => ReactNode;
   renderElementList: (c: ElementConfigBase[], highProps?: HighProps) => ReactNode[];
+  render: (
+    data: ElementConfigBase | ElementConfigBase[] | undefined | null,
+    highProps?: HighProps,
+  ) => ReactNode | ReactNode[] | null;
+  renderChildren: (highConfig: HighConfig["highConfig"], highProps?: HighProps) => ReactNode | ReactNode[] | null;
   //状态值
   state: Values;
   stateRef: MutableRefObject<Values>;
@@ -78,9 +83,33 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
     [renderElementListOrigin, elementsMap],
   );
 
+  const render = useCallback(
+    (data: ElementConfigBase | ElementConfigBase[] | undefined | null, highProps?: HighProps) => {
+      if (!data) {
+        return null;
+      }
+      if (isArray(data)) {
+        return renderElementList(data, highProps);
+      }
+      return renderElement(data, highProps);
+    },
+    [renderElement, renderElementList],
+  );
+
+  const renderChildren = useCallback(
+    (highConfig: HighConfig["highConfig"], highProps?: HighProps) => {
+      const children = get(highConfig, ["highInject", "elementList"]);
+      return render(children, highProps);
+    },
+    [render],
+  );
+
   /************************** 页面状态 *****************************/
 
   const [state, dispatch] = useReducer<Reducer<Values, Action>>((prevState, action) => {
+    if (action.type === "compose") {
+      return { ...prevState, ...action.payload };
+    }
     return { ...prevState, [action.type]: action.payload };
   }, {});
 
@@ -163,6 +192,8 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
         getElement,
         renderElement,
         renderElementList,
+        render,
+        renderChildren,
         state,
         stateRef,
         dispatch,
