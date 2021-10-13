@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/zxeryu/react-start/compare/@react-start/cheng-plugin-antd@0.1.2...@react-start/cheng-plugin-antd@0.2.0) (2021-10-13)
+
+### Features
+
+- **cheng-high:** component wrapper ([c14f466](https://github.com/zxeryu/react-start/commit/c14f4660e7800abf05fb734f3a62f6b399204dfe))
+- **cheng-plugin-antd:** column element ([4d6cfc1](https://github.com/zxeryu/react-start/commit/4d6cfc188a8ac4241e53e6f736ab8314609e4908))
+
 ## [0.1.2](https://github.com/zxeryu/react-start/compare/@react-start/cheng-plugin-antd@0.1.1...@react-start/cheng-plugin-antd@0.1.2) (2021-10-04)
 
 ### Bug Fixes

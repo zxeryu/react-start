@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/zxeryu/react-start/compare/@react-start/cheng-high@0.1.2...@react-start/cheng-high@0.2.0) (2021-10-13)
+
+### Bug Fixes
+
+- **cheng-high:** perf state convert ([bf20385](https://github.com/zxeryu/react-start/commit/bf20385075e3a459e07baf4dca683428618d1c25))
+
+### Features
+
+- **cheng-high:** component wrapper ([c14f466](https://github.com/zxeryu/react-start/commit/c14f4660e7800abf05fb734f3a62f6b399204dfe))
+
 ## [0.1.2](https://github.com/zxeryu/react-start/compare/@react-start/cheng-high@0.1.1...@react-start/cheng-high@0.1.2) (2021-10-04)
 
 ### Bug Fixes
