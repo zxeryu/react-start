@@ -1,8 +1,7 @@
 import { PageContainerProps } from "@ant-design/pro-layout/lib/components/PageContainer";
-import { HighProps, useHighPage } from "@react-start/cheng-high";
+import { HighProps, useHighPage, ComponentWrapper } from "@react-start/cheng-high";
 import { ElementListProps, ElementProps } from "./types";
 import { PageContainer, WaterMark } from "@ant-design/pro-layout";
-import { get } from "lodash";
 import React, { useCallback } from "react";
 import ProCard, { ProCardProps } from "@ant-design/pro-card";
 import { ProCardTabPaneProps } from "@ant-design/pro-card/lib/type";
@@ -35,23 +34,24 @@ export const HighPageContainer = ({
   //
   ...otherProps
 }: HighPageContainerProps) => {
-  const { renderElementList, renderElement, getStateValues, sendEventSimple } = useHighPage();
+  const { sendEventSimple, render } = useHighPage();
 
   return (
-    <PageContainer
+    <ComponentWrapper
+      Component={PageContainer}
+      renderChild
+      highConfig={highConfig}
       {...otherProps}
-      {...getStateValues(highConfig?.receiveStateList, otherProps)}
-      tags={renderElementList(tags || []) as any}
-      extra={extra ? renderElement(extra) : undefined}
-      footer={renderElementList(footer || [])}
-      content={content ? renderElement(content) : undefined}
-      extraContent={extraContent ? renderElement(extraContent) : undefined}
-      tabBarExtraContent={tabBarExtraContent ? renderElement(tabBarExtraContent) : undefined}
-      onTabChange={(activeKey) => {
+      tags={render(tags) as any}
+      extra={render(extra)}
+      footer={render(footer)}
+      content={render(content)}
+      extraContent={render(extraContent)}
+      tabBarExtraContent={render(tabBarExtraContent)}
+      onTabChange={(activeKey: string) => {
         sendEventSimple(highConfig, onSend, { payload: { activeKey } });
-      }}>
-      {renderElementList(get(highConfig, ["highInject", "elementList"], []))}
-    </PageContainer>
+      }}
+    />
   );
 };
 
@@ -60,43 +60,22 @@ export interface HighCardProps extends Omit<ProCardProps, "extra">, HighProps {
   actions?: ElementListProps;
 }
 
-export const HighCard = ({ highConfig, onSend, extra, actions, ...otherProps }: HighCardProps) => {
-  const { renderElementList, renderElement, getStateValues, sendEventSimple } = useHighPage();
+export const HighCard = (props: HighCardProps) => {
+  const { sendEventSimple } = useHighPage();
 
   const handleTabChange = useCallback((activeKey) => {
-    sendEventSimple(highConfig, onSend, { key: "onTabChange", payload: { activeKey } });
+    sendEventSimple(props.highConfig, props.onSend, { key: "onTabChange", payload: { activeKey } });
   }, []);
 
-  const stateProps = getStateValues(highConfig?.receiveStateList, otherProps);
-
   return (
-    <ProCard
-      {...otherProps}
-      {...stateProps}
-      tabs={{
-        ...otherProps.tabs,
-        ...stateProps?.tabs,
-        onChange: handleTabChange,
-      }}
-      extra={extra ? renderElement(extra) : undefined}
-      actions={renderElementList(actions || [])}
-      onCollapse={(collapsed) => {
-        sendEventSimple(highConfig, onSend, { key: "onCollapse", payload: { collapsed } });
-      }}>
-      {renderElementList(get(highConfig, ["highInject", "elementList"], []))}
-    </ProCard>
+    <ComponentWrapper Component={ProCard} renderChild {...props} tabs={{ ...props.tabs, onChange: handleTabChange }} />
   );
 };
 
 export interface HighCardTabPaneProps extends ProCardTabPaneProps, HighProps {}
 
-export const HighCardTabPane = ({ highConfig, ...otherProps }: HighCardTabPaneProps) => {
-  const { renderElementList, getStateValues } = useHighPage();
-  return (
-    <ProCard.TabPane {...otherProps} {...getStateValues(highConfig?.receiveStateList, otherProps)}>
-      {renderElementList(get(highConfig, ["highInject", "elementList"], []))}
-    </ProCard.TabPane>
-  );
+export const HighCardTabPane = (props: HighCardTabPaneProps) => {
+  return <ComponentWrapper Component={ProCard.TabPane} renderChild {...props} />;
 };
 
 export interface HighCardDividerProps extends ProCardDividerProps {}

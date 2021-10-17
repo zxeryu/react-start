@@ -1,4 +1,4 @@
-import React, { CSSProperties, useCallback, useRef } from "react";
+import React, { CSSProperties, useCallback, useEffect, useRef } from "react";
 import ProForm, {
   ProFormInstance,
   ProFormProps,
@@ -9,16 +9,22 @@ import ProForm, {
   ModalFormProps,
   DrawerFormProps,
 } from "@ant-design/pro-form";
-import { HighProps, useHighPage } from "@react-start/cheng-high";
+import { HighProps, useHighPage, ComponentWrapper } from "@react-start/cheng-high";
 import { get, debounce, keys, size, indexOf, endsWith } from "lodash";
 import { ElementProps } from "./types";
 
-export interface HighFormProps extends ProFormProps, HighProps {}
+export interface HighFormProps extends ProFormProps, HighProps {
+  formName?: string;
+}
 
-export const HighForm = ({ highConfig, onSend, children, ...otherProps }: HighFormProps) => {
-  const { renderElementList, getStateValues, sendEventSimple } = useHighPage();
+export const HighForm = ({ highConfig, onSend, children, formName, ...otherProps }: HighFormProps) => {
+  const { sendEventSimple, setDataToRef } = useHighPage();
 
   const formRef = useRef<ProFormInstance>();
+
+  useEffect(() => {
+    formName && setDataToRef(formName, formRef.current);
+  }, []);
 
   const handleFinish = useCallback((values) => {
     sendEventSimple(highConfig, onSend, { key: "onFinish", payload: { form: formRef.current, values } });
@@ -50,17 +56,17 @@ export const HighForm = ({ highConfig, onSend, children, ...otherProps }: HighFo
   }, []);
 
   return (
-    <ProForm
+    <ComponentWrapper
+      Component={ProForm}
+      renderChild
       formRef={formRef}
-      {...otherProps}
-      {...getStateValues(highConfig?.receiveStateList, otherProps)}
       onFinish={handleFinish}
       onFinishFailed={handleFinishFailed}
       onFieldsChange={handleFieldsChange}
-      onValuesChange={handleValuesChange}>
-      {renderElementList(get(highConfig, ["highInject", "elementList"], []))}
-      {children}
-    </ProForm>
+      onValuesChange={handleValuesChange}
+      highConfig={highConfig}
+      {...otherProps}
+    />
   );
 };
 
@@ -191,9 +197,6 @@ export const HighDrawerForm = (props: HighDrawerFormProps) => {
 
 export interface HighFormListProps extends ProFormListProps, HighProps {}
 
-export const HighFormList = ({ highConfig, ...otherProps }: HighFormListProps) => {
-  const { renderElementList } = useHighPage();
-  return (
-    <ProFormList {...otherProps}>{renderElementList(get(highConfig, ["highInject", "elementList"], []))}</ProFormList>
-  );
+export const HighFormList = (props: HighFormListProps) => {
+  return <ComponentWrapper Component={ProFormList} renderChild {...props} />;
 };
