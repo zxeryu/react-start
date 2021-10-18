@@ -1,5 +1,3 @@
-import { HighButtonProps } from "./Button";
-import { HighAProps } from "./components";
 import { HighTableDropdownProps } from "./ProTableComponent";
 import { HighEditTableProps, HighTableProps } from "./ProTable";
 import { HighFormProps } from "./ProForm";
@@ -22,10 +20,10 @@ import {
   HighProFormFieldProps,
 } from "./ProFormComponent";
 import { HighCardProps, HighPageContainerProps } from "./Layout";
+import { HighButtonProps } from "./component";
 
 export interface ElementMap {
   HighButton: HighButtonProps;
-  HighA: HighAProps;
   //
   HighTable: HighTableProps;
   HighEditTable: HighEditTableProps;

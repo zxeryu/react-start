@@ -120,7 +120,7 @@ const props: HighTableProps = {
   ],
   operateList: [
     {
-      elementType$: "HighA",
+      elementType$: "HighA" as any,
       oid: "HighA-Edit",
       elementProps$: {
         children: "编辑",
@@ -130,7 +130,7 @@ const props: HighTableProps = {
       },
     },
     {
-      elementType$: "HighA",
+      elementType$: "HighA" as any,
       oid: "HighA-Delete",
       elementProps$: {
         children: "删除",
