@@ -1,4 +1,4 @@
-export * from "./Button";
+export * from "./component";
 export * from "./ProTable";
 export * from "./ProTableComponent";
 export * from "./ProForm";

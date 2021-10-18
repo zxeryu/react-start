@@ -96,6 +96,10 @@ export const HighSearchForm = ({
     [],
   );
 
+  useEffect(() => {
+    debounceSubmit();
+  }, []);
+
   return (
     <HighForm
       {...otherProps}

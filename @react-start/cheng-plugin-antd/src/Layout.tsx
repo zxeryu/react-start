@@ -60,15 +60,21 @@ export interface HighCardProps extends Omit<ProCardProps, "extra">, HighProps {
   actions?: ElementListProps;
 }
 
-export const HighCard = (props: HighCardProps) => {
-  const { sendEventSimple } = useHighPage();
+export const HighCard = ({ extra, actions, ...otherProps }: HighCardProps) => {
+  const { sendEventSimple, render } = useHighPage();
 
   const handleTabChange = useCallback((activeKey) => {
-    sendEventSimple(props.highConfig, props.onSend, { key: "onTabChange", payload: { activeKey } });
+    sendEventSimple(otherProps.highConfig, otherProps.onSend, { key: "onTabChange", payload: { activeKey } });
   }, []);
 
   return (
-    <ComponentWrapper Component={ProCard} renderChild {...props} tabs={{ ...props.tabs, onChange: handleTabChange }} />
+    <ComponentWrapper
+      Component={ProCard}
+      renderChild
+      {...otherProps}
+      extra={render(extra)}
+      tabs={otherProps.tabs ? { ...otherProps.tabs, onChange: handleTabChange } : undefined}
+    />
   );
 };
 
