@@ -1,13 +1,14 @@
 import React, { useCallback, useMemo, useRef } from "react";
-import Table, { ActionType, ProTableProps, EditableProTable } from "@ant-design/pro-table";
-import { HighProps, useHighPage } from "@react-start/cheng-high";
+import ProTable, { ActionType, ProTableProps, EditableProTable } from "@ant-design/pro-table";
+import { HighProps, useHighPage, ComponentWrapper } from "@react-start/cheng-high";
 import { ElementListProps } from "./types";
 import { Space } from "antd";
 import { TablePaginationConfig } from "antd/lib/table/interface";
 import { EditableProTableProps } from "@ant-design/pro-table/es/components/EditableTable";
 import { useUrlSearchParams } from "@umijs/use-params";
-import { get, map } from "lodash";
+import { get, map, size } from "lodash";
 import { ProColumns } from "@ant-design/pro-table/lib/typing";
+import { OptionConfig } from "@ant-design/pro-table/lib/components/ToolBar";
 
 type ParamsType = Record<string, any>;
 
@@ -29,20 +30,22 @@ export const useColumnsWithOperate = (
     if (!columns) {
       return columns;
     }
-    return [
-      ...map(columns, (item) => {
-        const elementConfig = get(item, "element");
-        if (elementConfig) {
-          item.render = (_, record, index) => {
-            const value = get(record, item.dataIndex!);
-            const key = record ? JSON.stringify(record) : Date.now().valueOf();
-            elementConfig.elementProps$ = { ...elementConfig.elementProps$, ...item.fieldProps, value, record, index };
-            return renderElement({ ...elementConfig, oid: `${elementConfig.oid}-${index}-${key}-${item.dataIndex}` });
-          };
-        }
-        return item;
-      }),
-      {
+
+    const reColumns = map(columns, (item) => {
+      const elementConfig = get(item, "element");
+      if (elementConfig) {
+        item.render = (_, record, index) => {
+          const value = get(record, item.dataIndex!);
+          const key = record ? JSON.stringify(record) : Date.now().valueOf();
+          elementConfig.elementProps$ = { ...elementConfig.elementProps$, ...item.fieldProps, value, record, index };
+          return renderElement({ ...elementConfig, oid: `${elementConfig.oid}-${index}-${key}-${item.dataIndex}` });
+        };
+      }
+      return item;
+    });
+
+    if (size(operateList) > 0) {
+      reColumns.push({
         title: "操作",
         valueType: "option",
         ...(operateColumn as any),
@@ -66,8 +69,9 @@ export const useColumnsWithOperate = (
             </Space>
           );
         },
-      },
-    ];
+      });
+    }
+    return reColumns;
   }, [columns, operateList, operateColumn]);
 };
 
@@ -79,6 +83,8 @@ export const HighTable = ({
   operateColumn,
   columns,
   syncPageToUrl,
+  pagination,
+  options,
   ...otherProps
 }: HighTableProps) => {
   const [urlState, setUrlState] = useUrlSearchParams(
@@ -90,7 +96,7 @@ export const HighTable = ({
       : {},
   );
 
-  const { renderElementList, getStateValues, sendEvent, sendEventSimple } = useHighPage();
+  const { renderElementList, sendEvent, sendEventSimple } = useHighPage();
 
   const actionRef = useRef<ActionType>();
 
@@ -103,8 +109,6 @@ export const HighTable = ({
   }, [toolBarList]);
 
   const hColumns = useColumnsWithOperate(columns, operateList, operateColumn);
-
-  const stateProps = getStateValues(highConfig?.receiveStateList, otherProps);
 
   const handleOnPageChange: TablePaginationConfig["onChange"] = useCallback((page, pageSize) => {
     //todo:: pro-table bug 执行两次
@@ -147,36 +151,41 @@ export const HighTable = ({
     });
   }, []);
 
-  const getPagination = () => {
-    if (otherProps.pagination === false) {
-      return false;
+  const rePagination: undefined | false | TablePaginationConfig = useMemo(() => {
+    if (!pagination) {
+      return pagination;
     }
     return {
-      ...otherProps.pagination,
-      ...stateProps?.pagination,
-      current: syncPageToUrl ? Number(urlState.page) : stateProps?.pagination?.current,
-      pageSize: syncPageToUrl ? Number(urlState.pageSize) : stateProps?.pagination?.pageSize,
+      ...pagination,
+      current: syncPageToUrl ? Number(urlState.page) : pagination?.current,
+      pageSize: syncPageToUrl ? Number(urlState.pageSize) : pagination?.pageSize,
       onChange: handleOnPageChange,
       onShowSizeChange: handleOnPageShowSizeChange,
-    } as TablePaginationConfig;
-  };
+    };
+  }, [urlState, pagination]);
 
-  const reload = get(stateProps, ["options", "reload"]) || get(otherProps, ["options", "reload"]);
+  const reOptions: OptionConfig | false | undefined = useMemo(() => {
+    if (!options) {
+      return options;
+    }
+    const reload = get(otherProps, ["options", "reload"]);
+    return {
+      ...options,
+      reload: reload ? handleReload : false,
+    };
+  }, [options]);
 
   return (
-    <Table
+    <ComponentWrapper
+      Component={ProTable}
+      highConfig={highConfig}
       search={false}
       actionRef={actionRef}
-      {...otherProps}
       columns={hColumns}
-      toolBarRender={otherProps.toolBarRender || handleToolBarRender}
-      {...stateProps}
-      options={{
-        ...otherProps.options,
-        ...stateProps?.options,
-        reload: reload ? handleReload : false,
-      }}
-      pagination={getPagination()}
+      toolBarRender={handleToolBarRender}
+      options={reOptions}
+      pagination={rePagination}
+      {...otherProps}
     />
   );
 };
