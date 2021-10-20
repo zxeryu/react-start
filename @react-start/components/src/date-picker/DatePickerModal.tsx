@@ -31,26 +31,28 @@ export const DatePickerModal = ({
         }}
         {...textFieldProps}
       />
-      <Drawer
-        open={open}
-        anchor={"bottom"}
-        onClose={() => setOpen(false)}
-        PaperProps={{ style: round ? { borderTopLeftRadius: 15, borderTopRightRadius: 15 } : undefined }}>
-        <div>
-          <DatePicker
-            value={value}
-            {...datePickerProps}
-            onCancel={() => {
-              onCancel && onCancel();
-              setOpen(false);
-            }}
-            onConfirm={(value) => {
-              onConfirm && onConfirm(value);
-              setOpen(false);
-            }}
-          />
-        </div>
-      </Drawer>
+      {open && (
+        <Drawer
+          open={open}
+          anchor={"bottom"}
+          onClose={() => setOpen(false)}
+          PaperProps={{ style: round ? { borderTopLeftRadius: 15, borderTopRightRadius: 15 } : undefined }}>
+          <div>
+            <DatePicker
+              value={value}
+              {...datePickerProps}
+              onCancel={() => {
+                onCancel && onCancel();
+                setOpen(false);
+              }}
+              onConfirm={(value) => {
+                onConfirm && onConfirm(value);
+                setOpen(false);
+              }}
+            />
+          </div>
+        </Drawer>
+      )}
     </>
   );
 };

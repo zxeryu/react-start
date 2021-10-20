@@ -58,24 +58,26 @@ export const CascaderModal = ({
         value={textValue}
         {...textFieldProps}
       />
-      <Drawer
-        open={open}
-        anchor={"bottom"}
-        onClose={() => setOpen(false)}
-        PaperProps={{ style: round ? { borderTopLeftRadius: 15, borderTopRightRadius: 15 } : undefined }}>
-        <Cascader
-          {...cascaderProps}
-          onCancel={() => {
-            cascaderProps.onCancel && cascaderProps.onCancel();
-            setOpen(false);
-          }}
-          onConfirm={(v, option, options) => {
-            cascaderProps.onConfirm && cascaderProps.onConfirm(v, option, options);
-            isString(option?.label) && setTextValue(option!.label);
-            setOpen(false);
-          }}
-        />
-      </Drawer>
+      {open && (
+        <Drawer
+          open={open}
+          anchor={"bottom"}
+          onClose={() => setOpen(false)}
+          PaperProps={{ style: round ? { borderTopLeftRadius: 15, borderTopRightRadius: 15 } : undefined }}>
+          <Cascader
+            {...cascaderProps}
+            onCancel={() => {
+              cascaderProps.onCancel && cascaderProps.onCancel();
+              setOpen(false);
+            }}
+            onConfirm={(v, option, options) => {
+              cascaderProps.onConfirm && cascaderProps.onConfirm(v, option, options);
+              isString(option?.label) && setTextValue(option!.label);
+              setOpen(false);
+            }}
+          />
+        </Drawer>
+      )}
     </>
   );
 };

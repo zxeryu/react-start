@@ -152,31 +152,33 @@ export const PickerModal = ({
         }}
         {...textFieldProps}
       />
-      <Drawer
-        open={open}
-        anchor={"bottom"}
-        onClose={() => setOpen(false)}
-        PaperProps={{ style: round ? { borderTopLeftRadius: 15, borderTopRightRadius: 15 } : undefined }}>
-        <div>
-          <Picker
-            {...pickerProps}
-            onCancel={() => setOpen(false)}
-            value={selectValue}
-            onConfirm={(v) => {
-              setSelectValue(v);
-              const { labels, values } = getValue(pickerProps.mode, pickerProps.columns, v);
-              setShowText(join(labels, ","));
-              onConfirm && onConfirm(values, labels, v);
+      {open && (
+        <Drawer
+          open={open}
+          anchor={"bottom"}
+          onClose={() => setOpen(false)}
+          PaperProps={{ style: round ? { borderTopLeftRadius: 15, borderTopRightRadius: 15 } : undefined }}>
+          <div>
+            <Picker
+              {...pickerProps}
+              onCancel={() => setOpen(false)}
+              value={selectValue}
+              onConfirm={(v) => {
+                setSelectValue(v);
+                const { labels, values } = getValue(pickerProps.mode, pickerProps.columns, v);
+                setShowText(join(labels, ","));
+                onConfirm && onConfirm(values, labels, v);
 
-              setOpen(false);
-            }}
-            onChange={(v) => {
-              const { labels, values } = getValue(pickerProps.mode, pickerProps.columns, v);
-              onChange && onChange(values, labels, v);
-            }}
-          />
-        </div>
-      </Drawer>
+                setOpen(false);
+              }}
+              onChange={(v) => {
+                const { labels, values } = getValue(pickerProps.mode, pickerProps.columns, v);
+                onChange && onChange(values, labels, v);
+              }}
+            />
+          </div>
+        </Drawer>
+      )}
     </>
   );
 };
