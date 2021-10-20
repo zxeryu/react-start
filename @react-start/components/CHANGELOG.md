@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.2](https://github.com/zxeryu/react-start/compare/@react-start/components@0.4.1...@react-start/components@0.4.2) (2021-10-20)
+
+### Bug Fixes
+
+- **component:** drawer ([49fbaf6](https://github.com/zxeryu/react-start/commit/49fbaf62d85facbd9c4494ba8c4760b7057cbf63))
+
 ## [0.4.1](https://github.com/zxeryu/react-start/compare/@react-start/components@0.4.0...@react-start/components@0.4.1) (2021-09-26)
 
 ### Bug Fixes
