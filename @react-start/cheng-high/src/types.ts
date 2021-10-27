@@ -49,8 +49,11 @@ export interface HConfig {
     name: NamePath;
     //组件需要的属性名称；如不存在，用name的值作为属性名称传递给组件
     mapName?: NamePath;
-    //目标props是否是对象，如：HighTable 中的pagination
-    isObject?: boolean;
+  }[];
+  //同receiveStateList，只是从props中取值
+  receivePropsList?: {
+    name: NamePath;
+    mapName?: NamePath;
   }[];
 
   highInject?: Pick<ElementConfigBase, "elementType$" | "oid" | "elementList">;

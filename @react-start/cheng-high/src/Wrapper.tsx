@@ -13,21 +13,22 @@ export const ComponentWrapper = <T extends HighProps>({
   Component: any;
   renderChild?: boolean;
 }) => {
-  const { getStateValues, renderChildren } = useHighPage();
+  const { getStateValues, getPropsValues, renderChildren } = useHighPage();
 
   if (hidden) {
     return null;
   }
 
+  const propsProps = getPropsValues(highConfig?.receivePropsList, otherProps);
   const stateProps = getStateValues(highConfig?.receiveStateList, otherProps);
 
   if (renderChild) {
     return (
-      <Component highConfig={highConfig} {...otherProps} {...stateProps}>
+      <Component {...otherProps} {...propsProps} {...stateProps}>
         {renderChildren(highConfig)}
       </Component>
     );
   }
 
-  return <Component highConfig={highConfig} {...otherProps} {...stateProps} />;
+  return <Component {...otherProps} {...propsProps} {...stateProps} />;
 };

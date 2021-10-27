@@ -11,7 +11,15 @@ import React, {
 } from "react";
 import { get, set, isString, indexOf, size, map, filter, pick, isArray } from "lodash";
 import { Subject } from "rxjs";
-import { HighAction as Action, HConfig, HighSendEvent, ElementConfigBase, HighProps, HighConfig } from "./types";
+import {
+  HighAction as Action,
+  HConfig,
+  HighSendEvent,
+  ElementConfigBase,
+  HighProps,
+  HighConfig,
+  NamePath,
+} from "./types";
 import { HighProviderProps, useHigh } from "./HighProvider";
 import { getFirstPropNameFromNamePath } from "./util";
 
@@ -33,6 +41,8 @@ interface HighPageContextProps {
   dispatch: (action: Action) => void;
   //根据key list 从state中获取对应的数据
   getStateValues: (items?: HConfig["receiveStateList"], props?: Record<string, any>) => Values | undefined;
+  //根据key list 从props中获取对应的数据
+  getPropsValues: (items?: HConfig["receivePropsList"], props?: Record<string, any>) => Values | undefined;
   setDataToRef: (key: string, data: any) => void;
   getDataFromRef: (key: string) => any;
   //事件处理对象（rx）
@@ -116,9 +126,16 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
   const stateRef = useRef<Values>(state);
   stateRef.current = state;
 
-  const getStateValues = useCallback(
-    (items?: HConfig["receiveStateList"], props?: Record<string, any>) => {
-      if (!items || size(items) <= 0) {
+  const getValues = useCallback(
+    (
+      items?: {
+        name: NamePath;
+        mapName?: NamePath;
+      }[],
+      props?: Record<string, any>,
+      target?: Record<string, any>,
+    ) => {
+      if (!items || size(items) <= 0 || !props) {
         return undefined;
       }
       //浅拷贝，如果有必要续改为深拷贝
@@ -127,13 +144,24 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
       const firstPropNameList = map(items, (item) => {
         const targetName = item.mapName || item.name;
         //赋值
-        set(nextProps, targetName, get(state, item.name));
+        set(nextProps, targetName, get(target || props, item.name));
+        //返回一级属性名称
         return getFirstPropNameFromNamePath(targetName);
       });
-
+      //返回给变的属性
       return pick(nextProps, filter(firstPropNameList, (firstName) => isString(firstName) && !!firstName) as string[]);
     },
+    [],
+  );
+
+  const getStateValues = useCallback(
+    (items?: HConfig["receiveStateList"], props?: Record<string, any>) => getValues(items, props, state),
     [state],
+  );
+
+  const getPropsValues = useCallback(
+    (items?: HConfig["receivePropsList"], props?: Record<string, any>) => getValues(items, props),
+    [],
   );
 
   /************************** 非状态数据 *****************************/
@@ -198,6 +226,7 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
         stateRef,
         dispatch,
         getStateValues,
+        getPropsValues,
         setDataToRef,
         getDataFromRef,
         subject$,

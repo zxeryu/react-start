@@ -137,6 +137,7 @@ export const HighSearchForm = ({
 
 interface OverlayFormWrapperProps extends HighProps {
   trigger: ElementProps;
+  formName?: string;
 }
 
 const OverlayFormWrapper = <T extends OverlayFormWrapperProps>({
@@ -144,13 +145,18 @@ const OverlayFormWrapper = <T extends OverlayFormWrapperProps>({
   highConfig,
   onSend,
   trigger,
+  formName,
   ...otherProps
 }: T & {
   Component: typeof ModalForm | typeof DrawerForm;
 }) => {
-  const { renderElementList, renderElement, getStateValues, sendEventSimple } = useHighPage();
+  const { renderElementList, renderElement, getStateValues, sendEventSimple, setDataToRef } = useHighPage();
 
   const formRef = useRef<ProFormInstance>();
+
+  useEffect(() => {
+    formName && setDataToRef(formName, formRef.current);
+  }, []);
 
   const handleVisibleChange = useCallback((visible: boolean) => {
     sendEventSimple(highConfig, onSend, { key: "onVisibleChange", payload: visible });

@@ -162,7 +162,7 @@ export const HighTable = ({
       onChange: handleOnPageChange,
       onShowSizeChange: handleOnPageShowSizeChange,
     };
-  }, [urlState, pagination]);
+  }, [pagination, urlState]);
 
   const reOptions: OptionConfig | false | undefined = useMemo(() => {
     if (!options) {
