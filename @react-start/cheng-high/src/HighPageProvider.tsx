@@ -8,8 +8,24 @@ import React, {
   useRef,
   ElementType,
   MutableRefObject,
+  isValidElement,
 } from "react";
-import { get, set, isString, indexOf, size, map, filter, pick, isArray } from "lodash";
+import {
+  get,
+  set,
+  isString,
+  indexOf,
+  size,
+  map,
+  filter,
+  pick,
+  isArray,
+  forEach,
+  isObject,
+  has,
+  concat,
+  uniqBy,
+} from "lodash";
 import { Subject } from "rxjs";
 import {
   HighAction as Action,
@@ -43,6 +59,12 @@ interface HighPageContextProps {
   getStateValues: (items?: HConfig["receiveStateList"], props?: Record<string, any>) => Values | undefined;
   //根据key list 从props中获取对应的数据
   getPropsValues: (items?: HConfig["receivePropsList"], props?: Record<string, any>) => Values | undefined;
+  //根据name list 将props中的组件配置数据转换为react元素
+  getTransformElementProps: (
+    items?: HConfig["transformElementList"],
+    props?: Record<string, any>,
+    extraItems?: HConfig["transformElementList"],
+  ) => Values | undefined;
   setDataToRef: (key: string, data: any) => void;
   getDataFromRef: (key: string) => any;
   //事件处理对象（rx）
@@ -164,6 +186,40 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
     [],
   );
 
+  /************************** 组件转换 *****************************/
+
+  const getTransformElementProps = useCallback(
+    (
+      items?: HConfig["transformElementList"],
+      props?: Record<string, any>,
+      extraItems?: HConfig["transformElementList"],
+    ) => {
+      if (!items || size(items) <= 0) {
+        return props;
+      }
+      const nextProps = { ...props };
+      const allItems = uniqBy(concat(items, extraItems || []), "name");
+      forEach(allItems, (item) => {
+        const current = get(props, item.name);
+        //没有该属性
+        if (!current || (isArray(current) && size(current) <= 0)) {
+          return;
+        }
+
+        //该属性已是react元素（兼容）
+        if ((isArray(current) && isValidElement(current[0])) || isValidElement(current)) {
+          return;
+        }
+        //如果当前是组件配置数据，转换成组件
+        if (isObject(current) && (has(current, "elementType$") || has(current, "0.elementType$"))) {
+          set(nextProps, item.name, render(current as any));
+        }
+      });
+      return nextProps;
+    },
+    [render],
+  );
+
   /************************** 非状态数据 *****************************/
 
   const dataRef = useRef<{ [key: string]: any }>({});
@@ -227,6 +283,7 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
         dispatch,
         getStateValues,
         getPropsValues,
+        getTransformElementProps,
         setDataToRef,
         getDataFromRef,
         subject$,

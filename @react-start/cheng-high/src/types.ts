@@ -55,6 +55,10 @@ export interface HConfig {
     name: NamePath;
     mapName?: NamePath;
   }[];
+  //可以转化成组件的标识，这类属性会优先转换成组件
+  transformElementList?: {
+    name: NamePath;
+  }[];
 
   highInject?: Pick<ElementConfigBase, "elementType$" | "oid" | "elementList">;
 }
