@@ -25,6 +25,7 @@ import {
   has,
   concat,
   uniqBy,
+  last,
 } from "lodash";
 import { Subject } from "rxjs";
 import {
@@ -64,6 +65,11 @@ interface HighPageContextProps {
     items?: HConfig["transformElementList"],
     props?: Record<string, any>,
     extraItems?: HConfig["transformElementList"],
+  ) => Values | undefined;
+  getRegisterEventProps: (
+    items?: HConfig["registerEventList"],
+    props?: Record<string, any>,
+    extraItems?: HConfig["registerEventList"],
   ) => Values | undefined;
   setDataToRef: (key: string, data: any) => void;
   getDataFromRef: (key: string) => any;
@@ -270,6 +276,34 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
     [],
   );
 
+  /************************** 事件穿透 *****************************/
+
+  const getRegisterEventProps = useCallback(
+    (items?: HConfig["registerEventList"], props?: Record<string, any>, extraItems?: HConfig["registerEventList"]) => {
+      if (!items || size(items) <= 0) {
+        return props;
+      }
+      const nextProps = { ...props };
+      const allItems = uniqBy(concat(items, extraItems || []), "name");
+      forEach(allItems, (item) => {
+        if (!item.name) {
+          return;
+        }
+        let funName = "";
+        if (isArray(item.name)) {
+          funName = last(item.name) as string;
+        } else {
+          funName = last((item.name as string).split(".")) as string;
+        }
+        set(nextProps, item.name, (...e: any[]) => {
+          sendEventSimple(props?.highConfig, props?.onSend, { key: funName, payload: e });
+        });
+      });
+      return nextProps;
+    },
+    [],
+  );
+
   return (
     <HighPageContext.Provider
       value={{
@@ -284,6 +318,7 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
         getStateValues,
         getPropsValues,
         getTransformElementProps,
+        getRegisterEventProps,
         setDataToRef,
         getDataFromRef,
         subject$,

@@ -7,16 +7,20 @@ export const ComponentWrapper = <T extends HighProps>({
   Component,
   renderChild,
   transformElementList,
+  registerEventList,
   //
   hidden,
-  highConfig,
   ...otherProps
 }: T & {
   Component: any;
   renderChild?: boolean;
   transformElementList?: HConfig["transformElementList"];
+  registerEventList?: HConfig["registerEventList"];
 }) => {
-  const { getStateValues, getPropsValues, getTransformElementProps, renderChildren } = useHighPage();
+  const { getStateValues, getPropsValues, getTransformElementProps, getRegisterEventProps, renderChildren } =
+    useHighPage();
+
+  const highConfig: HConfig | undefined = get(otherProps, "highConfig");
 
   //props转换
   const propsProps = getPropsValues(highConfig?.receivePropsList, otherProps);
@@ -28,8 +32,15 @@ export const ComponentWrapper = <T extends HighProps>({
     transformElementList,
   );
 
+  //事件注册
+  const registerEventProps = getRegisterEventProps(
+    highConfig?.registerEventList,
+    transformElementProps,
+    registerEventList,
+  );
+
   //state转换
-  const stateProps = getStateValues(highConfig?.receiveStateList, transformElementProps);
+  const stateProps = getStateValues(highConfig?.receiveStateList, registerEventProps);
 
   if (get(stateProps, "hidden", hidden)) {
     return null;
@@ -37,11 +48,11 @@ export const ComponentWrapper = <T extends HighProps>({
 
   if (renderChild) {
     return (
-      <Component {...transformElementProps} {...propsProps} {...stateProps}>
+      <Component {...registerEventProps} {...propsProps} {...stateProps}>
         {renderChildren(highConfig)}
       </Component>
     );
   }
 
-  return <Component {...otherProps} {...propsProps} {...stateProps} />;
+  return <Component {...registerEventProps} {...propsProps} {...stateProps} />;
 };

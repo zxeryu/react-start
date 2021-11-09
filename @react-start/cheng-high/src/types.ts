@@ -59,6 +59,11 @@ export interface HConfig {
   transformElementList?: {
     name: NamePath;
   }[];
+  //订阅事件
+  registerEventList?: {
+    name: NamePath;
+    //拓展，直接执行事件 如：发起网络
+  }[];
 
   highInject?: Pick<ElementConfigBase, "elementType$" | "oid" | "elementList">;
 }

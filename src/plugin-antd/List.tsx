@@ -158,7 +158,7 @@ const props: HighTableProps = {
     sendEventName: "table",
     receiveStateList: [
       { name: ["listData", "data"], mapName: "dataSource" },
-      { name: ["listData", "total"], mapName: ["pagination", "total"], isObject: true },
+      { name: ["listData", "total"], mapName: ["pagination", "total"] },
       { name: "loading" },
     ],
   },
@@ -262,6 +262,7 @@ const formConfig: ElementProps = {
     debounceKeys: ["name", "day"],
     highConfig: {
       sendEventName: "search-form",
+      registerEventList: [{ name: "onFieldsChange" }],
     },
   },
   elementList: formChildrenConfigList as any,
