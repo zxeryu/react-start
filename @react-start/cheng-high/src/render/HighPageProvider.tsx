@@ -21,7 +21,6 @@ import {
   pick,
   isArray,
   forEach,
-  isObject,
   has,
   concat,
   uniqBy,
@@ -36,9 +35,9 @@ import {
   HighProps,
   HighConfig,
   NamePath,
-} from "./types";
-import { HighProviderProps, useHigh } from "./HighProvider";
-import { getFirstPropNameFromNamePath } from "./util";
+} from "../types";
+import { HighProviderProps, useHigh } from "../HighProvider";
+import { getFirstPropNameFromNamePath } from "../util";
 
 type Values = { [key: string]: any };
 
@@ -207,18 +206,32 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
       const allItems = uniqBy(concat(items, extraItems || []), "name");
       forEach(allItems, (item) => {
         const current = get(props, item.name);
+
         //没有该属性
         if (!current || (isArray(current) && size(current) <= 0)) {
           return;
         }
 
-        //该属性已是react元素（兼容）
-        if ((isArray(current) && isValidElement(current[0])) || isValidElement(current)) {
-          return;
-        }
-        //如果当前是组件配置数据，转换成组件
-        if (isObject(current) && (has(current, "elementType$") || has(current, "0.elementType$"))) {
-          set(nextProps, item.name, render(current as any));
+        if (isArray(current)) {
+          const list = map(current, (sub) => {
+            if (isValidElement(sub)) {
+              return sub;
+            }
+            if (has(sub, "elementType$")) {
+              return render(sub);
+            }
+            return sub;
+          });
+          set(nextProps, item.name, list);
+        } else {
+          //已经是ReactNode
+          if (isValidElement(current)) {
+            return;
+          }
+          //如果当前是组件配置数据，转换成组件
+          if (has(current, "elementType$")) {
+            set(nextProps, item.name, render(current));
+          }
         }
       });
       return nextProps;

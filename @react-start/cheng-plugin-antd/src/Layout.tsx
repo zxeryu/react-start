@@ -39,7 +39,6 @@ export const HighPageContainer = ({
   return (
     <ComponentWrapper
       Component={PageContainer}
-      renderChild
       highConfig={highConfig}
       {...otherProps}
       tags={render(tags) as any}
@@ -70,7 +69,6 @@ export const HighCard = ({ extra, actions, ...otherProps }: HighCardProps) => {
   return (
     <ComponentWrapper
       Component={ProCard}
-      renderChild
       {...otherProps}
       extra={render(extra)}
       tabs={otherProps.tabs ? { ...otherProps.tabs, onChange: handleTabChange } : undefined}
@@ -81,7 +79,7 @@ export const HighCard = ({ extra, actions, ...otherProps }: HighCardProps) => {
 export interface HighCardTabPaneProps extends ProCardTabPaneProps, HighProps {}
 
 export const HighCardTabPane = (props: HighCardTabPaneProps) => {
-  return <ComponentWrapper Component={ProCard.TabPane} renderChild {...props} />;
+  return <ComponentWrapper Component={ProCard.TabPane} {...props} />;
 };
 
 export interface HighCardDividerProps extends ProCardDividerProps {}

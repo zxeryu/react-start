@@ -58,7 +58,6 @@ export const HighForm = ({ highConfig, onSend, children, formName, ...otherProps
   return (
     <ComponentWrapper
       Component={ProForm}
-      renderChild
       formRef={formRef}
       onFinish={handleFinish}
       onFinishFailed={handleFinishFailed}
@@ -208,5 +207,5 @@ export const HighDrawerForm = (props: HighDrawerFormProps) => {
 export interface HighFormListProps extends ProFormListProps, HighProps {}
 
 export const HighFormList = (props: HighFormListProps) => {
-  return <ComponentWrapper Component={ProFormList} renderChild {...props} />;
+  return <ComponentWrapper Component={ProFormList} {...props} />;
 };

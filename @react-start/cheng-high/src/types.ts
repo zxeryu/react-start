@@ -78,7 +78,13 @@ export interface HighSendEvent {
 }
 
 export interface HighProps extends HighConfig, HighSendEvent {
+  /**
+   * hidden和show都是用来控制组件显隐；
+   * 都为undefined的话默认显示组件；
+   * 代码中优先判断show；若show为undefined再去判断hidden
+   */
   hidden?: boolean;
+  show?: boolean;
 }
 
 export interface BaseHighProps extends HighProps {

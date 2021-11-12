@@ -1,5 +1,5 @@
 import React from "react";
-import { HighProvider, HighA } from "@react-start/cheng-high";
+import { HighProvider, HighA, HighSpan } from "@react-start/cheng-high";
 import {
   HighButton,
   HighTable,
@@ -32,6 +32,7 @@ const ElementMap = {
   HighButton,
   HighTable,
   HighA,
+  HighSpan,
   HighTableDropdown,
   HighForm,
   HighSearchForm,

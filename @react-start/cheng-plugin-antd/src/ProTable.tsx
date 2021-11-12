@@ -166,9 +166,9 @@ export const HighTable = ({
 
   const reOptions: OptionConfig | false | undefined = useMemo(() => {
     if (!options) {
-      return options;
+      return { reload: false };
     }
-    const reload = get(otherProps, ["options", "reload"]);
+    const reload = get(options, "reload");
     return {
       ...options,
       reload: reload ? handleReload : false,

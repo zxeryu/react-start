@@ -101,6 +101,7 @@ const columns: ProColumns<GithubIssueItem>[] = [
 ];
 
 const props: HighTableProps = {
+  options: { reload: true },
   columns,
   rowKey: "id",
   headerTitle: "高级表格",
@@ -126,6 +127,7 @@ const props: HighTableProps = {
         children: "编辑",
         highConfig: {
           sendEventName: "edit",
+          registerEventList: [{ name: "onClick" }],
         },
       },
     },
@@ -136,6 +138,7 @@ const props: HighTableProps = {
         children: "删除",
         highConfig: {
           sendEventName: "delete",
+          registerEventList: [{ name: "onClick" }],
         },
       },
     },
@@ -268,7 +271,31 @@ const formConfig: ElementProps = {
   elementList: formChildrenConfigList as any,
 };
 
-const configList = [formConfig, tableConfig];
+const configList: any = [
+  {
+    oid: "HighPageContainer-O",
+    elementType$: "HighPageContainer",
+    elementProps$: {
+      style: { padding: -20 },
+      title: {
+        oid: "HighSpan-O",
+        elementType$: "HighSpan",
+        elementProps$: {
+          style: { cursor: "pointer" },
+          children: "HighPageContainer-HighSpan",
+          highConfig: {
+            sendEventName: "title",
+            registerEventList: [{ name: "onClick" }],
+          },
+        },
+      },
+      highConfig: {
+        transformElementList: [{ name: "title" }],
+      },
+    },
+    elementList: [formConfig, tableConfig],
+  },
+];
 
 const Content = () => {
   const { renderElementList } = useHighPage();

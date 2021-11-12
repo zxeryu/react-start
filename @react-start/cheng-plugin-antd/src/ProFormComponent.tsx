@@ -37,26 +37,24 @@ import { ProFormDigitProps } from "@ant-design/pro-form/es/components/Digit";
 import { RangePickerProps } from "antd/lib/date-picker";
 
 export interface HighFormGroupProps extends GroupProps, HighProps {}
-export const HighFormGroup = (props: HighFormGroupProps) => (
-  <ComponentWrapper Component={ProForm.Group} renderChild {...props} />
-);
+export const HighFormGroup = (props: HighFormGroupProps) => <ComponentWrapper Component={ProForm.Group} {...props} />;
 
 export interface HighFormItemProps extends ProFormItemProps, HighProps {}
-export const HighFormItem = (props: HighFormItemProps) => (
-  <ComponentWrapper Component={ProForm.Item} renderChild {...props} />
-);
+export const HighFormItem = (props: HighFormItemProps) => <ComponentWrapper Component={ProForm.Item} {...props} />;
 
 export interface HighFormTextProps extends ProFormFieldItemProps<InputProps>, HighProps {}
-export const HighFormText = (props: HighFormTextProps) => <ComponentWrapper Component={ProFormText} {...props} />;
+export const HighFormText = (props: HighFormTextProps) => (
+  <ComponentWrapper Component={ProFormText} noChild {...props} />
+);
 
 export interface HighFormPasswordProps extends ProFormFieldItemProps<PasswordProps>, HighProps {}
 export const HighFormPassword = (props: HighFormPasswordProps) => (
-  <ComponentWrapper Component={ProFormText.Password} {...props} />
+  <ComponentWrapper Component={ProFormText.Password} noChild {...props} />
 );
 
 export interface HighFormCaptchaProps extends ProFormCaptchaProps, HighProps {}
 export const HighFormCaptcha = (props: HighFormCaptchaProps) => (
-  <ComponentWrapper Component={ProFormCaptcha} {...props} />
+  <ComponentWrapper Component={ProFormCaptcha} noChild {...props} />
 );
 
 export interface HighFormDigitProps extends ProFormDigitProps, HighProps {}
@@ -64,12 +62,12 @@ export const HighFormDigit = (props: HighFormDigitProps) => <ComponentWrapper Co
 
 export type HighFormDatePickerProps = ProFormFieldItemProps<DatePickerProps> & HighProps;
 export const HighFormDatePicker = (props: HighFormDatePickerProps) => (
-  <ComponentWrapper Component={ProFormDatePicker} {...props} />
+  <ComponentWrapper Component={ProFormDatePicker} noChild {...props} />
 );
 
 export type HighFormDateRangePickerProps = ProFormFieldItemProps<RangePickerProps> & HighProps;
 export const HighFormDateRangePicker = (props: HighFormDateRangePickerProps) => (
-  <ComponentWrapper Component={ProFormDateRangePicker} {...props} />
+  <ComponentWrapper Component={ProFormDateRangePicker} noChild {...props} />
 );
 
 export type HighFormTimePickerProps = ProFormFieldItemProps<DatePickerProps> & HighProps;
@@ -79,17 +77,17 @@ export const HighFormTimePicker = (props: HighFormTimePickerProps) => (
 
 export type HighFormTimeRangePickerProps = ProFormFieldItemProps<DatePickerProps> & HighProps;
 export const HighFormTimeRangePicker = (props: HighFormTimeRangePickerProps) => (
-  <ComponentWrapper Component={ProFormTimePicker.RangePicker} {...props} />
+  <ComponentWrapper Component={ProFormTimePicker.RangePicker} noChild {...props} />
 );
 
 export interface HighFormDateTimePickerProps extends ProFormFieldItemProps<DatePickerProps>, HighProps {}
 export const HighFormDateTimePicker = (props: HighFormDateTimePickerProps) => (
-  <ComponentWrapper Component={ProFormDateTimePicker} {...props} />
+  <ComponentWrapper Component={ProFormDateTimePicker} noChild {...props} />
 );
 
 export type HighFormDateTimeRangePickerProps = ProFormFieldItemProps<RangePickerProps> & HighProps;
 export const HighFormDateTimeRangePicker = (props: HighFormDateTimeRangePickerProps) => (
-  <ComponentWrapper Component={ProFormDateTimeRangePicker} {...props} />
+  <ComponentWrapper Component={ProFormDateTimeRangePicker} noChild {...props} />
 );
 
 export interface HighFormSelectProps extends ProFormSelectProps, HighProps {}
@@ -97,31 +95,37 @@ export const HighFormSelect = (props: HighFormSelectProps) => <ComponentWrapper 
 
 export interface HighFormCheckboxProps extends ProFormCheckboxProps, HighProps {}
 export const HighFormCheckbox = (props: HighFormCheckboxProps) => (
-  <ComponentWrapper Component={ProFormCheckbox} {...props} />
+  <ComponentWrapper Component={ProFormCheckbox} noChild {...props} />
 );
 
 export interface HighFormCheckboxGroupProps extends ProFormCheckboxGroupProps, HighProps {}
 export const HighFormCheckboxGroup = (props: HighFormCheckboxGroupProps) => (
-  <ComponentWrapper Component={ProFormCheckbox.Group} {...props} />
+  <ComponentWrapper Component={ProFormCheckbox.Group} noChild {...props} />
 );
 
 export interface HighFormRadioGroupProps extends ProFormRadioGroupProps, HighProps {}
 export const HighFormRadioGroup = (props: HighFormRadioGroupProps) => (
-  <ComponentWrapper Component={ProFormRadio.Group} {...props} />
+  <ComponentWrapper Component={ProFormRadio.Group} noChild {...props} />
 );
 
 export interface HighFormSwitchProps extends ProFormSwitchProps, HighProps {}
-export const HighFormSwitch = (props: HighFormSwitchProps) => <ComponentWrapper Component={ProFormSwitch} {...props} />;
+export const HighFormSwitch = (props: HighFormSwitchProps) => (
+  <ComponentWrapper Component={ProFormSwitch} noChild {...props} />
+);
 
-export const HighFormRate = (props: any) => <ComponentWrapper Component={ProFormRate} {...props} />;
+export const HighFormRate = (props: any) => <ComponentWrapper Component={ProFormRate} noChild {...props} />;
 
 export interface HighFormSliderProps extends ProFormSliderProps, HighProps {}
-export const HighFormSlider = (props: HighFormSliderProps) => <ComponentWrapper Component={ProFormSlider} {...props} />;
+export const HighFormSlider = (props: HighFormSliderProps) => (
+  <ComponentWrapper Component={ProFormSlider} noChild {...props} />
+);
 
 export interface HighFormMoneyProps extends ProFormMoneyProps, HighProps {}
-export const HighFormMoney = (props: HighFormMoneyProps) => <ComponentWrapper Component={ProFormMoney} {...props} />;
+export const HighFormMoney = (props: HighFormMoneyProps) => (
+  <ComponentWrapper Component={ProFormMoney} noChild {...props} />
+);
 
 export interface HighProFormFieldProps extends ProFormFieldProps, HighProps {}
 export const HighProFormField = (props: HighProFormFieldProps) => (
-  <ComponentWrapper Component={ProFormField} {...props} />
+  <ComponentWrapper Component={ProFormField} noChild {...props} />
 );
