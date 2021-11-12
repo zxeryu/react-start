@@ -10,22 +10,7 @@ import React, {
   MutableRefObject,
   isValidElement,
 } from "react";
-import {
-  get,
-  set,
-  isString,
-  indexOf,
-  size,
-  map,
-  filter,
-  pick,
-  isArray,
-  forEach,
-  has,
-  concat,
-  uniqBy,
-  last,
-} from "lodash";
+import { get, set, isString, size, map, filter, pick, isArray, forEach, has, concat, uniqBy, last } from "lodash";
 import { Subject } from "rxjs";
 import {
   HighAction as Action,
@@ -270,11 +255,6 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
       },
     ) => {
       if (!highConfig?.sendEventName) {
-        return;
-      }
-      //如默认不发送，且没有注册，不走发送事件
-      const defaultSend = get(extra, "defaultSend", true);
-      if (!defaultSend && indexOf(highConfig?.registerEvent || [], extra?.key) === -1) {
         return;
       }
       const suffix = extra?.key ? `:${extra.key}` : "";

@@ -289,6 +289,26 @@ const configList: any = [
           },
         },
       },
+      footer: {
+        oid: "HighSpan-O",
+        elementType$: "HighSpan",
+        elementProps$: {
+          children: "footer",
+          style: {
+            color: "red",
+          },
+        },
+      },
+      content: {
+        oid: "HighSpan-O",
+        elementType$: "HighSpan",
+        elementProps$: {
+          children: "content",
+          style: {
+            color: "red",
+          },
+        },
+      },
       highConfig: {
         transformElementList: [{ name: "title" }],
       },

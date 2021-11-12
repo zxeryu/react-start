@@ -1,8 +1,8 @@
 import { PageContainerProps } from "@ant-design/pro-layout/lib/components/PageContainer";
-import { HighProps, useHighPage, ComponentWrapper } from "@react-start/cheng-high";
+import { HighProps, ComponentWrapper } from "@react-start/cheng-high";
 import { ElementListProps, ElementProps } from "./types";
 import { PageContainer, WaterMark } from "@ant-design/pro-layout";
-import React, { useCallback } from "react";
+import React from "react";
 import ProCard, { ProCardProps } from "@ant-design/pro-card";
 import { ProCardTabPaneProps } from "@ant-design/pro-card/lib/type";
 import { ProCardDividerProps } from "@ant-design/pro-card/lib/components/Divider";
@@ -12,45 +12,20 @@ export interface HighPageContainerProps
   extends Omit<PageContainerProps, "footer" | "content" | "extraContent" | "tabBarExtraContent" | "tags" | "extra">,
     HighProps {
   tags?: ElementListProps;
-  extra?: ElementProps;
-  footer?: ElementListProps;
-  content?: ElementProps;
-  extraContent?: ElementProps;
-  tabBarExtraContent?: ElementProps;
 }
 
-export const HighPageContainer = ({
-  highConfig,
-  onSend,
-  //
-  tags,
-  extra,
-  //
-  content,
-  extraContent,
-  //
-  tabBarExtraContent,
-  footer,
-  //
-  ...otherProps
-}: HighPageContainerProps) => {
-  const { sendEventSimple, render } = useHighPage();
+const HighPageContainerTransformList = [
+  { name: "tags" },
+  { name: "content" },
+  { name: "footer" },
+  { name: "extra" },
+  { name: "extraContent" },
+  { name: "tabBarExtraContent" },
+];
 
+export const HighPageContainer = (props: HighPageContainerProps) => {
   return (
-    <ComponentWrapper
-      Component={PageContainer}
-      highConfig={highConfig}
-      {...otherProps}
-      tags={render(tags) as any}
-      extra={render(extra)}
-      footer={render(footer)}
-      content={render(content)}
-      extraContent={render(extraContent)}
-      tabBarExtraContent={render(tabBarExtraContent)}
-      onTabChange={(activeKey: string) => {
-        sendEventSimple(highConfig, onSend, { payload: { activeKey } });
-      }}
-    />
+    <ComponentWrapper Component={PageContainer} transformElementList={HighPageContainerTransformList} {...props} />
   );
 };
 
@@ -59,21 +34,10 @@ export interface HighCardProps extends Omit<ProCardProps, "extra">, HighProps {
   actions?: ElementListProps;
 }
 
+const HighCardTransformList = [{ name: "extra" }, { name: "actions" }];
+
 export const HighCard = ({ extra, actions, ...otherProps }: HighCardProps) => {
-  const { sendEventSimple, render } = useHighPage();
-
-  const handleTabChange = useCallback((activeKey) => {
-    sendEventSimple(otherProps.highConfig, otherProps.onSend, { key: "onTabChange", payload: { activeKey } });
-  }, []);
-
-  return (
-    <ComponentWrapper
-      Component={ProCard}
-      {...otherProps}
-      extra={render(extra)}
-      tabs={otherProps.tabs ? { ...otherProps.tabs, onChange: handleTabChange } : undefined}
-    />
-  );
+  return <ComponentWrapper Component={ProCard} transformElementList={HighCardTransformList} {...otherProps} />;
 };
 
 export interface HighCardTabPaneProps extends ProCardTabPaneProps, HighProps {}

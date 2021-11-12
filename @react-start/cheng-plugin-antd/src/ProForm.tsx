@@ -31,23 +31,6 @@ export const HighForm = ({ highConfig, onSend, children, formName, ...otherProps
     return Promise.resolve();
   }, []);
 
-  const handleFinishFailed = useCallback(
-    (errorInfo) =>
-      sendEventSimple(highConfig, onSend, {
-        key: "onFinishFailed",
-        payload: { form: formRef.current, ...errorInfo },
-      }),
-    [],
-  );
-
-  const handleFieldsChange = useCallback((changedFields, allFields) => {
-    sendEventSimple(highConfig, onSend, {
-      key: "onFieldsChange",
-      payload: { form: formRef.current, changedFields, allFields },
-      defaultSend: false,
-    });
-  }, []);
-
   const handleValuesChange = useCallback((changedValues, values) => {
     sendEventSimple(highConfig, onSend, {
       key: "onValuesChange",
@@ -60,8 +43,6 @@ export const HighForm = ({ highConfig, onSend, children, formName, ...otherProps
       Component={ProForm}
       formRef={formRef}
       onFinish={handleFinish}
-      onFinishFailed={handleFinishFailed}
-      onFieldsChange={handleFieldsChange}
       onValuesChange={handleValuesChange}
       highConfig={highConfig}
       {...otherProps}

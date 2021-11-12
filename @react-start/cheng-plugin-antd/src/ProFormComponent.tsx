@@ -58,7 +58,9 @@ export const HighFormCaptcha = (props: HighFormCaptchaProps) => (
 );
 
 export interface HighFormDigitProps extends ProFormDigitProps, HighProps {}
-export const HighFormDigit = (props: HighFormDigitProps) => <ComponentWrapper Component={ProFormDigit} {...props} />;
+export const HighFormDigit = (props: HighFormDigitProps) => (
+  <ComponentWrapper Component={ProFormDigit} noChild {...props} />
+);
 
 export type HighFormDatePickerProps = ProFormFieldItemProps<DatePickerProps> & HighProps;
 export const HighFormDatePicker = (props: HighFormDatePickerProps) => (
