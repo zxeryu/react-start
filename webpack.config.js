@@ -42,5 +42,11 @@ module.exports = {
     contentBase: "./public",
     compress: true,
     port: 3100,
+    proxy: {
+      "/search": {
+        target: "https://www.npmjs.com",
+        changeOrigin: true,
+      },
+    },
   },
 };
