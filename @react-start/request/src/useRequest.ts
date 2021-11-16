@@ -1,8 +1,9 @@
 import { IRequestActor, isDoneRequestActor, isFailedRequestActor } from "./createRequest";
 import { useRequestContext } from "./RequestContext";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { generateId } from "./utils";
 import { merge as rxMerge, filter as rxFilter, tap as rxTap, BehaviorSubject } from "rxjs";
+import { get } from "lodash";
 
 export interface IUseRequestOptions<TReq, TRes, TErr> {
   defaultLoading?: boolean;
@@ -13,7 +14,7 @@ export interface IUseRequestOptions<TReq, TRes, TErr> {
 
 export const useRequest = <TReq, TRes, TErr>(
   requestActor: IRequestActor<TReq, TRes, TErr>,
-  options: IUseRequestOptions<TReq, TRes, TErr>,
+  options?: IUseRequestOptions<TReq, TRes, TErr>,
 ): readonly [
   (
     params: IRequestActor<TReq, TRes, TErr>["req"],
@@ -23,10 +24,12 @@ export const useRequest = <TReq, TRes, TErr>(
 ] => {
   const { requestSubject$, dispatchRequest } = useRequestContext();
 
-  const requesting$ = useMemo(() => new BehaviorSubject<boolean>(!!options.defaultLoading), []);
+  const requesting$ = useMemo(() => new BehaviorSubject<boolean>(!!get(options, "defaultLoading")), []);
 
-  const optionsRef = useRef<IUseRequestOptions<TReq, TRes, TErr>>(options);
-  optionsRef.current = options;
+  const optionsRef = useRef<IUseRequestOptions<TReq, TRes, TErr>>({} as any);
+  if (options) {
+    optionsRef.current = options;
+  }
 
   const lastRequestActorRef = useRef<IRequestActor<TReq, TRes, TErr> | null>(null);
   const lastCallbackRef = useRef<Pick<IUseRequestOptions<TReq, TRes, TErr>, "onSuccess" | "onFail">>({});
@@ -39,7 +42,7 @@ export const useRequest = <TReq, TRes, TErr>(
     const end = () => {
       lastRequestActorRef.current = null;
       requesting$.next(false);
-      options.onFinish && options.onFinish();
+      options?.onFinish && options.onFinish();
     };
 
     const isSameRequest = (actor: IRequestActor) => {
@@ -95,4 +98,30 @@ export const useRequest = <TReq, TRes, TErr>(
   );
 
   return [request, requesting$] as const;
+};
+
+export const useDirectRequest = <TRequestActor extends IRequestActor>(
+  requestActor: TRequestActor,
+  params: TRequestActor["req"],
+  deps: any[] = [],
+) => {
+  // @ts-ignore
+  const [data, setData] = useState<TRequestActor["res"]["data"]>();
+
+  const [req, requesting$] = useRequest(requestActor, {
+    // defaultLoading: true,
+    onSuccess: (actor) => {
+      setData(actor.res?.data);
+    },
+  });
+
+  const request = useCallback(() => {
+    req(params);
+  }, []);
+
+  useEffect(() => {
+    request();
+  }, deps);
+
+  return [data, request, requesting$];
 };

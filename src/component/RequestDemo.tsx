@@ -6,6 +6,7 @@ import {
   createRequestActor,
   isDoneRequestActor,
   useRequest,
+  useDirectRequest,
 } from "@react-start/request";
 import { filter as rxFilter, tap as rxTap } from "rxjs";
 
@@ -27,6 +28,10 @@ export const Content = () => {
       console.log("222222", actor);
     },
   });
+
+  const [data] = useDirectRequest(searchApi, { q: "@react-start" }, []);
+
+  console.log("3333", data);
 
   useEffect(() => {
     requesting$.subscribe((flag) => {

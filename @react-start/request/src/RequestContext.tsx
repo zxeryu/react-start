@@ -27,6 +27,21 @@ export const ContentTypeInterceptor: TRequestInterceptor = (request) => {
   });
 };
 
+const SubGlobalRequestEvent = () => {
+  const { client, requestSubject$ } = useRequestContext();
+
+  useEffect(() => {
+    const sub = createRequestObservable(requestSubject$, client).subscribe((actor) => {
+      requestSubject$.next(actor);
+    });
+    return () => {
+      sub.unsubscribe();
+    };
+  }, []);
+
+  return null;
+};
+
 export const RequestProvider = ({
   children,
   interceptors,
@@ -53,15 +68,6 @@ export const RequestProvider = ({
 
   const requestSubject$ = useMemo(() => new Subject<IRequestActor>(), []);
 
-  useEffect(() => {
-    const sub = createRequestObservable(requestSubject$, client).subscribe((actor) => {
-      requestSubject$.next(actor);
-    });
-    return () => {
-      sub.unsubscribe();
-    };
-  }, []);
-
   const dispatchRequest = useCallback((actor: IRequestActor, params?: Record<string, any>) => {
     const operatorActor = clone(actor);
     operatorActor.req = params;
@@ -69,6 +75,9 @@ export const RequestProvider = ({
   }, []);
 
   return (
-    <RequestContext.Provider value={{ client, requestSubject$, dispatchRequest }}>{children}</RequestContext.Provider>
+    <RequestContext.Provider value={{ client, requestSubject$, dispatchRequest }}>
+      <SubGlobalRequestEvent />
+      {children}
+    </RequestContext.Provider>
   );
 };
