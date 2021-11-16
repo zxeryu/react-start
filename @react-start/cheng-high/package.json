@@ -27,6 +27,7 @@
   "peerDependencies": {
     "@reactorx/core": "0.22.4",
     "lodash": "^4.x",
-    "rxjs": ">= 7.x"
+    "rxjs": ">= 7.x",
+    "@react-start/request": "*"
   }
 }

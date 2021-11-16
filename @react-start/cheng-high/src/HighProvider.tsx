@@ -14,6 +14,7 @@ type ElementType = FunctionComponent | ForwardRefRenderFunction<any, any>;
 type ElementsMap = { [key: string]: ElementType };
 
 export interface HighContextProps {
+  name?: string;
   // elements map
   elementsMap: ElementsMap;
   getElement: (elementName: string, priorityMap?: ElementsMap) => ElementType | undefined;
@@ -30,11 +31,11 @@ const HighContext = createContext<HighContextProps>({} as any);
 
 export const useHigh = () => useContext(HighContext);
 
-export interface HighProviderProps extends Pick<HighContextProps, "elementsMap" | "iconMap"> {
+export interface HighProviderProps extends Pick<HighContextProps, "name" | "elementsMap" | "iconMap"> {
   children: ReactNode;
 }
 
-export const HighProvider = ({ children, elementsMap, iconMap }: HighProviderProps) => {
+export const HighProvider = ({ children, name = "webapp", elementsMap, iconMap }: HighProviderProps) => {
   const getElement = useCallback(
     (elementName: string, priorityMap?: ElementsMap) => get(priorityMap, elementName) || get(elementsMap, elementName),
     [elementsMap],
@@ -75,7 +76,7 @@ export const HighProvider = ({ children, elementsMap, iconMap }: HighProviderPro
 
   return (
     <HighContext.Provider
-      value={{ elementsMap, getElement, iconMap, getIcon, getProps, renderElement, renderElementList }}>
+      value={{ name, elementsMap, getElement, iconMap, getIcon, getProps, renderElement, renderElementList }}>
       {children}
     </HighContext.Provider>
   );
