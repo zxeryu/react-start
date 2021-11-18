@@ -24,7 +24,7 @@ export const useColumnsWithOperate = (
   operateList?: ElementListProps,
   operateColumn?: HighTableProps["operateColumn"],
 ): HighTableProps["columns"] => {
-  const { renderElement, sendEvent } = useHighPage();
+  const { render, sendEvent } = useHighPage();
 
   return useMemo(() => {
     if (!columns) {
@@ -38,7 +38,7 @@ export const useColumnsWithOperate = (
           const value = get(record, item.dataIndex!);
           const key = record ? JSON.stringify(record) : Date.now().valueOf();
           elementConfig.elementProps$ = { ...elementConfig.elementProps$, ...item.fieldProps, value, record, index };
-          return renderElement({ ...elementConfig, oid: `${elementConfig.oid}-${index}-${key}-${item.dataIndex}` });
+          return render({ ...elementConfig, oid: `${elementConfig.oid}-${index}-${key}-${item.dataIndex}` });
         };
       }
       return item;
@@ -54,7 +54,7 @@ export const useColumnsWithOperate = (
           return (
             <Space>
               {map(operateList || [], (c) =>
-                renderElement(
+                render(
                   { ...c, oid: `${c.oid}-${index}-${key}` },
                   {
                     onSend: ({ type, payload }) => {
@@ -96,12 +96,12 @@ export const HighTable = ({
       : {},
   );
 
-  const { renderElementList, sendEvent, sendEventSimple } = useHighPage();
+  const { render, sendEvent, sendEventSimple } = useHighPage();
 
   const actionRef = useRef<ActionType>();
 
   const handleToolBarRender = useCallback(() => {
-    return renderElementList(toolBarList || [], {
+    return render(toolBarList || [], {
       onSend: (action) => {
         sendEvent({ type: action.type, payload: { ...action.payload, table: actionRef.current } });
       },

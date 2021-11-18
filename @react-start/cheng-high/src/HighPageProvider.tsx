@@ -6,7 +6,6 @@ import React, {
   Reducer,
   useCallback,
   useRef,
-  ElementType,
   MutableRefObject,
   isValidElement,
 } from "react";
@@ -20,16 +19,13 @@ import {
   HighProps,
   HighConfig,
   NamePath,
-} from "../types";
-import { HighProviderProps, useHigh } from "../HighProvider";
-import { getFirstPropNameFromNamePath } from "../util";
+} from "./types";
+import { HighProviderProps, useHigh } from "./HighProvider";
+import { getFirstPropNameFromNamePath } from "./util";
 
 type Values = { [key: string]: any };
 
 interface HighPageContextProps {
-  getElement: (elementName: string) => ElementType | undefined;
-  renderElement: (c?: ElementConfigBase, highProps?: HighProps) => ReactNode;
-  renderElementList: (c: ElementConfigBase[], highProps?: HighProps) => ReactNode[];
   render: (
     data: ElementConfigBase | ElementConfigBase[] | undefined | null,
     highProps?: HighProps,
@@ -83,39 +79,13 @@ export interface HighPageProviderProps {
 
 // deal dynamic data
 export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProviderProps) => {
-  const {
-    getElement: getElementOrigin,
-    renderElement: renderElementOrigin,
-    renderElementList: renderElementListOrigin,
-  } = useHigh();
-
-  const getElement = useCallback(
-    (elementName: string) => getElementOrigin(elementName, elementsMap),
-    [getElementOrigin, elementsMap],
-  );
-
-  const renderElement = useCallback(
-    (c?: ElementConfigBase, highProps?: HighProps) => renderElementOrigin(c, highProps, elementsMap),
-    [renderElementOrigin, elementsMap],
-  );
-
-  const renderElementList = useCallback(
-    (elementConfigList: ElementConfigBase[], highProps?: HighProps) =>
-      renderElementListOrigin(elementConfigList, highProps, elementsMap),
-    [renderElementListOrigin, elementsMap],
-  );
+  const { render: renderOrigin } = useHigh();
 
   const render = useCallback(
     (data: ElementConfigBase | ElementConfigBase[] | undefined | null, highProps?: HighProps) => {
-      if (!data) {
-        return null;
-      }
-      if (isArray(data)) {
-        return renderElementList(data, highProps);
-      }
-      return renderElement(data, highProps);
+      return renderOrigin(data, highProps, elementsMap);
     },
-    [renderElement, renderElementList],
+    [elementsMap],
   );
 
   const renderChildren = useCallback(
@@ -300,11 +270,9 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
   return (
     <HighPageContext.Provider
       value={{
-        getElement,
-        renderElement,
-        renderElementList,
         render,
         renderChildren,
+        //
         state,
         stateRef,
         dispatch,
@@ -314,6 +282,7 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
         getRegisterEventProps,
         setDataToRef,
         getDataFromRef,
+        //
         subject$,
         sendEvent,
         sendEventSimple,

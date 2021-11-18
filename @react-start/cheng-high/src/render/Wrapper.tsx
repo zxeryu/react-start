@@ -1,5 +1,5 @@
 import { HConfig, HighProps } from "../types";
-import { useHighPage } from "./HighPageProvider";
+import { useHighPage } from "../HighPageProvider";
 import React, { useMemo } from "react";
 import { get, omit, isUndefined } from "lodash";
 

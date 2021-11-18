@@ -318,8 +318,8 @@ const configList: any = [
 ];
 
 const Content = () => {
-  const { renderElementList } = useHighPage();
-  return <>{renderElementList(configList)}</>;
+  const { render } = useHighPage();
+  return <>{render(configList)}</>;
 };
 
 export const List = () => {

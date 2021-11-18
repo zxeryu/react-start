@@ -31,12 +31,17 @@ export const useStoreState$ = <T>(
 
   const update = useCallback(
     (stateOrUpdater: T | TUpdater<T>) => {
-      return updateState.with((prev = initials) => {
-        if (isFunction(stateOrUpdater)) {
-          return stateOrUpdater(prev);
-        }
-        return stateOrUpdater;
-      });
+      return updateState
+        .with(
+          (prev = initials) => {
+            if (isFunction(stateOrUpdater)) {
+              return stateOrUpdater(prev);
+            }
+            return stateOrUpdater;
+          },
+          { key: finalKey },
+        )
+        .invoke(store$);
     },
     [finalKey],
   );

@@ -6,7 +6,7 @@ import React, {
   useCallback,
   useContext,
 } from "react";
-import { get, pick, map } from "lodash";
+import { get, pick, map, isArray } from "lodash";
 import { ElementConfigBase, BaseHighProps, HighProps } from "./types";
 
 type ElementType = FunctionComponent | ForwardRefRenderFunction<any, any>;
@@ -23,8 +23,11 @@ export interface HighContextProps {
   getIcon: (iconName: string) => ReactNode | undefined;
   //
   getProps: (c: ElementConfigBase) => BaseHighProps;
-  renderElement: (c?: ElementConfigBase, highProps?: HighProps, priorityMap?: ElementsMap) => ReactNode;
-  renderElementList: (c: ElementConfigBase[], highProps?: HighProps, priorityMap?: ElementsMap) => ReactNode[];
+  render: (
+    data: ElementConfigBase | ElementConfigBase[] | undefined | null,
+    highProps?: HighProps,
+    priorityMap?: ElementsMap,
+  ) => ReactNode | ReactNode[] | null;
 }
 
 const HighContext = createContext<HighContextProps>({} as any);
@@ -67,16 +70,27 @@ export const HighProvider = ({ children, name = "webapp", elementsMap, iconMap }
     [getElement],
   );
 
-  const renderElementList = useCallback(
-    (elementConfigList: ElementConfigBase[], highProps?: HighProps, priorityMap?: ElementsMap) => {
-      return map(elementConfigList, (c) => renderElement(c, highProps, priorityMap));
+  const render = useCallback(
+    (
+      data: ElementConfigBase | ElementConfigBase[] | undefined | null,
+      highProps?: HighProps,
+      priorityMap?: ElementsMap,
+    ) => {
+      if (!data) {
+        return null;
+      }
+      if (isArray(data)) {
+        return map(data, (c) => {
+          return renderElement(c, highProps, priorityMap);
+        });
+      }
+      return renderElement(data, highProps, priorityMap);
     },
     [renderElement],
   );
 
   return (
-    <HighContext.Provider
-      value={{ name, elementsMap, getElement, iconMap, getIcon, getProps, renderElement, renderElementList }}>
+    <HighContext.Provider value={{ name, elementsMap, getElement, iconMap, getIcon, getProps, render }}>
       {children}
     </HighContext.Provider>
   );

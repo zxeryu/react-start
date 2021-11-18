@@ -1,13 +1,15 @@
 import React, { useEffect } from "react";
 import { Button } from "@material-ui/core";
 import {
-  RequestProvider,
   useRequestContext,
   createRequestActor,
   isDoneRequestActor,
   useRequest,
   useDirectRequest,
 } from "@react-start/request";
+
+import { createUseState, createUseMetaState } from "@react-start/cheng-high";
+
 import { filter as rxFilter, tap as rxTap } from "rxjs";
 
 const searchApi = createRequestActor<any, any>("search", ({ q }) => {
@@ -20,7 +22,11 @@ const searchApi = createRequestActor<any, any>("search", ({ q }) => {
   };
 });
 
-export const Content = () => {
+const useCurrentTest = createUseState("test-current", "");
+
+const useMetaTest = createUseMetaState(searchApi, { q: "@vue-start" });
+
+export const RequestDemo = () => {
   const { requestSubject$, dispatchRequest } = useRequestContext();
 
   const [request, requesting$] = useRequest(searchApi, {
@@ -30,8 +36,10 @@ export const Content = () => {
   });
 
   const [data] = useDirectRequest(searchApi, { q: "@react-start" }, []);
-
   console.log("3333", data);
+
+  const [data2] = useMetaTest();
+  console.log("44444", data2);
 
   useEffect(() => {
     requesting$.subscribe((flag) => {
@@ -53,6 +61,10 @@ export const Content = () => {
     };
   }, []);
 
+  const [testCurrent, setTestCurrent] = useCurrentTest();
+
+  console.log("testCurrent===", testCurrent);
+
   return (
     <div>
       <Button
@@ -67,12 +79,12 @@ export const Content = () => {
         }}>
         search @react-start form npmjs way 2
       </Button>
+      <button
+        onClick={() => {
+          setTestCurrent(new Date().valueOf().toString());
+        }}>
+        test-current
+      </button>
     </div>
   );
 };
-
-export const RequestDemo = () => (
-  <RequestProvider>
-    <Content />
-  </RequestProvider>
-);

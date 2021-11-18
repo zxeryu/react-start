@@ -23,6 +23,9 @@ import "antd/dist/antd.css";
 import "@ant-design/pro-form/dist/form.css";
 import "@ant-design/pro-table/dist/table.css";
 import "@ant-design/pro-layout/dist/layout.css";
+import { Store, StoreProvider } from "@reactorx/core";
+import { RequestProvider } from "../../@react-start/request";
+import { RequestDemo } from "./RequestDemo";
 
 const HighSearchForm = (props: HighSearchFormProps) => {
   return <HighSearchFormOrigin css={{ "> *": { paddingBottom: 10 } }} {...props} />;
@@ -47,10 +50,17 @@ const ElementMap = {
   HighPageContainer,
 };
 
+const store$ = Store.create({});
+
 export const AntdDemo = () => {
   return (
-    <HighProvider elementsMap={ElementMap}>
-      <List />
-    </HighProvider>
+    <StoreProvider value={store$}>
+      <HighProvider elementsMap={ElementMap}>
+        <RequestProvider>
+          <List />
+          <RequestDemo />
+        </RequestProvider>
+      </HighProvider>
+    </StoreProvider>
   );
 };
