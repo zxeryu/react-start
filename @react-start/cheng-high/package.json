@@ -25,7 +25,7 @@
     "url": "https://github.com/zxeryu/react-start/issues"
   },
   "peerDependencies": {
-    "@reactorx/core": "0.22.4",
+    "@reactorx/core": "0.21.1",
     "lodash": "^4.x",
     "rxjs": ">= 7.x",
     "@react-start/request": "*"

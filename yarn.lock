@@ -2394,10 +2394,10 @@
   resolved "https://registry.yarnpkg.com/@qixian.cs/path-to-regexp/-/path-to-regexp-6.1.0.tgz#6b84ad01596332aba95fa29d2e70104698cd5c45"
   integrity sha512-2jIiLiVZB1jnY7IIRQKtoV8Gnr7XIhk4mC88ONGunZE3hYt5IHUG4BE/6+JiTBjjEWQLBeWnZB8hGpppkufiVw==
 
-"@reactorx/core@^0.22.4":
-  version "0.22.4"
-  resolved "https://registry.yarnpkg.com/@reactorx/core/-/core-0.22.4.tgz#eabbf92f421c4a2f0bb5545c949280835fa26f9c"
-  integrity sha512-LxnAMr0xrN8KNgD6f3yOiyfuUZCpvyH/2dXVSJzTEwM4gRvym9pFa7v2AuuqPLkzqbEJsY5ASTgRRttZXluOoQ==
+"@reactorx/core@^0.21.1":
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/@reactorx/core/-/core-0.21.1.tgz#a7b2da5d5c24a86c24b2d71897ff1769add017ab"
+  integrity sha512-cG3oZe9XDUr9JephXw7vtgI3ZRw1nu2sSqSr7DaKhS8/qOj81E0sf9Y/8cNww2q+Jj5X7U2qKf34NoRnpTSnfQ==
 
 "@rollup/plugin-babel@^5.2.1":
   version "5.3.0"
