@@ -8,9 +8,8 @@ import {
   ElementProps,
   ElementListProps,
 } from "@react-start/cheng-plugin-antd";
-import { HighPageProvider } from "@react-start/cheng-high";
+import { HighPage } from "@react-start/cheng-high";
 import { ListEventHandler } from "./ListEventHandler";
-import { useHighPage } from "../../@react-start/cheng-high/src";
 
 type GithubIssueItem = {
   url: string;
@@ -317,16 +316,14 @@ const configList: any = [
   },
 ];
 
-const Content = () => {
-  const { render } = useHighPage();
-  return <>{render(configList)}</>;
-};
-
 export const List = () => {
   return (
-    <HighPageProvider>
-      <Content />
+    <HighPage
+      configData={{
+        registerStore: ["store-test"],
+        page: configList,
+      }}>
       <ListEventHandler />
-    </HighPageProvider>
+    </HighPage>
   );
 };

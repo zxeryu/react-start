@@ -14,6 +14,21 @@ const updateState = StateActor.named<(prev: any) => any, { key: string }>("updat
 
 export type TUpdater<T> = (prev: T) => T;
 
+export const useUpdateStateHandle = () => {
+  const store$ = useStore();
+
+  return useCallback((key: string, value: any) => {
+    updateState
+      .with(
+        () => {
+          return value;
+        },
+        { key },
+      )
+      .invoke(store$);
+  }, []);
+};
+
 export const useStoreState$ = <T>(
   topic: string,
   initialState: undefined | T | (() => T),

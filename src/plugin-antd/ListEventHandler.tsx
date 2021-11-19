@@ -185,7 +185,7 @@ const getData = ({
 };
 
 export const ListEventHandler = () => {
-  const { subject$, sendEvent, dispatch } = useHighPage();
+  const { subject$, sendEvent, dispatch, dispatchStore } = useHighPage();
 
   useEffect(() => {
     const sub = subject$.subscribe((action: HighAction) => {
@@ -217,6 +217,9 @@ export const ListEventHandler = () => {
             actionType: "server.listData",
             sendEvent,
           });
+          break;
+        case "add":
+          dispatchStore("store-test", new Date().valueOf());
           break;
       }
     });
