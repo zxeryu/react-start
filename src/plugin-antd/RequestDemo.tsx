@@ -12,7 +12,7 @@ import { createUseState, createUseMetaState } from "@react-start/cheng-high";
 
 import { filter as rxFilter, tap as rxTap } from "rxjs";
 
-const searchApi = createRequestActor<any, any>("search", ({ q }) => {
+export const searchApi = createRequestActor<any, any>("search", ({ q }) => {
   return {
     method: "GET",
     url: `/search/suggestions`,

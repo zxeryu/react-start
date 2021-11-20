@@ -24,8 +24,8 @@ import "@ant-design/pro-form/dist/form.css";
 import "@ant-design/pro-table/dist/table.css";
 import "@ant-design/pro-layout/dist/layout.css";
 import { Store, StoreProvider } from "@reactorx/core";
-import { RequestProvider } from "../../@react-start/request";
-import { RequestDemo } from "./RequestDemo";
+import { RequestProvider } from "@react-start/request";
+import { searchApi } from "./RequestDemo";
 
 const HighSearchForm = (props: HighSearchFormProps) => {
   return <HighSearchFormOrigin css={{ "> *": { paddingBottom: 10 } }} {...props} />;
@@ -50,17 +50,25 @@ const ElementMap = {
   HighPageContainer,
 };
 
+const metaList = [
+  {
+    requestActor: searchApi,
+    initialParams: { q: "rxjs" },
+    storeName: "meta-test",
+  },
+];
+
 const store$ = Store.create({});
 
 export const AntdDemo = () => {
   return (
     <StoreProvider value={store$}>
-      <HighProvider elementsMap={ElementMap}>
-        <RequestProvider>
+      <RequestProvider>
+        <HighProvider elementsMap={ElementMap} metaList={metaList}>
           <List />
-          <RequestDemo />
-        </RequestProvider>
-      </HighProvider>
+          {/*<RequestDemo />*/}
+        </HighProvider>
+      </RequestProvider>
     </StoreProvider>
   );
 };

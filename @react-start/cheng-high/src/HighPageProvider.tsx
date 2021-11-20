@@ -22,7 +22,6 @@ import {
 } from "./types";
 import { HighProviderProps, useHigh } from "./HighProvider";
 import { getFirstPropNameFromNamePath } from "./util";
-import { useUpdateStateHandle } from "./store/store";
 
 type Values = { [key: string]: any };
 
@@ -37,8 +36,6 @@ interface HighPageContextProps {
   stateRef: MutableRefObject<Values>;
   //修改状态
   dispatch: (action: Action) => void;
-  //修改Store
-  dispatchStore: (key: string, value: any) => void;
   //根据key list 从state中获取对应的数据
   getStateValues: (items?: HConfig["receiveStateList"], props?: Record<string, any>) => Values | undefined;
   //根据key list 从props中获取对应的数据
@@ -270,8 +267,6 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
     [],
   );
 
-  const dispatchStore = useUpdateStateHandle();
-
   return (
     <HighPageContext.Provider
       value={{
@@ -281,7 +276,6 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
         state,
         stateRef,
         dispatch,
-        dispatchStore,
         getStateValues,
         getPropsValues,
         getTransformElementProps,

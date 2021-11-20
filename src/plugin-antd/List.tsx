@@ -312,7 +312,31 @@ const configList: any = [
         transformElementList: [{ name: "title" }],
       },
     },
-    elementList: [formConfig, tableConfig],
+    elementList: [
+      formConfig,
+      tableConfig,
+      {
+        oid: "HighSpan-O",
+        elementType$: "HighSpan",
+        elementProps$: {
+          // children: "span",
+          highConfig: {
+            receiveStateList: [{ name: "store-test", mapName: "children" }],
+          },
+        },
+      },
+      {
+        elementType$: "HighButton",
+        oid: "HighButton-New",
+        elementProps$: {
+          type: "primary",
+          children: "状态测试",
+          highConfig: {
+            sendEventName: "store-test",
+          },
+        },
+      },
+    ],
   },
 ];
 
@@ -321,6 +345,7 @@ export const List = () => {
     <HighPage
       configData={{
         registerStore: ["store-test"],
+        registerMeta: ["meta-test"],
         page: configList,
       }}>
       <ListEventHandler />

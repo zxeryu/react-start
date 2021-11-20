@@ -93,7 +93,7 @@ export const ComponentWrapper = <T extends HighProps>({
 
   return (
     <Component {...targetProps} {...propsProps} {...stateProps}>
-      {targetProps.children}
+      {stateProps?.children || propsProps?.children || targetProps.children}
       {renderChildren(highConfig)}
     </Component>
   );

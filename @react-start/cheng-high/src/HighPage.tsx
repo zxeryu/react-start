@@ -1,9 +1,11 @@
 import { HighPageProvider, HighPageProviderProps, useHighPage } from "./HighPageProvider";
 import React, { useEffect } from "react";
 import { ElementConfigBase } from "./types";
-import { uniq, filter, get, concat, size, reduce } from "lodash";
+import { uniq, filter, get, concat, size, reduce, forEach } from "lodash";
 import { useStore, shallowEqual } from "@reactorx/core";
+import { tap as rxTap } from "rxjs";
 import { map as rxOperatorMap, distinctUntilChanged } from "rxjs/operators";
+import { useHigh } from "./HighProvider";
 
 export interface HighPageProps extends HighPageProviderProps {
   configData: {
@@ -16,6 +18,7 @@ export interface HighPageProps extends HighPageProviderProps {
 
 const Content = ({ configData }: Omit<HighPageProps, "elementsMap" | "children">) => {
   const store$ = useStore();
+  const { dispatchMeta } = useHigh();
   const { render, dispatch } = useHighPage();
 
   //将注册的 store store-meta绑定到state中
@@ -39,17 +42,23 @@ const Content = ({ configData }: Omit<HighPageProps, "elementsMap" | "children">
           );
         }),
         distinctUntilChanged(shallowEqual),
+        rxTap((c) => {
+          dispatch({ type: "compose", payload: c });
+        }),
       )
-      .subscribe((c) => {
-        dispatch({
-          type: "compose",
-          payload: c,
-        });
-      });
+      .subscribe();
 
     return () => {
       sub.unsubscribe();
     };
+  }, []);
+
+  //如果注册了 registerMeta ，在page初始化的时候发送
+  useEffect(() => {
+    const metaNameList = get(configData, "registerMeta", []);
+    forEach(metaNameList, (requestName) => {
+      dispatchMeta(requestName);
+    });
   }, []);
 
   return <>{render(configData.page)}</>;

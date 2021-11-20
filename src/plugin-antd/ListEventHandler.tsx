@@ -1,4 +1,4 @@
-import { useHighPage, HighAction } from "@react-start/cheng-high";
+import { useHigh, useHighPage, HighAction } from "@react-start/cheng-high";
 import { useEffect } from "react";
 import { slice } from "lodash";
 
@@ -185,7 +185,8 @@ const getData = ({
 };
 
 export const ListEventHandler = () => {
-  const { subject$, sendEvent, dispatch, dispatchStore } = useHighPage();
+  const { dispatchStore } = useHigh();
+  const { subject$, sendEvent, dispatch, stateRef } = useHighPage();
 
   useEffect(() => {
     const sub = subject$.subscribe((action: HighAction) => {
@@ -219,6 +220,9 @@ export const ListEventHandler = () => {
           });
           break;
         case "add":
+          console.log("state====", stateRef.current);
+          break;
+        case "store-test":
           dispatchStore("store-test", new Date().valueOf());
           break;
       }
