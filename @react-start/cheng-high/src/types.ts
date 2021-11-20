@@ -34,6 +34,19 @@ export interface ElementConfigBase {
   elementList?: ElementConfigBase;
 }
 
+export type TRegisterEventItem = {
+  name: NamePath;
+  //参数转换 将数arr换为obj，该属性为设置key 如：{key:'event', name:0}
+  transObjList?: {
+    key: string;
+    name: number | NamePath;
+  }[];
+  //拓展，直接执行事件 如：发起网络
+};
+
+/**
+ * 以下 name、mapName 都为path
+ */
 export interface HConfig {
   //默认发送事件名称
   sendEventName?: string;
@@ -54,10 +67,7 @@ export interface HConfig {
     name: NamePath;
   }[];
   //订阅事件
-  registerEventList?: {
-    name: NamePath;
-    //拓展，直接执行事件 如：发起网络
-  }[];
+  registerEventList?: TRegisterEventItem[];
 
   highInject?: Pick<ElementConfigBase, "elementType$" | "oid" | "elementList">;
 }

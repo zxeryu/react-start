@@ -9,7 +9,22 @@ import React, {
   MutableRefObject,
   isValidElement,
 } from "react";
-import { get, set, isString, size, map, filter, pick, isArray, forEach, has, concat, uniqBy, last } from "lodash";
+import {
+  get,
+  set,
+  isString,
+  size,
+  map,
+  filter,
+  pick,
+  isArray,
+  forEach,
+  has,
+  concat,
+  uniqBy,
+  last,
+  reduce,
+} from "lodash";
 import { Subject } from "rxjs";
 import { HighAction as Action, HConfig, HighSendEvent, ElementConfigBase, HighProps, NamePath } from "./types";
 import { HighProviderProps, useHigh } from "./HighProvider";
@@ -226,11 +241,13 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
 
   const getRegisterEventProps = useCallback(
     (items?: HConfig["registerEventList"], props?: Record<string, any>, extraItems?: HConfig["registerEventList"]) => {
-      if (!items || size(items) <= 0) {
+      const allItems = uniqBy(concat(items || [], extraItems || []), "name");
+
+      if (!allItems || size(allItems) <= 0) {
         return props;
       }
+
       const nextProps = { ...props };
-      const allItems = uniqBy(concat(items, extraItems || []), "name");
       forEach(allItems, (item) => {
         if (!item.name) {
           return;
@@ -242,7 +259,11 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
           funName = last((item.name as string).split(".")) as string;
         }
         set(nextProps, item.name, (...e: any[]) => {
-          sendEventSimple(props?.highConfig, props?.onSend, { key: funName, payload: e });
+          let payload: any = e;
+          if (size(item.transObjList) > 0) {
+            payload = reduce(item.transObjList, (pair, trans) => ({ ...pair, [trans.key]: get(e, trans.name) }), {});
+          }
+          sendEventSimple(props?.highConfig, props?.onSend, { key: funName, payload });
         });
       });
       return nextProps;

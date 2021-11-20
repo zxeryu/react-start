@@ -218,7 +218,7 @@ export const ListEventHandler = () => {
           sendEvent,
         });
         break;
-      case "add":
+      case "add:onClick":
         console.log("state====", stateRef.current);
         break;
       case "store-test":

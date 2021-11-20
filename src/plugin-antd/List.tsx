@@ -264,7 +264,15 @@ const formConfig: ElementProps = {
     debounceKeys: ["name", "day"],
     highConfig: {
       sendEventName: "search-form",
-      registerEventList: [{ name: "onFieldsChange" }],
+      // registerEventList: [
+      //   {
+      //     name: "onFieldsChange",
+      //     transObjList: [
+      //       { key: "changedFields", name: 0 },
+      //       { key: "allFields", name: 0 },
+      //     ],
+      //   },
+      // ],
     },
   },
   elementList: formChildrenConfigList as any,

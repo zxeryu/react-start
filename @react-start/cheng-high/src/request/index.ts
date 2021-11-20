@@ -1,4 +1,10 @@
-import { IRequestActor, isDoneRequestActor, isFailedRequestActor, useRequestContext } from "../../../request";
+import {
+  IRequestActor,
+  isDoneRequestActor,
+  isFailedRequestActor,
+  isCancelRequestActor,
+  useRequestContext,
+} from "@react-start/request";
 import { useEffect, useMemo } from "react";
 import { filter as rxFilter, tap as rxTap } from "rxjs";
 
@@ -30,5 +36,11 @@ const createUseRequestActor = (isFilterActor: (actor: IRequestActor) => boolean)
 export const useDoneRequestActor = createUseRequestActor(isDoneRequestActor);
 
 export const useFailedRequestActor = createUseRequestActor(isFailedRequestActor);
+
+const isFinishRequestActor = (actor: IRequestActor) => {
+  return isDoneRequestActor(actor) || isFailedRequestActor(actor) || isCancelRequestActor(actor);
+};
+
+export const useFinishRequestActor = createUseRequestActor(isFinishRequestActor);
 
 export * from "./store-meta";

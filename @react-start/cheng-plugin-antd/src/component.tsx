@@ -1,34 +1,39 @@
 import { ButtonProps } from "antd/es";
-import { HighProps, useHigh, useHighPage, ComponentWrapper } from "@react-start/cheng-high";
-import { Button, Radio, RadioChangeEvent } from "antd";
-import React, { useCallback } from "react";
+import { HighProps, useHigh, ComponentWrapper, TRegisterEventItem } from "@react-start/cheng-high";
+import { Button, Radio } from "antd";
+import React from "react";
 
 export interface HighButtonProps extends ButtonProps, HighProps {
   iconName?: string;
 }
 
+const HighButtonRegisterEvent: TRegisterEventItem[] = [
+  {
+    name: "onClick",
+    transObjList: [{ key: "e", name: 0 }],
+  },
+];
+
 export const HighButton = ({ iconName, ...otherProps }: HighButtonProps) => {
   const { getIcon } = useHigh();
-  const { sendEventSimple } = useHighPage();
-
-  const handleClick = useCallback(() => {
-    sendEventSimple(otherProps.highConfig, otherProps.onSend);
-  }, []);
 
   return (
     <ComponentWrapper
       Component={Button}
       icon={iconName ? getIcon(iconName) : otherProps.icon}
-      onClick={handleClick}
+      registerEventList={HighButtonRegisterEvent}
       {...otherProps}
     />
   );
 };
 
+const HighRadioGroupRegisterEvent: TRegisterEventItem[] = [
+  {
+    name: "onChange",
+    transObjList: [{ key: "value", name: "0.target.value" }],
+  },
+];
+
 export const HighRadioGroup = (props: any) => {
-  const { sendEventSimple } = useHighPage();
-  const handleChange = useCallback((e: RadioChangeEvent) => {
-    sendEventSimple(props.highConfig, props.onSend, { payload: { value: e.target.value } });
-  }, []);
-  return <ComponentWrapper Component={Radio.Group} onChange={handleChange} {...props} />;
+  return <ComponentWrapper Component={Radio.Group} registerEventList={HighRadioGroupRegisterEvent} {...props} />;
 };
