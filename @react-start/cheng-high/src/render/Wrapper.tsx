@@ -61,8 +61,7 @@ export const ComponentWrapper = <T extends HighProps>({
   transformElementList?: HConfig["transformElementList"];
   registerEventList?: HConfig["registerEventList"];
 }) => {
-  const { getStateValues, getPropsValues, getTransformElementProps, getRegisterEventProps, renderChildren } =
-    useHighPage();
+  const { getStateValues, getPropsValues, getTransformElementProps, getRegisterEventProps, render } = useHighPage();
 
   const highConfig: HConfig | undefined = get(otherProps, "highConfig");
 
@@ -94,7 +93,7 @@ export const ComponentWrapper = <T extends HighProps>({
   return (
     <Component {...targetProps} {...propsProps} {...stateProps}>
       {stateProps?.children || propsProps?.children || targetProps.children}
-      {renderChildren(highConfig)}
+      {render(get(highConfig, ["highInject", "elementList"]))}
     </Component>
   );
 };

@@ -1,4 +1,4 @@
-import { useHigh, useHighPage, HighAction } from "@react-start/cheng-high";
+import { useHigh, useHighPage, HighAction, useDomEvent } from "@react-start/cheng-high";
 import { useEffect } from "react";
 import { slice } from "lodash";
 
@@ -186,51 +186,46 @@ const getData = ({
 
 export const ListEventHandler = () => {
   const { dispatchStore } = useHigh();
-  const { subject$, sendEvent, dispatch, stateRef } = useHighPage();
+  const { sendEvent, dispatch, stateRef } = useHighPage();
 
-  useEffect(() => {
-    const sub = subject$.subscribe((action: HighAction) => {
-      console.log("@@@", action.type, action.payload);
-      switch (action.type) {
-        case "init": //页面初始化
-          dispatch({ type: "loading", payload: true });
-          getData({
-            actionType: "server.listData",
-            sendEvent,
-          });
-          break;
-        case "server.listData": //服务回来的数据
-          dispatch({ type: "loading", payload: false });
-          dispatch({ type: "listData", payload: action.payload });
-          break;
-        case "table:pagination:onChange":
-          dispatch({ type: "loading", payload: true });
-          getData({
-            params: { page: action.payload.page, pageSize: action.payload.pageSize },
-            actionType: "server.listData",
-            sendEvent,
-          });
-          break;
-        case "table:pagination:onShowSizeChange": //一般不需要订阅
-          dispatch({ type: "loading", payload: true });
-          getData({
-            params: { page: action.payload.current, pageSize: action.payload.size },
-            actionType: "server.listData",
-            sendEvent,
-          });
-          break;
-        case "add":
-          console.log("state====", stateRef.current);
-          break;
-        case "store-test":
-          dispatchStore("store-test", new Date().valueOf());
-          break;
-      }
-    });
-    return () => {
-      sub.unsubscribe();
-    };
-  }, []);
+  useDomEvent((action: HighAction) => {
+    console.log("@@@", action.type, action.payload);
+    switch (action.type) {
+      case "init": //页面初始化
+        dispatch({ type: "loading", payload: true });
+        getData({
+          actionType: "server.listData",
+          sendEvent,
+        });
+        break;
+      case "server.listData": //服务回来的数据
+        dispatch({ type: "loading", payload: false });
+        dispatch({ type: "listData", payload: action.payload });
+        break;
+      case "table:pagination:onChange":
+        dispatch({ type: "loading", payload: true });
+        getData({
+          params: { page: action.payload.page, pageSize: action.payload.pageSize },
+          actionType: "server.listData",
+          sendEvent,
+        });
+        break;
+      case "table:pagination:onShowSizeChange": //一般不需要订阅
+        dispatch({ type: "loading", payload: true });
+        getData({
+          params: { page: action.payload.current, pageSize: action.payload.size },
+          actionType: "server.listData",
+          sendEvent,
+        });
+        break;
+      case "add":
+        console.log("state====", stateRef.current);
+        break;
+      case "store-test":
+        dispatchStore("store-test", new Date().valueOf());
+        break;
+    }
+  });
 
   useEffect(() => {
     sendEvent({ type: "init" });

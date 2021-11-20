@@ -11,15 +11,7 @@ import React, {
 } from "react";
 import { get, set, isString, size, map, filter, pick, isArray, forEach, has, concat, uniqBy, last } from "lodash";
 import { Subject } from "rxjs";
-import {
-  HighAction as Action,
-  HConfig,
-  HighSendEvent,
-  ElementConfigBase,
-  HighProps,
-  HighConfig,
-  NamePath,
-} from "./types";
+import { HighAction as Action, HConfig, HighSendEvent, ElementConfigBase, HighProps, NamePath } from "./types";
 import { HighProviderProps, useHigh } from "./HighProvider";
 import { getFirstPropNameFromNamePath } from "./util";
 
@@ -30,7 +22,6 @@ interface HighPageContextProps {
     data: ElementConfigBase | ElementConfigBase[] | undefined | null,
     highProps?: HighProps,
   ) => ReactNode | ReactNode[] | null;
-  renderChildren: (highConfig: HighConfig["highConfig"], highProps?: HighProps) => ReactNode | ReactNode[] | null;
   //状态值
   state: Values;
   stateRef: MutableRefObject<Values>;
@@ -86,14 +77,6 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
       return renderOrigin(data, highProps, elementsMap);
     },
     [elementsMap],
-  );
-
-  const renderChildren = useCallback(
-    (highConfig: HighConfig["highConfig"], highProps?: HighProps) => {
-      const children = get(highConfig, ["highInject", "elementList"]);
-      return render(children, highProps);
-    },
-    [render],
   );
 
   /************************** 页面状态 *****************************/
@@ -239,7 +222,7 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
     [],
   );
 
-  /************************** 事件穿透 *****************************/
+  /************************** 事件注册穿透 *****************************/
 
   const getRegisterEventProps = useCallback(
     (items?: HConfig["registerEventList"], props?: Record<string, any>, extraItems?: HConfig["registerEventList"]) => {
@@ -271,7 +254,6 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
     <HighPageContext.Provider
       value={{
         render,
-        renderChildren,
         //
         state,
         stateRef,

@@ -130,7 +130,7 @@ const OverlayFormWrapper = <T extends OverlayFormWrapperProps>({
 }: T & {
   Component: typeof ModalForm | typeof DrawerForm;
 }) => {
-  const { render, renderChildren, getStateValues, sendEventSimple, setDataToRef } = useHighPage();
+  const { render, getStateValues, sendEventSimple, setDataToRef } = useHighPage();
 
   const formRef = useRef<ProFormInstance>();
 
@@ -168,7 +168,7 @@ const OverlayFormWrapper = <T extends OverlayFormWrapperProps>({
       onValuesChange={handleValuesChange}
       onFinish={handleFinish}
       trigger={render(trigger) as any}>
-      {renderChildren(highConfig)}
+      {render(get(highConfig, ["highInject", "elementList"]))}
     </Component>
   );
 };
