@@ -1,4 +1,4 @@
-import { useHigh, useHighPage, HighAction, useDomEvent } from "@react-start/cheng-high";
+import { useHighPage, HighAction, useDomEvent } from "@react-start/cheng-high";
 import { useEffect } from "react";
 import { slice } from "lodash";
 
@@ -185,7 +185,6 @@ const getData = ({
 };
 
 export const ListEventHandler = () => {
-  const { dispatchStore } = useHigh();
   const { sendEvent, dispatch, stateRef } = useHighPage();
 
   useDomEvent((action: HighAction) => {
@@ -221,9 +220,9 @@ export const ListEventHandler = () => {
       case "add:onClick":
         console.log("state====", stateRef.current);
         break;
-      case "store-test":
-        dispatchStore("store-test", new Date().valueOf());
-        break;
+      // case "store-test:onClick":
+      //   dispatchStore("store-test", new Date().valueOf());
+      //   break;
     }
   });
 

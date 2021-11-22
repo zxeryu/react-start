@@ -50,9 +50,13 @@ const ElementMap = {
   HighPageContainer,
 };
 
+const requestActorMap = {
+  [searchApi.name]: searchApi,
+};
+
 const metaList = [
   {
-    requestActor: searchApi,
+    requestName: "search",
     initialParams: { q: "rxjs" },
     storeName: "meta-test",
   },
@@ -64,7 +68,7 @@ export const AntdDemo = () => {
   return (
     <StoreProvider value={store$}>
       <RequestProvider>
-        <HighProvider elementsMap={ElementMap} metaList={metaList}>
+        <HighProvider elementsMap={ElementMap} requestActorMap={requestActorMap} metaList={metaList}>
           <List />
           {/*<RequestDemo />*/}
         </HighProvider>

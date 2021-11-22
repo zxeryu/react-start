@@ -11,7 +11,7 @@ import React, {
 import { get, set, pick, map, isArray, reduce, keys } from "lodash";
 import { ElementConfigBase, BaseHighProps, HighProps } from "./types";
 import { useUpdateStateHandle } from "./store/store";
-import { IRequestActor, useRequestContext } from "@react-start/request";
+import { IRequestActor, useRequestContext, isDoneRequestActor } from "@react-start/request";
 import { filter as rxFilter, tap as rxTap } from "rxjs";
 import { useStore } from "@reactorx/core";
 
@@ -20,12 +20,18 @@ type ElementType = FunctionComponent | ForwardRefRenderFunction<any, any>;
 type ElementsMap = { [key: string]: ElementType };
 
 export type TDispatchMeta = (
-  requestName: string,
+  storeName: string,
   options?: {
     reGetData: boolean;
     params?: Record<string, any>;
   },
 ) => void;
+
+export interface IStoreRequestActor extends IRequestActor {
+  opts?: {
+    storeName?: string;
+  };
+}
 
 export interface HighContextProps {
   name?: string;
@@ -42,12 +48,14 @@ export interface HighContextProps {
     highProps?: HighProps,
     priorityMap?: ElementsMap,
   ) => ReactNode | ReactNode[] | null;
+  requestActorMap?: { [key: string]: IRequestActor };
   //修改Store
   dispatchStore: (key: string, value: any) => void;
   //request
   metaList?: {
-    requestActor: IRequestActor;
+    requestName: string;
     initialParams?: Record<string, any>;
+    //状态中的key
     storeName?: string;
   }[];
   dispatchMeta: TDispatchMeta;
@@ -57,11 +65,19 @@ const HighContext = createContext<HighContextProps>({} as any);
 
 export const useHigh = () => useContext(HighContext);
 
-export interface HighProviderProps extends Pick<HighContextProps, "name" | "elementsMap" | "iconMap" | "metaList"> {
+export interface HighProviderProps
+  extends Pick<HighContextProps, "name" | "elementsMap" | "iconMap" | "metaList" | "requestActorMap"> {
   children: ReactNode;
 }
 
-export const HighProvider = ({ children, name = "webapp", elementsMap, iconMap, metaList }: HighProviderProps) => {
+export const HighProvider = ({
+  children,
+  name = "webapp",
+  elementsMap,
+  iconMap,
+  requestActorMap,
+  metaList,
+}: HighProviderProps) => {
   const store$ = useStore();
   const { dispatchRequest, requestSubject$ } = useRequestContext();
 
@@ -117,30 +133,26 @@ export const HighProvider = ({ children, name = "webapp", elementsMap, iconMap, 
 
   const dispatchStore = useUpdateStateHandle();
 
-  const metaMap = useMemo(() => {
-    return reduce(
-      metaList,
-      (pair, item) => {
-        const nextItem = { ...item };
-        if (item.storeName) {
-          set(nextItem, ["requestActor", "name"], item.storeName);
-        }
-        return { ...pair, [nextItem.requestActor.name]: nextItem };
-      },
-      {},
-    );
-  }, []);
+  const { metaMap, metaStoreMap } = useMemo(
+    () => ({
+      metaMap: reduce(metaList, (pair, item) => ({ ...pair, [item.requestName]: item }), {}),
+      metaStoreMap: reduce(metaList, (pair, item) => ({ ...pair, [item.storeName || item.requestName]: item }), {}),
+    }),
+    [],
+  );
 
   //同步meta信息到store中
   useEffect(() => {
     const metaKeySet = new Set(keys(metaMap));
     const sub = requestSubject$
       .pipe(
+        rxFilter(isDoneRequestActor),
         rxFilter((actor) => {
           return metaKeySet.has(actor.name);
         }),
         rxTap((actor) => {
-          dispatchStore(actor.name, actor.res?.data);
+          const key = get(actor, ["opts", "storeName"]) || actor.name;
+          dispatchStore(key, actor.res?.data);
         }),
       )
       .subscribe();
@@ -149,27 +161,30 @@ export const HighProvider = ({ children, name = "webapp", elementsMap, iconMap, 
     };
   }, []);
 
-  //如果值已经存在，不用再发起请求
   const dispatchMeta: TDispatchMeta = useCallback(
-    (requestName, options) => {
-      const metaData = get(metaMap, requestName);
-
+    (storeName, options) => {
+      const metaData = get(metaStoreMap, storeName);
       if (!metaData) {
         return;
       }
-
-      //若标记是重新获取
-      if (get(options, "reGetData")) {
-        dispatchRequest(metaData.requestActor, get(options, "params") || metaData.initialParams);
+      const requestActor = get(requestActorMap, metaData.requestName);
+      if (!requestActor) {
         return;
       }
-
+      const nextRequestActor: IStoreRequestActor = { ...requestActor };
+      if (metaData.storeName) {
+        set(nextRequestActor, ["opts", "storeName"], metaData.storeName);
+      }
+      //若标记是重新获取，直接发起请求
+      if (get(options, "reGetData")) {
+        dispatchRequest(nextRequestActor, get(options, "params") || metaData.initialParams);
+        return;
+      }
       //状态中存储的值
-      const tempData = get(store$.value, requestName);
-
-      //若store中没值，发起请求
+      const tempData = get(store$.value, storeName);
+      //若store中没值，发起请求；如果值已经存在，不用再发起请求
       if (!tempData) {
-        dispatchRequest(metaData.requestActor, metaData.initialParams);
+        dispatchRequest(nextRequestActor, metaData.initialParams);
       }
     },
     [metaMap],

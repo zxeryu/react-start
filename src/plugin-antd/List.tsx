@@ -341,6 +341,17 @@ const configList: any = [
           children: "状态测试",
           highConfig: {
             sendEventName: "store-test",
+            registerEventList: [
+              {
+                name: "onClick",
+                executeList: [
+                  {
+                    execName: "dispatch",
+                    execParams: ["store-test", "store-test-value"],
+                  },
+                ],
+              },
+            ],
           },
         },
       },

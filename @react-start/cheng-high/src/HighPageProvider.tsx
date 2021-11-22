@@ -24,6 +24,7 @@ import {
   uniqBy,
   last,
   reduce,
+  omit,
 } from "lodash";
 import { Subject } from "rxjs";
 import { HighAction as Action, HConfig, HighSendEvent, ElementConfigBase, HighProps, NamePath } from "./types";
@@ -57,6 +58,7 @@ interface HighPageContextProps {
     props?: Record<string, any>,
     extraItems?: HConfig["registerEventList"],
   ) => Values | undefined;
+  dataRef: MutableRefObject<Values>;
   setDataToRef: (key: string, data: any) => void;
   getDataFromRef: (key: string) => any;
   //事件处理对象（rx）
@@ -194,7 +196,7 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
 
   /************************** 非状态数据 *****************************/
 
-  const dataRef = useRef<{ [key: string]: any }>({});
+  const dataRef = useRef<Values>({});
 
   const setDataToRef = useCallback((key: string, data: any) => {
     set(dataRef.current, key, data);
@@ -216,10 +218,8 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
     (
       highConfig?: HConfig,
       onSend?: HighSendEvent["onSend"],
-      extra?: {
+      extra?: Pick<Action, "payload" | "executeList"> & {
         key?: string;
-        payload?: any;
-        defaultSend?: boolean; //默认是否发送该事件
       },
     ) => {
       if (!highConfig?.sendEventName) {
@@ -227,7 +227,7 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
       }
       const suffix = extra?.key ? `:${extra.key}` : "";
       const type = `${highConfig?.sendEventName}${suffix}`;
-      const action = { type, payload: extra?.payload };
+      const action = { type, ...omit(extra, "key") };
       if (onSend) {
         onSend(action);
         return;
@@ -263,7 +263,7 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
           if (size(item.transObjList) > 0) {
             payload = reduce(item.transObjList, (pair, trans) => ({ ...pair, [trans.key]: get(e, trans.name) }), {});
           }
-          sendEventSimple(props?.highConfig, props?.onSend, { key: funName, payload });
+          sendEventSimple(props?.highConfig, props?.onSend, { key: funName, payload, executeList: item.executeList });
         });
       });
       return nextProps;
@@ -283,6 +283,7 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
         getPropsValues,
         getTransformElementProps,
         getRegisterEventProps,
+        dataRef,
         setDataToRef,
         getDataFromRef,
         //

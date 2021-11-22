@@ -18,21 +18,27 @@ export type TOptions = IOption[];
 export declare type InternalNamePath = (string | number)[];
 export declare type NamePath = string | number | InternalNamePath;
 
-export type HighAction = {
-  //事件名称
-  type: string;
-  //数据or对象
-  payload?: any;
-  //是否是全局事件 或 type名称是"global-"开始
-  global?: boolean;
-};
-
 export interface ElementConfigBase {
   elementType$: string;
   elementProps$: any;
   oid: string;
   elementList?: ElementConfigBase;
 }
+
+export type TDataType = "state" | "dataRef" | "arguments";
+
+//值描述 默认state中获取
+export type TParam = { name: NamePath; target?: TDataType };
+
+//调用lodash方法描述
+export type TGetValue = { funName: string; funParams: (TParam | any)[] };
+
+export type TExecuteType = "dispatch" | "dispatchStore" | "dispatchRequest" | "dispatchMeta" | "setDataToRef";
+
+export type TExecuteItem = {
+  execName: TExecuteType;
+  execParams: (TGetValue | any)[];
+};
 
 export type TRegisterEventItem = {
   name: NamePath;
@@ -42,6 +48,7 @@ export type TRegisterEventItem = {
     name: number | NamePath;
   }[];
   //拓展，直接执行事件 如：发起网络
+  executeList?: TExecuteItem[];
 };
 
 /**
@@ -75,6 +82,15 @@ export interface HConfig {
 export interface HighConfig {
   highConfig?: HConfig;
 }
+
+export type HighAction = {
+  //事件名称
+  type: string;
+  //数据or对象
+  payload?: any;
+  //执行事件
+  executeList?: TExecuteItem[];
+};
 
 export interface HighSendEvent {
   //高阶组件中使用 如HighTable中使用HighButton
