@@ -347,7 +347,7 @@ const configList: any = [
                 executeList: [
                   {
                     execName: "dispatch",
-                    execParams: ["store-test", "store-test-value"],
+                    execParams: ["store-test", { name: "0.timeStamp", target: "arguments" }],
                   },
                 ],
               },

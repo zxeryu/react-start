@@ -137,6 +137,7 @@ const Content = ({ configData, requestActorMap }: Omit<HighPageProps, "elementsM
         return;
       }
       const execParams: any[] = getExecuteParams(item, getDataTarget);
+      console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@", execParams);
       switch (executeName) {
         case "dispatch":
           if (execParams[0] && execParams[1]) {

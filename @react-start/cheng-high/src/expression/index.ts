@@ -1,5 +1,5 @@
 import _, { get, has, isObject, map } from "lodash";
-import { TDataType, TExecuteItem, TGetValue } from "../types";
+import { TDataType, TExecuteItem, TGetValue, TParam } from "../types";
 
 /************************************ fun **************************************/
 
@@ -13,15 +13,27 @@ export const lodash = (funcName: string, ...e: any): any => {
 
 /************************************ execute **************************************/
 
-const executeLodash = (valueOrDesc: TGetValue, getDataTarget: (type: TDataType) => any) => {
+const isValueDesc = (desc: TExecuteItem["execParams"]) => {
+  return isObject(desc) && has(desc, "name");
+};
+
+const getValue = (desc: TParam, getDataTarget: (type: TDataType) => any) => {
+  const name = get(desc, "name");
+  const target = getDataTarget(get(desc, "target")!);
+  return get(target, name);
+};
+
+const isLodashDesc = (desc: TExecuteItem["execParams"]) => {
+  return isObject(desc) && has(desc, "funName");
+};
+
+const getLodashResult = (valueOrDesc: TGetValue, getDataTarget: (type: TDataType) => any) => {
   const funName = get(valueOrDesc, "funName");
   const funParamsList = get(valueOrDesc, "funParams");
   const funParams = map(funParamsList, (v) => {
-    //如果为值描述（path）
-    if (isObject(v) && has(v, "name")) {
-      const name = get(v, "name");
-      const target = getDataTarget(get(v, "target"));
-      return get(target, name);
+    //如果为表达式（直接取值）
+    if (isValueDesc(v)) {
+      return getValue(v, getDataTarget);
     }
     return v;
   });
@@ -32,8 +44,12 @@ export const getExecuteParams = (item: TExecuteItem, getDataTarget: (type: TData
   const execParamsList = get(item, "execParams");
   return map(execParamsList, (valueOrDesc) => {
     //如果为表达式（lodash方法）
-    if (isObject(valueOrDesc) && has(valueOrDesc, "funName")) {
-      return executeLodash(valueOrDesc as TGetValue, getDataTarget);
+    if (isLodashDesc(valueOrDesc)) {
+      return getLodashResult(valueOrDesc as TGetValue, getDataTarget);
+    }
+    //如果为表达式（直接取值）
+    if (isValueDesc(valueOrDesc)) {
+      return getValue(valueOrDesc, getDataTarget);
     }
     return valueOrDesc;
   });

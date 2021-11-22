@@ -37,7 +37,7 @@ export type TExecuteType = "dispatch" | "dispatchStore" | "dispatchRequest" | "d
 
 export type TExecuteItem = {
   execName: TExecuteType;
-  execParams: (TGetValue | any)[];
+  execParams: (TGetValue | TParam | any)[];
 };
 
 export type TRegisterEventItem = {
