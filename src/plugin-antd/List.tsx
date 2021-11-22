@@ -161,7 +161,7 @@ const props: HighTableProps = {
     receiveStateList: [
       { name: ["listData", "data"], mapName: "dataSource" },
       { name: ["listData", "total"], mapName: ["pagination", "total"] },
-      { name: "loading" },
+      { name: ["loading", "testLoading"], mapName: "loading", multiple: true },
     ],
   },
 };

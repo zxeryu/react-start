@@ -63,11 +63,17 @@ export interface HConfig {
     name: NamePath;
     //组件需要的属性名称；如不存在，用name的值作为属性名称传递给组件
     mapName?: NamePath;
+    /**
+     * 是否为多个值中取一个 如：name1 || name2 || name3
+     * 值为true时，name必为数组类型，mapName必须有值，否则该属性不生效
+     */
+    multiple?: boolean;
   }[];
   //同receiveStateList，只是从props中取值
   receivePropsList?: {
     name: NamePath;
     mapName?: NamePath;
+    multiple?: boolean;
   }[];
   //可以转化成组件的标识，这类属性会优先转换成组件
   transformElementList?: {

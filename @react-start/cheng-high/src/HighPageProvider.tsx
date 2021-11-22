@@ -113,6 +113,7 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
       items?: {
         name: NamePath;
         mapName?: NamePath;
+        multiple?: boolean;
       }[],
       props?: Record<string, any>,
       target?: Record<string, any>,
@@ -125,8 +126,25 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
       //赋值 && 返回一级属性名称
       const firstPropNameList = map(items, (item) => {
         const targetName = item.mapName || item.name;
-        //赋值
-        set(nextProps, targetName, get(target || props, item.name));
+        //如果 multiple 模式
+        if (item.multiple && isArray(item.name) && size(item.name) > 0 && item.mapName) {
+          //默认取第一个值
+          let value = get(target || props, item.name[0]);
+          const len = size(item.name);
+          for (let i = 0; i < len; i++) {
+            const temp = get(target || props, item.name[i]);
+            //取第一个为"true"的值
+            if (temp) {
+              value = temp;
+              break;
+            }
+          }
+          set(nextProps, targetName, value);
+        } else {
+          //赋值
+          set(nextProps, targetName, get(target || props, item.name));
+        }
+
         //返回一级属性名称
         return getFirstPropNameFromNamePath(targetName);
       });

@@ -187,6 +187,13 @@ const getData = ({
 export const ListEventHandler = () => {
   const { sendEvent, dispatch, stateRef } = useHighPage();
 
+  useEffect(() => {
+    dispatch({ type: "testLoading", payload: true });
+    setTimeout(() => {
+      dispatch({ type: "testLoading", payload: false });
+    }, 5000);
+  }, []);
+
   useDomEvent((action: HighAction) => {
     console.log("@@@", action.type, action.payload);
     switch (action.type) {
@@ -220,9 +227,6 @@ export const ListEventHandler = () => {
       case "add:onClick":
         console.log("state====", stateRef.current);
         break;
-      // case "store-test:onClick":
-      //   dispatchStore("store-test", new Date().valueOf());
-      //   break;
     }
   });
 
