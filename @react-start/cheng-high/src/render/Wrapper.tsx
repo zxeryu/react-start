@@ -46,7 +46,15 @@ const isShow = (
   return true;
 };
 
-export const ComponentWrapper = <T extends HighProps>({
+export interface ComponentWrapperProps extends HighProps {
+  Component: any;
+  noChild?: boolean;
+  transformElementList?: HConfig["transformElementList"];
+  registerEventList?: HConfig["registerEventList"];
+  [k: string]: any;
+}
+
+export const ComponentWrapper = ({
   Component,
   noChild,
   transformElementList,
@@ -55,12 +63,7 @@ export const ComponentWrapper = <T extends HighProps>({
   hidden,
   show,
   ...otherProps
-}: T & {
-  Component: any;
-  noChild?: boolean;
-  transformElementList?: HConfig["transformElementList"];
-  registerEventList?: HConfig["registerEventList"];
-}) => {
+}: ComponentWrapperProps) => {
   const { getStateValues, getPropsValues, getTransformElementProps, getRegisterEventProps, render } = useHighPage();
 
   const highConfig: HConfig | undefined = get(otherProps, "highConfig");

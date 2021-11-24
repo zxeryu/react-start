@@ -264,15 +264,16 @@ const formConfig: ElementProps = {
     debounceKeys: ["name", "day"],
     highConfig: {
       sendEventName: "search-form",
-      // registerEventList: [
-      //   {
-      //     name: "onFieldsChange",
-      //     transObjList: [
-      //       { key: "changedFields", name: 0 },
-      //       { key: "allFields", name: 0 },
-      //     ],
-      //   },
-      // ],
+      registerEventList: [
+        { name: "onFinish" },
+        // {
+        //   name: "onFieldsChange",
+        //   transObjList: [
+        //     { key: "changedFields", name: 0 },
+        //     { key: "allFields", name: 0 },
+        //   ],
+        // },
+      ],
     },
   },
   elementList: formChildrenConfigList as any,
@@ -324,6 +325,81 @@ const configList: any = [
       formConfig,
       tableConfig,
       {
+        oid: "HighModalForm-O",
+        elementType$: "HighModalForm",
+        elementProps$: {
+          title: "ModalForm",
+          loading: true,
+          highConfig: {
+            sendEventName: "modal-form",
+            receiveStateList: [{ name: "modalVisible", mapName: "visible" }],
+            registerEventList: [
+              {
+                name: "onFinish",
+                executeList: [
+                  {
+                    execName: "dispatch",
+                    execParams: ["modalVisible", false],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+        elementList: [
+          {
+            oid: "HighSpan-O",
+            elementType$: "HighSpan",
+            elementProps$: {
+              children: "modal-form-content",
+            },
+          },
+        ],
+      },
+      {
+        oid: "HighDrawerForm-O",
+        elementType$: "HighDrawerForm",
+        elementProps$: {
+          title: "HighDrawerForm",
+          loading: true,
+          initialValues: { name: "aaa" },
+          cancelButtonProps: { style: { color: "red" } },
+          highConfig: {
+            sendEventName: "drawer-form",
+            receiveStateList: [{ name: "drawerVisible", mapName: "visible" }],
+            registerEventList: [
+              {
+                name: "onFinish",
+                executeList: [
+                  {
+                    execName: "dispatch",
+                    execParams: ["drawerVisible", false],
+                  },
+                ],
+              },
+              {
+                name: "drawerProps.onClose",
+                executeList: [
+                  {
+                    execName: "dispatch",
+                    execParams: ["drawerVisible", false],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+        elementList: [
+          {
+            oid: "HighSpan-O",
+            elementType$: "HighSpan",
+            elementProps$: {
+              children: "drawer-form-content",
+            },
+          },
+        ],
+      },
+      {
         oid: "HighSpan-O",
         elementType$: "HighSpan",
         elementProps$: {
@@ -348,6 +424,50 @@ const configList: any = [
                   {
                     execName: "dispatch",
                     execParams: ["store-test", { name: "0.timeStamp", target: "arguments" }],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+      {
+        oid: "HighButton-modal",
+        elementType$: "HighButton",
+        elementProps$: {
+          type: "primary",
+          children: "modal-form",
+          highConfig: {
+            sendEventName: "modal-form-button",
+            registerEventList: [
+              {
+                name: "onClick",
+                executeList: [
+                  {
+                    execName: "dispatch",
+                    execParams: ["modalVisible", true],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+      {
+        oid: "HighButton-drawer",
+        elementType$: "HighButton",
+        elementProps$: {
+          type: "primary",
+          children: "drawer-form",
+          highConfig: {
+            sendEventName: "drawer-form-button",
+            registerEventList: [
+              {
+                name: "onClick",
+                executeList: [
+                  {
+                    execName: "dispatch",
+                    execParams: ["drawerVisible", true],
                   },
                 ],
               },

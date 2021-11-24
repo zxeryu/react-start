@@ -137,15 +137,14 @@ const Content = ({ configData, requestActorMap }: Omit<HighPageProps, "elementsM
         return;
       }
       const execParams: any[] = getExecuteParams(item, getDataTarget);
-      console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@", execParams);
       switch (executeName) {
         case "dispatch":
-          if (execParams[0] && execParams[1]) {
+          if (execParams[0]) {
             dispatch({ type: execParams[0], payload: execParams[1] });
           }
           break;
         case "dispatchStore":
-          if (execParams[0] && execParams[1]) {
+          if (execParams[0]) {
             dispatchStore(execParams[0], execParams[1]);
           }
           break;
@@ -155,7 +154,7 @@ const Content = ({ configData, requestActorMap }: Omit<HighPageProps, "elementsM
           }
           break;
         case "setDataToRef":
-          if (execParams[0] && execParams[1]) {
+          if (execParams[0]) {
             setDataToRef(execParams[0], execParams[1]);
           }
           break;

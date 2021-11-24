@@ -1,13 +1,13 @@
 import { ButtonProps } from "antd/es";
 import { HighProps, useHigh, ComponentWrapper, TRegisterEventItem } from "@react-start/cheng-high";
-import { Button, Radio } from "antd";
+import { Button, Radio, Modal, ModalProps } from "antd";
 import React from "react";
 
 export interface HighButtonProps extends ButtonProps, HighProps {
   iconName?: string;
 }
 
-const HighButtonRegisterEvent: TRegisterEventItem[] = [
+const ButtonRegisterEvent: TRegisterEventItem[] = [
   {
     name: "onClick",
     transObjList: [{ key: "e", name: 0 }],
@@ -21,13 +21,13 @@ export const HighButton = ({ iconName, ...otherProps }: HighButtonProps) => {
     <ComponentWrapper
       Component={Button}
       icon={iconName ? getIcon(iconName) : otherProps.icon}
-      registerEventList={HighButtonRegisterEvent}
+      registerEventList={ButtonRegisterEvent}
       {...otherProps}
     />
   );
 };
 
-const HighRadioGroupRegisterEvent: TRegisterEventItem[] = [
+const RadioGroupRegisterEvent: TRegisterEventItem[] = [
   {
     name: "onChange",
     transObjList: [{ key: "value", name: "0.target.value" }],
@@ -35,5 +35,9 @@ const HighRadioGroupRegisterEvent: TRegisterEventItem[] = [
 ];
 
 export const HighRadioGroup = (props: any) => {
-  return <ComponentWrapper Component={Radio.Group} registerEventList={HighRadioGroupRegisterEvent} {...props} />;
+  return <ComponentWrapper Component={Radio.Group} registerEventList={RadioGroupRegisterEvent} {...props} />;
+};
+
+export const HighModal = (props: ModalProps & HighProps) => {
+  return <ComponentWrapper Component={Modal} {...props} />;
 };

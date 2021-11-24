@@ -1,72 +1,213 @@
-import React, { CSSProperties, useCallback, useEffect, useRef } from "react";
-import ProForm, {
-  ProFormInstance,
-  ProFormProps,
-  ProFormList,
-  ProFormListProps,
-  ModalForm,
-  DrawerForm,
-  ModalFormProps,
-  DrawerFormProps,
-} from "@ant-design/pro-form";
+import React, { createContext, CSSProperties, ReactNode, useCallback, useContext, useEffect, useRef } from "react";
+import ProForm, { ProFormInstance, ProFormProps, ProFormList, ProFormListProps } from "@ant-design/pro-form";
+import { Spin, SpinProps, Modal, ModalProps, Drawer, DrawerProps, Button, Space, ButtonProps } from "antd";
 import { HighProps, useHighPage, ComponentWrapper } from "@react-start/cheng-high";
-import { get, debounce, keys, size, indexOf, endsWith } from "lodash";
-import { ElementProps } from "./types";
+import { get, debounce, keys, size, indexOf, isUndefined, pick, omit } from "lodash";
 
-export interface HighFormProps extends ProFormProps, HighProps {
+export interface FormWrapperProps {
+  readonly?: boolean;
   formName?: string;
+  loading?: boolean;
+  spinProps?: SpinProps;
 }
 
-export const HighForm = ({ highConfig, onSend, children, formName, ...otherProps }: HighFormProps) => {
-  const { sendEventSimple, setDataToRef } = useHighPage();
+const FormWrapperPropNameList = ["readonly", "formName", "loading", "spinProps"];
+
+export interface FormContextProps extends Pick<FormWrapperProps, "readonly"> {}
+
+const FormContext = createContext<FormContextProps>({} as any);
+
+export const useFormContext = () => useContext(FormContext);
+
+interface FormProps extends Omit<ProFormProps, "onFinish">, FormWrapperProps {
+  onFinish?: (values: Record<string, any>, initialValues?: Record<string, any>) => void;
+}
+
+const Form = ({
+  formName,
+  readonly,
+  loading,
+  spinProps,
+  //
+  initialValues,
+  onFinish,
+  formRef: formRefOrigin,
+  children,
+  ...otherProps
+}: FormProps) => {
+  const { setDataToRef } = useHighPage();
 
   const formRef = useRef<ProFormInstance>();
-
   useEffect(() => {
-    formName && setDataToRef(formName, formRef.current);
+    formName && setDataToRef(formName, formRefOrigin ? formRefOrigin.current : formRef.current);
   }, []);
 
-  const handleFinish = useCallback((values) => {
-    sendEventSimple(highConfig, onSend, { key: "onFinish", payload: { form: formRef.current, values } });
-    return Promise.resolve();
-  }, []);
-
-  const handleValuesChange = useCallback((changedValues, values) => {
-    sendEventSimple(highConfig, onSend, {
-      key: "onValuesChange",
-      payload: { form: formRef.current, changedValues, values },
-    });
-  }, []);
+  const handleFinish = useCallback(
+    (values) => {
+      onFinish && onFinish(values, initialValues);
+      return Promise.resolve();
+    },
+    [initialValues],
+  );
 
   return (
-    <ComponentWrapper
-      Component={ProForm}
-      formRef={formRef}
-      onFinish={handleFinish}
-      onValuesChange={handleValuesChange}
-      highConfig={highConfig}
-      {...otherProps}
-    />
+    <FormContext.Provider value={{ readonly }}>
+      <Spin spinning={isUndefined(loading) ? false : loading} {...spinProps}>
+        <ProForm formRef={formRefOrigin || formRef} onFinish={handleFinish} {...otherProps}>
+          {children}
+        </ProForm>
+      </Spin>
+    </FormContext.Provider>
   );
 };
 
-export interface HighSearchFormProps extends HighFormProps {
+export const HighForm = ({ formName, ...otherProps }: FormProps & HighProps) => {
+  return <ComponentWrapper Component={Form} {...otherProps} />;
+};
+
+interface FormOverlayProps {
+  visible?: boolean;
+  onVisibleChange?: (visible: boolean) => void;
+  title?: ReactNode | string;
+  width?: string | number;
+}
+
+interface ModalFormProps extends Omit<FormProps, "title">, FormOverlayProps {
+  modalProps?: Omit<ModalProps, "visible">;
+}
+
+const ModalForm = ({
+  children,
+  //
+  visible,
+  onVisibleChange,
+  title,
+  width,
+  modalProps,
+  //
+  formRef: formRefOrigin,
+  ...otherProps
+}: ModalFormProps) => {
+  const formRef = useRef<ProFormInstance>();
+  const handleOk = useCallback(() => {
+    const ref = formRefOrigin || formRef;
+    ref.current?.submit();
+  }, []);
+  const handleCancel = useCallback((e) => {
+    onVisibleChange && onVisibleChange(false);
+    modalProps?.onCancel && modalProps.onCancel(e);
+  }, []);
+  useEffect(() => {
+    visible && onVisibleChange && onVisibleChange(true);
+  }, [visible]);
+
+  const wrapperProps = pick(otherProps, FormWrapperPropNameList);
+  const formProps = omit(otherProps, FormWrapperPropNameList);
+
+  return (
+    <Modal visible={visible} title={title} width={width} onOk={handleOk} onCancel={handleCancel} {...modalProps}>
+      <Form {...wrapperProps} formRef={formRefOrigin || formRef} submitter={false} {...formProps}>
+        {children}
+      </Form>
+    </Modal>
+  );
+};
+
+export const HighModalForm = (props: ModalFormProps & HighProps) => {
+  return <ComponentWrapper Component={ModalForm} {...props} />;
+};
+
+interface DrawerFormProps extends Omit<FormProps, "title">, FormOverlayProps {
+  drawerProps?: Omit<DrawerProps, "visible">;
+  cancelButtonProps?: false | ButtonProps;
+  okButtonProps?: ButtonProps;
+}
+
+const DrawerForm = ({
+  children,
+  //
+  visible,
+  onVisibleChange,
+  title,
+  width,
+  drawerProps,
+  cancelButtonProps,
+  okButtonProps,
+  //
+  formRef: formRefOrigin,
+  ...otherProps
+}: DrawerFormProps) => {
+  const formRef = useRef<ProFormInstance>();
+  const handleOk = useCallback(() => {
+    const ref = formRefOrigin || formRef;
+    ref.current?.submit();
+  }, []);
+  const handleCancel = useCallback((e) => {
+    onVisibleChange && onVisibleChange(false);
+    drawerProps?.onClose && drawerProps.onClose(e);
+  }, []);
+  useEffect(() => {
+    visible && onVisibleChange && onVisibleChange(true);
+  }, [visible]);
+
+  const wrapperProps = pick(otherProps, FormWrapperPropNameList);
+  const formProps = omit(otherProps, FormWrapperPropNameList);
+
+  return (
+    <Drawer
+      visible={visible}
+      title={title}
+      width={width || 800}
+      onClose={handleCancel}
+      footer={
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+          }}>
+          <Space>
+            {cancelButtonProps !== false && (
+              <Button onClick={handleCancel} {...cancelButtonProps}>
+                取消
+              </Button>
+            )}
+            <Button type={"primary"} onClick={handleOk} {...okButtonProps}>
+              确定
+            </Button>
+          </Space>
+        </div>
+      }
+      {...drawerProps}>
+      <Form {...wrapperProps} formRef={formRefOrigin || formRef} submitter={false} {...formProps}>
+        {children}
+      </Form>
+    </Drawer>
+  );
+};
+
+export const HighDrawerForm = (props: DrawerFormProps & HighProps) => {
+  return <ComponentWrapper Component={DrawerForm} {...props} />;
+};
+
+interface SearchFormProps extends ProFormProps {
   submitterStyle?: CSSProperties;
   mode?: "button" | "direct";
   //mode为direct时候生效
   debounceKeys?: Array<string>;
   debounceTime?: number;
+  //初始化触发onFinish
+  initEmit?: boolean;
 }
 
-export const HighSearchForm = ({
+const SearchForm = ({
   submitterStyle,
   mode = "button",
   debounceKeys = [],
   debounceTime = 600,
+  initEmit,
+  onValuesChange,
   ...otherProps
-}: HighSearchFormProps) => {
-  const { sendEvent } = useHighPage();
-
+}: SearchFormProps) => {
   const submitRef = useRef<() => void>();
 
   const debounceSubmit = useCallback(
@@ -77,26 +218,25 @@ export const HighSearchForm = ({
   );
 
   useEffect(() => {
-    debounceSubmit();
+    initEmit && debounceSubmit();
+  }, []);
+
+  const handleValuesChange = useCallback((changedValues, values) => {
+    if (mode === "direct" && submitRef.current) {
+      const ks = keys(changedValues);
+      if (size(ks) > 0 && indexOf(debounceKeys, ks[0]) > -1) {
+        debounceSubmit();
+      } else {
+        submitRef.current();
+      }
+    }
+    onValuesChange && onValuesChange(changedValues, values);
   }, []);
 
   return (
-    <HighForm
+    <Form
       {...otherProps}
-      onSend={(action) => {
-        if (endsWith(action.type, "onValuesChange")) {
-          const changedValues = action.payload.changedValues;
-          if (mode === "direct" && submitRef.current) {
-            const ks = keys(changedValues);
-            if (size(ks) > 0 && indexOf(debounceKeys, ks[0]) > -1) {
-              debounceSubmit();
-            } else {
-              submitRef.current();
-            }
-          }
-        }
-        sendEvent(action);
-      }}
+      onValuesChange={handleValuesChange}
       style={{ padding: "0 24px", ...otherProps.style }}
       submitter={{
         resetButtonProps: false,
@@ -115,75 +255,9 @@ export const HighSearchForm = ({
   );
 };
 
-interface OverlayFormWrapperProps extends HighProps {
-  trigger: ElementProps;
-  formName?: string;
-}
-
-const OverlayFormWrapper = <T extends OverlayFormWrapperProps>({
-  Component,
-  highConfig,
-  onSend,
-  trigger,
-  formName,
-  ...otherProps
-}: T & {
-  Component: typeof ModalForm | typeof DrawerForm;
-}) => {
-  const { render, getStateValues, sendEventSimple, setDataToRef } = useHighPage();
-
-  const formRef = useRef<ProFormInstance>();
-
-  useEffect(() => {
-    formName && setDataToRef(formName, formRef.current);
-  }, []);
-
-  const handleVisibleChange = useCallback((visible: boolean) => {
-    sendEventSimple(highConfig, onSend, { key: "onVisibleChange", payload: visible });
-  }, []);
-
-  const handleFinish = useCallback((values) => {
-    sendEventSimple(highConfig, onSend, {
-      key: "onFinish",
-      payload: { form: formRef.current, values },
-    });
-    return Promise.resolve();
-  }, []);
-
-  const handleValuesChange = useCallback((changedValues, values) => {
-    sendEventSimple(highConfig, onSend, {
-      key: "onValuesChange",
-      payload: { form: formRef.current, changedValues, values },
-    });
-  }, []);
-
-  const stateProps = getStateValues(highConfig?.receiveStateList, otherProps);
-
-  return (
-    <Component
-      formRef={formRef}
-      {...otherProps}
-      {...stateProps}
-      onVisibleChange={handleVisibleChange}
-      onValuesChange={handleValuesChange}
-      onFinish={handleFinish}
-      trigger={render(trigger) as any}>
-      {render(get(highConfig, ["highInject", "elementList"]))}
-    </Component>
-  );
-};
-
-export interface HighModalFormProps extends Omit<ModalFormProps, "trigger">, OverlayFormWrapperProps {}
-
-export const HighModalForm = (props: HighModalFormProps) => {
-  return <OverlayFormWrapper<HighModalFormProps> Component={ModalForm} {...props} />;
-};
-
-export interface HighDrawerFormProps extends Omit<DrawerFormProps, "trigger">, OverlayFormWrapperProps {}
-
-export const HighDrawerForm = (props: HighDrawerFormProps) => {
-  return <OverlayFormWrapper<HighDrawerFormProps> Component={DrawerForm} {...props} />;
-};
+export const HighSearchForm = (props: SearchFormProps & HighProps) => (
+  <ComponentWrapper Component={SearchForm} {...props} />
+);
 
 export interface HighFormListProps extends ProFormListProps, HighProps {}
 
