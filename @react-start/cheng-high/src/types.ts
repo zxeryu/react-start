@@ -47,7 +47,7 @@ export type TRegisterEventItem = {
     key: string;
     name: number | NamePath;
   }[];
-  //拓展，直接执行事件 如：发起网络
+  //拓展，执行注册的逻辑 如：发起网络
   executeList?: TExecuteItem[];
 };
 
