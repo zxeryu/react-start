@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.1](https://github.com/zxeryu/react-start/compare/@react-start/cheng-plugin-antd@0.3.0...@react-start/cheng-plugin-antd@0.3.1) (2021-11-25)
+
+### Bug Fixes
+
+- bug ([c487063](https://github.com/zxeryu/react-start/commit/c487063d5b68453fa58a9611e9f24c5a2666e040))
+
 # [0.3.0](https://github.com/zxeryu/react-start/compare/@react-start/cheng-plugin-antd@0.2.2...@react-start/cheng-plugin-antd@0.3.0) (2021-11-25)
 
 ### Bug Fixes
