@@ -1,6 +1,6 @@
 {
   "name": "@react-start/cheng-high",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "> TODO: description",
   "author": "zx <zxpstudy@163.com>",
   "homepage": "https://github.com/zxeryu/react-start#readme",
@@ -25,9 +25,9 @@
     "url": "https://github.com/zxeryu/react-start/issues"
   },
   "peerDependencies": {
+    "@react-start/request": "*",
     "@reactorx/core": "0.21.1",
     "lodash": "^4.x",
-    "rxjs": ">= 7.x",
-    "@react-start/request": "*"
+    "rxjs": ">= 7.x"
   }
 }

@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/zxeryu/react-start/compare/@react-start/cheng-plugin-antd@0.2.2...@react-start/cheng-plugin-antd@0.3.0) (2021-11-25)
+
+### Bug Fixes
+
+- use transformElementList ([7c05dda](https://github.com/zxeryu/react-start/commit/7c05dda9fba743809093c21cd43cc59a8c81f04d))
+- **cheng-high:** support receivePropsList ([b111974](https://github.com/zxeryu/react-start/commit/b111974b8355490936ce47f875b351e0287a69c3))
+
+### Features
+
+- **cheng-high:** useDomEvent && useRequestActor ([fae602f](https://github.com/zxeryu/react-start/commit/fae602f534eb95115fb49672422ff772dcb48c24))
+
+### Performance Improvements
+
+- **cheng-high:** add trans for registerEvent ([4e96733](https://github.com/zxeryu/react-start/commit/4e9673375a6d843308a2c584fd6b16e6c94809b3))
+
 ## [0.2.2](https://github.com/zxeryu/react-start/compare/@react-start/cheng-plugin-antd@0.2.1...@react-start/cheng-plugin-antd@0.2.2) (2021-10-20)
 
 ### Performance Improvements

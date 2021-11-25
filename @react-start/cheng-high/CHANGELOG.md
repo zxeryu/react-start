@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/zxeryu/react-start/compare/@react-start/cheng-high@0.2.0...@react-start/cheng-high@0.3.0) (2021-11-25)
+
+### Bug Fixes
+
+- **cheng-high:** add execute for event ([b898f55](https://github.com/zxeryu/react-start/commit/b898f55de7523a2acf3e439fe23050fd99ffbfe6))
+- **cheng-high:** add execute for registerRequest ([f0fa87f](https://github.com/zxeryu/react-start/commit/f0fa87f312410622abc27cf79188797840b40796))
+- **cheng-high:** add meta store ([e4fca98](https://github.com/zxeryu/react-start/commit/e4fca98da7468ef294fd2704d68301669a25d7a3))
+- **cheng-high:** expression ([ba2742e](https://github.com/zxeryu/react-start/commit/ba2742e3c0c11485c7285f82d3333dc262939a7a))
+- **cheng-high:** support multiple for receiveState ([05327f1](https://github.com/zxeryu/react-start/commit/05327f1e58da6c59c4b89d52d2f193c1251ec9c9))
+- use transformElementList ([7c05dda](https://github.com/zxeryu/react-start/commit/7c05dda9fba743809093c21cd43cc59a8c81f04d))
+- **cheng-high:** support receivePropsList ([b111974](https://github.com/zxeryu/react-start/commit/b111974b8355490936ce47f875b351e0287a69c3))
+- **cheng-high:** support registerEventList ([acf2df0](https://github.com/zxeryu/react-start/commit/acf2df026b4a1e91b2d893cf9c70bd86336ab107))
+- **cheng-high:** support transformElementList ([3adef11](https://github.com/zxeryu/react-start/commit/3adef117893b3ce7d04ac539e242a3ec5ebdd216))
+
+### Features
+
+- **cheng-high:** add meta ([d7631d1](https://github.com/zxeryu/react-start/commit/d7631d10e6012f28288a2656f2674c5c3b97daf6))
+- **cheng-high:** add register store ([3e419c1](https://github.com/zxeryu/react-start/commit/3e419c1936c78bd1e195210fa9e584f43ab76a75))
+- **cheng-high:** add store ([27cee5a](https://github.com/zxeryu/react-start/commit/27cee5a534c3117645a466f22ad37a1f502892a5))
+- **cheng-high:** useDomEvent && useRequestActor ([fae602f](https://github.com/zxeryu/react-start/commit/fae602f534eb95115fb49672422ff772dcb48c24))
+
+### Performance Improvements
+
+- **cheng-high:** add trans for registerEvent ([4e96733](https://github.com/zxeryu/react-start/commit/4e9673375a6d843308a2c584fd6b16e6c94809b3))
+
 # [0.2.0](https://github.com/zxeryu/react-start/compare/@react-start/cheng-high@0.1.2...@react-start/cheng-high@0.2.0) (2021-10-13)
 
 ### Bug Fixes

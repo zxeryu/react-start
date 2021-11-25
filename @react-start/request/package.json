@@ -1,6 +1,6 @@
 {
   "name": "@react-start/request",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "> TODO: description",
   "author": "zx <zxpstudy@163.com>",
   "homepage": "https://github.com/zxeryu/react-start#readme",
@@ -25,8 +25,8 @@
     "url": "https://github.com/zxeryu/react-start/issues"
   },
   "peerDependencies": {
+    "axios": "0.24.x",
     "lodash": "^4.x",
-    "react": "16.8+",
-    "axios": "0.24.x"
+    "react": "16.8+"
   }
 }
