@@ -27,7 +27,7 @@ export default [
         extensions: [".ts", ".tsx", ".mjs", ".js", ".jsx"],
       }),
     ],
-    external: ["lodash", "react", "@reactorx/core", "rxjs", "@emotion/react"],
+    external: ["lodash", "react", "@reactorx/core", "rxjs", "rxjs/operators", "@emotion/react", "@react-start/request"],
   },
   {
     input: "../../.tmp/@react-start/cheng-high/index.d.ts",
