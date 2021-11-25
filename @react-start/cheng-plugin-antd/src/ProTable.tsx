@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import ProTable, { ActionType, ProTableProps, EditableProTable } from "@ant-design/pro-table";
 import { HighProps, useHighPage, ComponentWrapper } from "@react-start/cheng-high";
 import { ElementListProps } from "./types";
@@ -8,15 +8,12 @@ import { EditableProTableProps } from "@ant-design/pro-table/es/components/Edita
 import { useUrlSearchParams } from "@umijs/use-params";
 import { get, map, size } from "lodash";
 import { ProColumns } from "@ant-design/pro-table/lib/typing";
-import { OptionConfig } from "@ant-design/pro-table/lib/components/ToolBar";
 
 type ParamsType = Record<string, any>;
 
-export interface HighTableProps extends ProTableProps<any, ParamsType>, HighProps {
-  toolBarList?: ElementListProps;
-  operateList?: ElementListProps;
-  operateColumn?: ProColumns<any, ParamsType>;
+interface TableProps extends Omit<ProTableProps<any, ParamsType>, "actionRef"> {
   syncPageToUrl?: boolean;
+  actionRef?: React.MutableRefObject<ActionType | undefined>;
 }
 
 export const useColumnsWithOperate = (
@@ -75,18 +72,9 @@ export const useColumnsWithOperate = (
   }, [columns, operateList, operateColumn]);
 };
 
-export const HighTable = ({
-  highConfig,
-  onSend,
-  toolBarList,
-  operateList,
-  operateColumn,
-  columns,
-  syncPageToUrl,
-  pagination,
-  options,
-  ...otherProps
-}: HighTableProps) => {
+const Table = ({ actionRef: actionRefOrigin, syncPageToUrl, pagination, ...otherProps }: TableProps) => {
+  const actionRef = useRef<ActionType>();
+
   const [urlState, setUrlState] = useUrlSearchParams(
     syncPageToUrl
       ? {
@@ -96,59 +84,30 @@ export const HighTable = ({
       : {},
   );
 
-  const { render, sendEvent, sendEventSimple } = useHighPage();
-
-  const actionRef = useRef<ActionType>();
-
-  const handleToolBarRender = useCallback(() => {
-    return render(toolBarList || [], {
-      onSend: (action) => {
-        sendEvent({ type: action.type, payload: { ...action.payload, table: actionRef.current } });
-      },
-    });
-  }, [toolBarList]);
-
-  const hColumns = useColumnsWithOperate(columns, operateList, operateColumn);
-
-  const handleOnPageChange: TablePaginationConfig["onChange"] = useCallback((page, pageSize) => {
+  const handlePageChange: TablePaginationConfig["onChange"] = useCallback((page, pageSize) => {
     //todo:: pro-table bug 执行两次
-    const pageInfo = actionRef.current?.pageInfo;
+    const pageInfo = get(actionRefOrigin || actionRef, ["current", "pageInfo"]);
     if (pageInfo?.current === page && pageInfo?.pageSize === pageSize) {
       return;
     }
-
     if (syncPageToUrl) {
       setUrlState({ page, pageSize });
     }
-
-    sendEventSimple(highConfig, onSend, {
-      key: "pagination:onChange",
-      payload: { page, pageSize },
-    });
+    const onChange = get(pagination, "onChange");
+    onChange && onChange(page, pageSize);
   }, []);
 
-  const handleOnPageShowSizeChange: TablePaginationConfig["onShowSizeChange"] = useCallback((current, size) => {
+  const handleShowSizeChange: TablePaginationConfig["onShowSizeChange"] = useCallback((page, pageSize) => {
     //todo:: pro-table bug 不改变也会执行
-    const pageInfo = actionRef.current?.pageInfo;
-    if (pageInfo?.current === current && pageInfo?.pageSize === size) {
+    const pageInfo = get(actionRefOrigin || actionRef, ["current", "pageInfo"]);
+    if (pageInfo?.current === page && pageInfo?.pageSize === pageSize) {
       return;
     }
-
     if (syncPageToUrl) {
-      setUrlState({ page: current, pageSize: size });
+      setUrlState({ page, pageSize });
     }
-
-    sendEventSimple(highConfig, onSend, {
-      key: "pagination:onShowSizeChange",
-      payload: { current, size },
-    });
-  }, []);
-
-  const handleReload = useCallback(() => {
-    sendEventSimple(highConfig, onSend, {
-      key: "reload",
-      payload: { table: actionRef.current },
-    });
+    const onShowSizeChange = get(pagination, "onShowSizeChange");
+    onShowSizeChange && onShowSizeChange(page, pageSize);
   }, []);
 
   const rePagination: undefined | false | TablePaginationConfig = useMemo(() => {
@@ -156,35 +115,54 @@ export const HighTable = ({
       return pagination;
     }
     return {
-      ...pagination,
       current: syncPageToUrl ? Number(urlState.page) : pagination?.current,
       pageSize: syncPageToUrl ? Number(urlState.pageSize) : pagination?.pageSize,
-      onChange: handleOnPageChange,
-      onShowSizeChange: handleOnPageShowSizeChange,
+      ...pagination,
+      onChange: handlePageChange,
+      onShowSizeChange: handleShowSizeChange,
     };
   }, [pagination, urlState]);
 
-  const reOptions: OptionConfig | false | undefined = useMemo(() => {
-    if (!options) {
-      return { reload: false };
-    }
-    const reload = get(options, "reload");
-    return {
-      ...options,
-      reload: reload ? handleReload : false,
-    };
-  }, [options]);
+  return <ProTable actionRef={actionRefOrigin || actionRef} search={false} pagination={rePagination} {...otherProps} />;
+};
+
+export interface HighTableProps extends TableProps, HighProps {
+  tableName?: string;
+  toolBarList?: ElementListProps;
+  operateList?: ElementListProps;
+  operateColumn?: ProColumns<any, ParamsType>;
+}
+
+export const HighTable = ({
+  tableName,
+  actionRef: actionRefOrigin,
+  columns,
+  operateList,
+  operateColumn,
+  toolBarList,
+  ...otherProps
+}: HighTableProps) => {
+  const { setDataToRef, render } = useHighPage();
+
+  const actionRef = useRef<ActionType>();
+
+  useEffect(() => {
+    tableName && setDataToRef(tableName, actionRefOrigin ? actionRefOrigin.current : actionRef.current);
+  }, []);
+
+  const reColumns = useColumnsWithOperate(columns, operateList, operateColumn);
 
   return (
     <ComponentWrapper
-      Component={ProTable}
-      highConfig={highConfig}
-      search={false}
-      actionRef={actionRef}
-      columns={hColumns}
-      toolBarRender={handleToolBarRender}
-      options={reOptions}
-      pagination={rePagination}
+      Component={Table}
+      actionRef={actionRefOrigin || actionRef}
+      columns={reColumns}
+      toolBarRender={() => {
+        if (!toolBarList) {
+          return null;
+        }
+        return render(toolBarList);
+      }}
       {...otherProps}
     />
   );

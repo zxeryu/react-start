@@ -15,7 +15,7 @@ const HighTableDropdownRegisterEvent: TRegisterEventItem[] = [
   },
 ];
 
-export const HighTableDropdown = ({ highConfig, onSend, options, ...otherProps }: HighTableDropdownProps) => {
+export const HighTableDropdown = ({ options, ...otherProps }: HighTableDropdownProps) => {
   return (
     <ComponentWrapper
       Component={TableDropdown}

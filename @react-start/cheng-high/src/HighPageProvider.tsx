@@ -22,9 +22,9 @@ import {
   has,
   concat,
   uniqBy,
-  last,
   reduce,
   omit,
+  join,
 } from "lodash";
 import { Subject } from "rxjs";
 import { HighAction as Action, HConfig, HighSendEvent, ElementConfigBase, HighProps, NamePath } from "./types";
@@ -270,18 +270,18 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
         if (!item.name) {
           return;
         }
-        let funName = "";
+        let key = "";
         if (isArray(item.name)) {
-          funName = last(item.name) as string;
+          key = join(item.name, ":");
         } else {
-          funName = last((item.name as string).split(".")) as string;
+          key = (item.name as string).replace(new RegExp("\\.", "g"), ":");
         }
         set(nextProps, item.name, (...e: any[]) => {
           let payload: any = e;
           if (size(item.transObjList) > 0) {
             payload = reduce(item.transObjList, (pair, trans) => ({ ...pair, [trans.key]: get(e, trans.name) }), {});
           }
-          sendEventSimple(props?.highConfig, props?.onSend, { key: funName, payload, executeList: item.executeList });
+          sendEventSimple(props?.highConfig, props?.onSend, { key, payload, executeList: item.executeList });
         });
       });
       return nextProps;

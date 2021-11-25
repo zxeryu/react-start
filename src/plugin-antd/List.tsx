@@ -152,6 +152,7 @@ const props: HighTableProps = {
         ],
         highConfig: {
           sendEventName: "more",
+          registerEventList: [{ name: "onSelect", transObjList: [{ key: "value", name: 0 }] }],
         },
       },
     },

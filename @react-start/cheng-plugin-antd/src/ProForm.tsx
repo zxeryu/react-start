@@ -61,7 +61,9 @@ const Form = ({
   );
 };
 
-export const HighForm = ({ formName, ...otherProps }: FormProps & HighProps) => {
+export interface HighFormProps extends FormProps, HighProps {}
+
+export const HighForm = ({ formName, ...otherProps }: HighFormProps) => {
   return <ComponentWrapper Component={Form} {...otherProps} />;
 };
 
@@ -72,7 +74,7 @@ interface FormOverlayProps {
   width?: string | number;
 }
 
-interface ModalFormProps extends Omit<FormProps, "title">, FormOverlayProps {
+export interface ModalFormProps extends Omit<FormProps, "title">, FormOverlayProps {
   modalProps?: Omit<ModalProps, "visible">;
 }
 
@@ -117,7 +119,7 @@ export const HighModalForm = (props: ModalFormProps & HighProps) => {
   return <ComponentWrapper Component={ModalForm} {...props} />;
 };
 
-interface DrawerFormProps extends Omit<FormProps, "title">, FormOverlayProps {
+export interface DrawerFormProps extends Omit<FormProps, "title">, FormOverlayProps {
   drawerProps?: Omit<DrawerProps, "visible">;
   cancelButtonProps?: false | ButtonProps;
   okButtonProps?: ButtonProps;
@@ -189,7 +191,7 @@ export const HighDrawerForm = (props: DrawerFormProps & HighProps) => {
   return <ComponentWrapper Component={DrawerForm} {...props} />;
 };
 
-interface SearchFormProps extends ProFormProps {
+export interface SearchFormProps extends ProFormProps {
   submitterStyle?: CSSProperties;
   mode?: "button" | "direct";
   //mode为direct时候生效
@@ -255,9 +257,9 @@ const SearchForm = ({
   );
 };
 
-export const HighSearchForm = (props: SearchFormProps & HighProps) => (
-  <ComponentWrapper Component={SearchForm} {...props} />
-);
+export interface HighSearchFormProps extends SearchFormProps, HighProps {}
+
+export const HighSearchForm = (props: HighSearchFormProps) => <ComponentWrapper Component={SearchForm} {...props} />;
 
 export interface HighFormListProps extends ProFormListProps, HighProps {}
 
