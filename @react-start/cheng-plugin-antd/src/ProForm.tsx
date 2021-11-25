@@ -52,11 +52,19 @@ const Form = ({
 
   return (
     <FormContext.Provider value={{ readonly }}>
-      <Spin spinning={isUndefined(loading) ? false : loading} {...spinProps}>
-        <ProForm formRef={formRefOrigin || formRef} onFinish={handleFinish} {...otherProps}>
-          {children}
-        </ProForm>
-      </Spin>
+      <ProForm
+        formRef={formRefOrigin || formRef}
+        initialValues={initialValues}
+        onFinish={handleFinish}
+        {...otherProps}
+        style={{ position: "relative", ...otherProps.style }}>
+        {children}
+        <Spin
+          spinning={isUndefined(loading) ? false : loading}
+          style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}
+          {...spinProps}
+        />
+      </ProForm>
     </FormContext.Provider>
   );
 };

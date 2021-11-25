@@ -172,11 +172,13 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
       props?: Record<string, any>,
       extraItems?: HConfig["transformElementList"],
     ) => {
-      if (!items || size(items) <= 0) {
+      const allItems = uniqBy(concat(items || [], extraItems || []), "name");
+
+      if (!allItems || size(allItems) <= 0) {
         return props;
       }
       const nextProps = { ...props };
-      const allItems = uniqBy(concat(items, extraItems || []), "name");
+
       forEach(allItems, (item) => {
         const current = get(props, item.name);
 

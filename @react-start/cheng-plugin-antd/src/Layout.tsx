@@ -36,8 +36,8 @@ export interface HighCardProps extends Omit<ProCardProps, "extra">, HighProps {
 
 const HighCardTransformList = [{ name: "extra" }, { name: "actions" }];
 
-export const HighCard = ({ extra, actions, ...otherProps }: HighCardProps) => {
-  return <ComponentWrapper Component={ProCard} transformElementList={HighCardTransformList} {...otherProps} />;
+export const HighCard = (props: HighCardProps) => {
+  return <ComponentWrapper Component={ProCard} transformElementList={HighCardTransformList} {...props} />;
 };
 
 export interface HighCardTabPaneProps extends ProCardTabPaneProps, HighProps {}

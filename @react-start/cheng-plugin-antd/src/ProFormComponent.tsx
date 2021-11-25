@@ -40,7 +40,7 @@ import { isBoolean } from "lodash";
 //处理readonly
 const FormFieldWrapper = (props: ComponentWrapperProps) => {
   const { readonly } = useFormContext();
-  return <ComponentWrapper {...props} readonly={isBoolean(props.readonly) ? props.readonly : readonly} />;
+  return <ComponentWrapper noChild {...props} readonly={isBoolean(props.readonly) ? props.readonly : readonly} />;
 };
 
 export interface HighFormGroupProps extends GroupProps, HighProps {}
