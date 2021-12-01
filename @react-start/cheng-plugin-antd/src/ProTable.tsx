@@ -1,8 +1,7 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
 import ProTable, { ActionType, ProTableProps, EditableProTable } from "@ant-design/pro-table";
 import ProForm, { ProFormInstance } from "@ant-design/pro-form";
-import { HighProps, useHighPage, ComponentWrapper } from "@react-start/cheng-high";
-import { ElementListProps } from "./types";
+import { HighProps, useHighPage, ComponentWrapper, ElementConfigBase } from "@react-start/cheng-high";
 import { Space } from "antd";
 import { TablePaginationConfig } from "antd/lib/table/interface";
 import { EditableProTableProps } from "@ant-design/pro-table/es/components/EditableTable";
@@ -20,7 +19,7 @@ interface TableProps extends Omit<ProTableProps<any, ParamsType>, "actionRef"> {
 
 export const useColumnsWithOperate = (
   columns?: HighTableProps["columns"],
-  operateList?: ElementListProps,
+  operateList?: ElementConfigBase[],
   operateColumn?: HighTableProps["operateColumn"],
 ): HighTableProps["columns"] => {
   const { render, sendEvent } = useHighPage();
@@ -151,8 +150,8 @@ const Table = ({ actionRef: actionRefOrigin, syncPageToUrl, pagination, ...other
 
 export interface HighTableProps extends TableProps, HighProps {
   tableName?: string;
-  toolBarList?: ElementListProps;
-  operateList?: ElementListProps;
+  toolBarList?: ElementConfigBase[];
+  operateList?: ElementConfigBase[];
   operateColumn?: ProColumns<any, ParamsType>;
 }
 
@@ -220,8 +219,8 @@ interface EditTableProps extends Omit<EditableProTableProps<any, ParamsType>, "a
   //
   tableName?: string;
   formName?: string;
-  toolBarList?: ElementListProps;
-  operateList?: ElementListProps;
+  toolBarList?: ElementConfigBase[];
+  operateList?: ElementConfigBase[];
   operateColumn?: ProColumns<any, ParamsType>;
 }
 
@@ -287,12 +286,7 @@ const EditTable = ({
   return <EditableProTable editable={reEditable} {...reOptions} {...otherProps} />;
 };
 
-export interface HighEditTableProps extends EditTableProps, HighProps {
-  tableName?: string;
-  toolBarList?: ElementListProps;
-  operateList?: ElementListProps;
-  operateColumn?: ProColumns<any, ParamsType>;
-}
+export interface HighEditTableProps extends EditTableProps, HighProps {}
 
 export const HighEditTable = (props: HighEditTableProps) => {
   return <ComponentWrapper Component={EditTable} {...props} />;

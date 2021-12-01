@@ -1,6 +1,5 @@
 import { PageContainerProps } from "@ant-design/pro-layout/lib/components/PageContainer";
-import { HighProps, ComponentWrapper } from "@react-start/cheng-high";
-import { ElementListProps, ElementProps } from "./types";
+import { HighProps, ComponentWrapper, ElementConfigBase } from "@react-start/cheng-high";
 import { PageContainer, WaterMark } from "@ant-design/pro-layout";
 import React from "react";
 import ProCard, { ProCardProps } from "@ant-design/pro-card";
@@ -10,9 +9,7 @@ import { WaterMarkProps } from "@ant-design/pro-layout/lib/components/WaterMark"
 
 export interface HighPageContainerProps
   extends Omit<PageContainerProps, "footer" | "content" | "extraContent" | "tabBarExtraContent" | "tags" | "extra">,
-    HighProps {
-  tags?: ElementListProps;
-}
+    HighProps {}
 
 const HighPageContainerTransformList = [
   { name: "tags" },
@@ -30,8 +27,8 @@ export const HighPageContainer = (props: HighPageContainerProps) => {
 };
 
 export interface HighCardProps extends Omit<ProCardProps, "extra">, HighProps {
-  extra?: ElementProps;
-  actions?: ElementListProps;
+  extra?: ElementConfigBase;
+  actions?: ElementConfigBase[];
 }
 
 const HighCardTransformList = [{ name: "extra" }, { name: "actions" }];

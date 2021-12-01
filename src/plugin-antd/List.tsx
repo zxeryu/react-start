@@ -1,14 +1,8 @@
 import React from "react";
 import { Tag, Space } from "antd";
 import type { ProColumns } from "@ant-design/pro-table";
-import {
-  ElementProp,
-  ElementMap,
-  HighTableProps,
-  ElementProps,
-  ElementListProps,
-} from "@react-start/cheng-plugin-antd";
-import { HighPage } from "@react-start/cheng-high";
+import { HighTableProps } from "@react-start/cheng-plugin-antd";
+import { HighPage, ElementConfigBase } from "@react-start/cheng-high";
 import { ListEventHandler } from "./ListEventHandler";
 
 type GithubIssueItem = {
@@ -167,13 +161,13 @@ const props: HighTableProps = {
   },
 };
 
-const tableConfig: ElementProp<ElementMap, "HighTable"> = {
+const tableConfig: ElementConfigBase = {
   oid: "HighTable-O",
   elementType$: "HighTable",
   elementProps$: props,
 };
 
-const formChildrenConfigList: ElementListProps = [
+const formChildrenConfigList: ElementConfigBase[] = [
   {
     oid: "HighFormText-O",
     elementType$: "HighFormText",
@@ -255,7 +249,7 @@ const formChildrenConfigList: ElementListProps = [
   },
 ];
 
-const formConfig: ElementProps = {
+const formConfig: ElementConfigBase = {
   oid: "HighSearchForm-O",
   elementType$: "HighSearchForm",
   elementProps$: {
