@@ -13,6 +13,7 @@ import { getExecuteParams } from "./expression";
 
 export interface HighPageProps extends HighPageProviderProps {
   configData: {
+    initialState?: Record<string, any>;
     registerStore?: string[];
     //api name
     registerMeta?: string[];
@@ -43,6 +44,10 @@ const Content = ({ configData, requestActorMap }: Omit<HighPageProps, "elementsM
       return;
     }
     dispatchRequest(requestActor, params);
+  }, []);
+
+  useEffect(() => {
+    configData.initialState && dispatch({ type: "compose", payload: configData.initialState });
   }, []);
 
   /******************************** 执行注册的逻辑 ************************************/

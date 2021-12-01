@@ -22,7 +22,7 @@ export interface ElementConfigBase {
   elementType$: string;
   elementProps$: any;
   oid: string;
-  elementList?: ElementConfigBase;
+  elementList?: ElementConfigBase[];
 }
 
 export type TDataType = "state" | "dataRef" | "arguments";
@@ -68,17 +68,24 @@ export interface HConfig {
      * 值为true时，name必为数组类型，mapName必须有值，否则该属性不生效
      */
     multiple?: boolean;
+    //根据name找到值 通过该表达式计算得到结果再赋值到mapName中
+    expression?: TGetValue;
   }[];
   //同receiveStateList，只是从props中取值
   receivePropsList?: {
     name: NamePath;
     mapName?: NamePath;
     multiple?: boolean;
+    expression?: TGetValue;
   }[];
   //可以转化成组件的标识，这类属性会优先转换成组件
   transformElementList?: {
     name: NamePath;
+    //匹配 (...args)=>ReactNode 类型的方法，并将args作为"highArgs"传递给组件
+    isFunction?: boolean;
   }[];
+  //屏蔽参数，不向组件传递
+  omitProps?: { name: string }[];
   //订阅事件
   registerEventList?: TRegisterEventItem[];
 

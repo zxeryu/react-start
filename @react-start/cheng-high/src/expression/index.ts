@@ -4,6 +4,16 @@ import { TDataType, TExecuteItem, TGetValue, TParam } from "../types";
 /************************************ fun **************************************/
 
 export const lodash = (funcName: string, ...e: any): any => {
+  //三元表达式
+  if (funcName === "ternary") {
+    return e[0] ? e[1] : e[2];
+  }
+  // !
+  if (funcName === "not") {
+    return !e[0];
+  }
+
+  //lodash方法
   const fun = get(_, funcName);
   if (!fun) {
     return;
@@ -27,7 +37,7 @@ const isLodashDesc = (desc: TExecuteItem["execParams"]) => {
   return isObject(desc) && has(desc, "funName");
 };
 
-const getLodashResult = (valueOrDesc: TGetValue, getDataTarget: (type: TDataType) => any) => {
+export const getLodashResult = (valueOrDesc: TGetValue, getDataTarget: (type: TDataType) => any) => {
   const funName = get(valueOrDesc, "funName");
   const funParamsList = get(valueOrDesc, "funParams");
   const funParams = map(funParamsList, (v) => {

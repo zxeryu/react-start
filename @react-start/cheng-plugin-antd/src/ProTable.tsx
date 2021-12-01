@@ -1,13 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
 import ProTable, { ActionType, ProTableProps, EditableProTable } from "@ant-design/pro-table";
+import ProForm, { ProFormInstance } from "@ant-design/pro-form";
 import { HighProps, useHighPage, ComponentWrapper } from "@react-start/cheng-high";
 import { ElementListProps } from "./types";
 import { Space } from "antd";
 import { TablePaginationConfig } from "antd/lib/table/interface";
 import { EditableProTableProps } from "@ant-design/pro-table/es/components/EditableTable";
 import { useUrlSearchParams } from "@umijs/use-params";
-import { get, map, size } from "lodash";
+import { get, map, size, set } from "lodash";
 import { ProColumns } from "@ant-design/pro-table/lib/typing";
+import { ProFormFieldItemProps } from "@ant-design/pro-form/lib/interface";
 
 type ParamsType = Record<string, any>;
 
@@ -29,13 +31,35 @@ export const useColumnsWithOperate = (
     }
 
     const reColumns = map(columns, (item) => {
+      //form item 展示
       const elementConfig = get(item, "element");
       if (elementConfig) {
         item.render = (_, record, index) => {
           const value = get(record, item.dataIndex!);
           const key = record ? JSON.stringify(record) : Date.now().valueOf();
-          elementConfig.elementProps$ = { ...elementConfig.elementProps$, ...item.fieldProps, value, record, index };
+          elementConfig.elementProps$ = { ...elementConfig.elementProps$, value, record, index };
           return render({ ...elementConfig, oid: `${elementConfig.oid}-${index}-${key}-${item.dataIndex}` });
+        };
+      }
+      //form item 录入
+      const editElementConfig = get(item, "editElement");
+      if (editElementConfig) {
+        item.renderFormItem = (...e) => {
+          const index = get(e, [0, "index"]);
+          const highArgs = e;
+          return render(
+            {
+              ...editElementConfig,
+              oid: `${editElementConfig.oid}-${index}-${item.dataIndex}`,
+            },
+            {
+              onSend: (actionOrigin) => {
+                const action = { ...actionOrigin };
+                set(action, "payload", { ...action.payload, highArgs });
+                sendEvent(action);
+              },
+            },
+          );
         };
       }
       return item;
@@ -46,7 +70,7 @@ export const useColumnsWithOperate = (
         title: "操作",
         valueType: "option",
         ...(operateColumn as any),
-        render: (_, record, index, action, schema) => {
+        render: (_, record, index, a, schema) => {
           const key = record ? JSON.stringify(record) : Date.now().valueOf();
           return (
             <Space>
@@ -54,11 +78,10 @@ export const useColumnsWithOperate = (
                 render(
                   { ...c, oid: `${c.oid}-${index}-${key}` },
                   {
-                    onSend: ({ type, payload }) => {
-                      sendEvent({
-                        type,
-                        payload: { ...payload, record, index, action, schema },
-                      });
+                    onSend: (actionOrigin) => {
+                      const action = { ...actionOrigin };
+                      set(action, "payload", { ...action.payload, record, index, action: a, schema });
+                      sendEvent(action);
                     },
                   },
                 ),
@@ -133,6 +156,37 @@ export interface HighTableProps extends TableProps, HighProps {
   operateColumn?: ProColumns<any, ParamsType>;
 }
 
+const useHighTableOptions = ({
+  tableName,
+  actionRef: actionRefOrigin,
+  columns,
+  operateList,
+  operateColumn,
+  toolBarList,
+}: Pick<HighTableProps, "tableName" | "actionRef" | "columns" | "operateList" | "operateColumn" | "toolBarList">) => {
+  const { setDataToRef, render } = useHighPage();
+  const actionRef = useRef<ActionType>();
+
+  useEffect(() => {
+    tableName && setDataToRef(tableName, actionRefOrigin ? actionRefOrigin.current : actionRef.current);
+  }, []);
+
+  const reColumns = useColumnsWithOperate(columns, operateList, operateColumn);
+
+  const handleToolBarRender = useCallback(() => {
+    if (!toolBarList) {
+      return null;
+    }
+    return render(toolBarList);
+  }, [toolBarList]);
+
+  return {
+    actionRef: actionRefOrigin || actionRef,
+    columns: reColumns,
+    toolBarRender: handleToolBarRender,
+  };
+};
+
 export const HighTable = ({
   tableName,
   actionRef: actionRefOrigin,
@@ -142,83 +196,118 @@ export const HighTable = ({
   toolBarList,
   ...otherProps
 }: HighTableProps) => {
-  const { setDataToRef, render } = useHighPage();
+  const reOptions = useHighTableOptions({
+    tableName,
+    actionRef: actionRefOrigin,
+    columns,
+    operateList,
+    operateColumn,
+    toolBarList,
+  });
 
-  const actionRef = useRef<ActionType>();
-
-  useEffect(() => {
-    tableName && setDataToRef(tableName, actionRefOrigin ? actionRefOrigin.current : actionRef.current);
-  }, []);
-
-  const reColumns = useColumnsWithOperate(columns, operateList, operateColumn);
-
-  return (
-    <ComponentWrapper
-      Component={Table}
-      actionRef={actionRefOrigin || actionRef}
-      columns={reColumns}
-      toolBarRender={() => {
-        if (!toolBarList) {
-          return null;
-        }
-        return render(toolBarList);
-      }}
-      {...otherProps}
-    />
-  );
+  return <ComponentWrapper Component={Table} {...reOptions} {...otherProps} />;
 };
 
-export interface HighEditTableProps extends EditableProTableProps<any, ParamsType>, HighProps {
+interface EditTableProps extends Omit<EditableProTableProps<any, ParamsType>, "actionRef" | "editable"> {
+  actionRef?: React.MutableRefObject<ActionType | undefined>;
+  editable?: EditableProTableProps<any, ParamsType>["editable"] & {
+    actions?: {
+      save?: boolean;
+      delete?: boolean;
+      cancel?: boolean;
+    };
+  };
+  //
+  tableName?: string;
+  formName?: string;
+  toolBarList?: ElementListProps;
   operateList?: ElementListProps;
   operateColumn?: ProColumns<any, ParamsType>;
 }
 
-export const HighEditTable = ({
-  highConfig,
-  onSend,
+const EditTable = ({
+  tableName,
+  actionRef: actionRefOrigin,
+  formName,
+  columns,
   operateList,
   operateColumn,
-  columns,
+  toolBarList,
+  editable,
   ...otherProps
-}: HighEditTableProps) => {
-  const { getStateValues, sendEventSimple } = useHighPage();
+}: EditTableProps) => {
+  const { setDataToRef } = useHighPage();
+  const formRef = useRef<ProFormInstance>();
 
-  const hColumns = useColumnsWithOperate(columns, operateList, operateColumn);
+  useEffect(() => {
+    formName && setDataToRef(formName, formRef.current);
+  }, []);
 
-  const stateProps = getStateValues(highConfig?.receiveStateList, otherProps);
+  const reOptions: any = useHighTableOptions({
+    tableName,
+    actionRef: actionRefOrigin,
+    columns,
+    operateList,
+    operateColumn,
+    toolBarList,
+  });
 
+  const reEditable = useMemo(() => {
+    if (!editable) {
+      return editable;
+    }
+
+    const reActionRender = (
+      _: any,
+      _2: any,
+      defaultDoms: { save: ReactNode; delete: ReactNode; cancel: ReactNode },
+    ) => {
+      const arr: ReactNode[] = [];
+      if (editable.actions?.save) {
+        arr.push(defaultDoms.save);
+      }
+      if (editable.actions?.delete) {
+        arr.push(defaultDoms.delete);
+      }
+      if (editable.actions?.cancel) {
+        arr.push(defaultDoms.cancel);
+      }
+      return arr;
+    };
+
+    return {
+      actionRender: editable.actions ? reActionRender : undefined,
+      formProps: {
+        formRef,
+      },
+      ...editable,
+    };
+  }, [editable]);
+
+  return <EditableProTable editable={reEditable} {...reOptions} {...otherProps} />;
+};
+
+export interface HighEditTableProps extends EditTableProps, HighProps {
+  tableName?: string;
+  toolBarList?: ElementListProps;
+  operateList?: ElementListProps;
+  operateColumn?: ProColumns<any, ParamsType>;
+}
+
+export const HighEditTable = (props: HighEditTableProps) => {
+  return <ComponentWrapper Component={EditTable} {...props} />;
+};
+
+interface FormEditTableItemProps extends ProFormFieldItemProps<EditTableProps> {}
+
+const FormEditTableItem = ({ fieldProps, ...otherProps }: FormEditTableItemProps) => {
   return (
-    <EditableProTable
-      {...otherProps}
-      columns={hColumns}
-      {...stateProps}
-      editable={{
-        ...otherProps.editable,
-        ...stateProps?.editable,
-        onChange: (editableKeys, editableRows) => {
-          sendEventSimple(highConfig, onSend, { key: "editable:onChange", payload: { editableKeys, editableRows } });
-        },
-        onValuesChange: (record, dataSource) => {
-          sendEventSimple(highConfig, onSend, { key: "editable:onValuesChange", payload: { record, dataSource } });
-        },
-        onSave: (key, record, originRow, newLineConfig) => {
-          sendEventSimple(highConfig, onSend, {
-            key: "editable:onSave",
-            payload: { key, record, originRow, newLineConfig },
-          });
-          return Promise.resolve();
-        },
-        onDelete: (key, row) => {
-          sendEventSimple(highConfig, onSend, {
-            key: "editable:onDelete",
-            payload: { key, row },
-          });
-          return Promise.resolve();
-        },
-      }}
-      onChange={(value) => {
-        sendEventSimple(highConfig, onSend, { key: "onChange", payload: { value } });
-      }}
-    />
+    <ProForm.Item {...otherProps}>
+      <EditTable {...fieldProps} />
+    </ProForm.Item>
   );
+};
+
+export const HighFormEditTableItem = (props: FormEditTableItemProps & HighProps) => {
+  return <ComponentWrapper Component={FormEditTableItem} {...props} />;
 };

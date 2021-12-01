@@ -476,6 +476,83 @@ const configList: any = [
           },
         },
       },
+      {
+        oid: "HighForm-O",
+        elementType$: "HighForm",
+        elementProps$: {
+          highConfig: {
+            sendEventName: "form",
+            registerEventList: [{ name: "onFinish" }],
+          },
+        },
+        elementList: [
+          {
+            oid: "HighFormEditTableItem-O",
+            elementType$: "HighFormEditTableItem",
+            elementProps$: {
+              name: "form-table-数据",
+              label: "form-table",
+              trigger: "onValuesChange",
+              fieldProps: {
+                rowKey: "id",
+                columns: [
+                  {
+                    title: "序号",
+                    dataIndex: "index",
+                  },
+                  {
+                    title: "姓名",
+                    dataIndex: "name",
+                  },
+                  {
+                    title: "年龄",
+                    dataIndex: "age",
+                  },
+                  {
+                    title: "操作1111",
+                    valueType: "option",
+                    element: {
+                      elementType$: "HighA" as any,
+                      oid: "HighA-Edit",
+                      elementProps$: {
+                        children: "编辑",
+                        highConfig: {
+                          sendEventName: "edit",
+                          registerEventList: [{ name: "onClick" }],
+                        },
+                      },
+                    },
+                  },
+                ],
+                recordCreatorProps: {
+                  newRecordType: "dataSource",
+                  record: () => ({
+                    id: Date.now().valueOf(),
+                  }),
+                },
+                // editable: {
+                //   type: "multiple",
+                //   actions: { delete: true },
+                // },
+                // highConfig: {
+                //   sendEventName: "edit-table",
+                //   receiveStateList: [{ name: "dataSource", mapName: "value" }],
+                //   registerEventList: [
+                //     {
+                //       name: "onChange",
+                //       executeList: [{ execName: "dispatch", execParams: ["dataSource", { name: 0 }] }],
+                //     },
+                //     {
+                //       name: "editable.onValuesChange",
+                //       executeList: [{ execName: "dispatch", execParams: ["dataSource", { name: 1 }] }],
+                //     },
+                //   ],
+                // },
+              },
+            },
+          },
+        ],
+      },
     ],
   },
 ];

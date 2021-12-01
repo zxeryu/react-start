@@ -1,7 +1,7 @@
 import { HConfig, HighProps } from "../types";
 import { useHighPage } from "../HighPageProvider";
-import React, { useMemo } from "react";
-import { get, omit, isUndefined } from "lodash";
+import React, { useCallback } from "react";
+import { get, omit, isUndefined, size, map } from "lodash";
 
 type ShowHiddenType = boolean | undefined;
 
@@ -69,12 +69,17 @@ export const ComponentWrapper = ({
   const highConfig: HConfig | undefined = get(otherProps, "highConfig");
 
   //重写props属性
-  const rewriteProps = useMemo(() => {
-    //替换（注册）事件
-    const registerEventProps = getRegisterEventProps(highConfig?.registerEventList, otherProps, registerEventList);
-    //替换UI
-    return getTransformElementProps(highConfig?.transformElementList, registerEventProps, transformElementList);
-  }, [getTransformElementProps]);
+  const transProps = useCallback(
+    (props: any) => {
+      //替换（注册）事件
+      const registerEventProps = getRegisterEventProps(highConfig?.registerEventList, props, registerEventList);
+      //替换UI
+      return getTransformElementProps(highConfig?.transformElementList, registerEventProps, transformElementList);
+    },
+    [getTransformElementProps],
+  );
+
+  const rewriteProps = transProps(otherProps);
 
   //props转换
   const propsProps = getPropsValues(highConfig?.receivePropsList, rewriteProps);
@@ -87,7 +92,10 @@ export const ComponentWrapper = ({
     return null;
   }
 
-  const targetProps = omit(rewriteProps, "highConfig", "onSend");
+  let targetProps = omit(rewriteProps, "highConfig", "onSend");
+  if (highConfig?.omitProps && size(highConfig.omitProps) > 0) {
+    targetProps = omit(targetProps, ...map(highConfig.omitProps, (item) => item.name));
+  }
 
   if (noChild) {
     return <Component {...targetProps} {...propsProps} {...stateProps} />;

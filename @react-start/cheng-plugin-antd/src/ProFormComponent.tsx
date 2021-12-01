@@ -1,6 +1,7 @@
 import React from "react";
 import ProForm, {
   ProFormText,
+  ProFormTextArea,
   ProFormCaptcha,
   ProFormDigit,
   ProFormDatePicker,
@@ -36,6 +37,7 @@ import { RangePickerProps } from "antd/lib/date-picker";
 import { useFormContext } from "./ProForm";
 
 import { isBoolean } from "lodash";
+import { TextAreaProps } from "antd/es/input";
 
 //处理readonly
 const FormFieldWrapper = (props: ComponentWrapperProps) => {
@@ -52,6 +54,11 @@ export const HighFormItem = (props: HighFormItemProps) => <ComponentWrapper Comp
 export interface HighFormTextProps extends ProFormFieldItemProps<InputProps>, HighProps {}
 export const HighFormText = (props: HighFormTextProps) => (
   <FormFieldWrapper Component={ProFormText} noChild {...props} />
+);
+
+export interface HighFormTextAreaProps extends ProFormFieldItemProps<TextAreaProps>, HighProps {}
+export const HighFormTextArea = (props: HighFormTextAreaProps) => (
+  <FormFieldWrapper Component={ProFormTextArea} noChild {...props} />
 );
 
 export interface HighFormPasswordProps extends ProFormFieldItemProps<PasswordProps>, HighProps {}

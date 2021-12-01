@@ -27,9 +27,18 @@ import {
   join,
 } from "lodash";
 import { Subject } from "rxjs";
-import { HighAction as Action, HConfig, HighSendEvent, ElementConfigBase, HighProps, NamePath } from "./types";
+import {
+  HighAction as Action,
+  HConfig,
+  HighSendEvent,
+  ElementConfigBase,
+  HighProps,
+  NamePath,
+  TGetValue,
+} from "./types";
 import { HighProviderProps, useHigh } from "./HighProvider";
 import { getFirstPropNameFromNamePath } from "./util";
+import { getLodashResult } from "./expression";
 
 type Values = { [key: string]: any };
 
@@ -114,6 +123,7 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
         name: NamePath;
         mapName?: NamePath;
         multiple?: boolean;
+        expression?: TGetValue;
       }[],
       props?: Record<string, any>,
       target?: Record<string, any>,
@@ -126,10 +136,12 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
       //赋值 && 返回一级属性名称
       const firstPropNameList = map(items, (item) => {
         const targetName = item.mapName || item.name;
+        let value: any;
+
         //如果 multiple 模式
         if (item.multiple && isArray(item.name) && size(item.name) > 0 && item.mapName) {
           //默认取第一个值
-          let value = get(target || props, item.name[0]);
+          value = get(target || props, item.name[0]);
           const len = size(item.name);
           for (let i = 0; i < len; i++) {
             const temp = get(target || props, item.name[i]);
@@ -139,11 +151,19 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
               break;
             }
           }
-          set(nextProps, targetName, value);
+          // set(nextProps, targetName, value);
         } else {
           //赋值
-          set(nextProps, targetName, get(target || props, item.name));
+          value = get(target || props, item.name);
+          // set(nextProps, targetName, get(target || props, item.name));
         }
+
+        if (item.expression) {
+          const getDataTarget = () => ({ value });
+          value = getLodashResult(item.expression, getDataTarget);
+        }
+
+        set(nextProps, targetName, value);
 
         //返回一级属性名称
         return getFirstPropNameFromNamePath(targetName);
@@ -193,6 +213,9 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
               return sub;
             }
             if (has(sub, "elementType$")) {
+              if (item.isFunction) {
+                return (...highArgs: any) => render({ ...sub, elementProps$: { ...sub.elementProps$, highArgs } });
+              }
               return render(sub);
             }
             return sub;
@@ -205,7 +228,13 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
           }
           //如果当前是组件配置数据，转换成组件
           if (has(current, "elementType$")) {
-            set(nextProps, item.name, render(current));
+            if (item.isFunction) {
+              set(nextProps, item.name, (...highArgs: any) =>
+                render({ ...current, elementProps$: { ...current.elementProps$, highArgs } }),
+              );
+            } else {
+              set(nextProps, item.name, render(current));
+            }
           }
         }
       });
@@ -278,13 +307,20 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
         } else {
           key = (item.name as string).replace(new RegExp("\\.", "g"), ":");
         }
-        set(nextProps, item.name, (...e: any[]) => {
+        const originFun = get(nextProps, item.name);
+        if (get(originFun, "nameKey") === key) {
+          return;
+        }
+        const registerFun = (...e: any[]) => {
+          originFun && originFun(...e);
           let payload: any = e;
           if (size(item.transObjList) > 0) {
             payload = reduce(item.transObjList, (pair, trans) => ({ ...pair, [trans.key]: get(e, trans.name) }), {});
           }
           sendEventSimple(props?.highConfig, props?.onSend, { key, payload, executeList: item.executeList });
-        });
+        };
+        registerFun.nameKey = key;
+        set(nextProps, item.name, registerFun);
       });
       return nextProps;
     },

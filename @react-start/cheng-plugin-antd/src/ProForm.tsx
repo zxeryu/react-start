@@ -71,8 +71,8 @@ const Form = ({
 
 export interface HighFormProps extends FormProps, HighProps {}
 
-export const HighForm = ({ formName, ...otherProps }: HighFormProps) => {
-  return <ComponentWrapper Component={Form} {...otherProps} />;
+export const HighForm = (props: HighFormProps) => {
+  return <ComponentWrapper Component={Form} {...props} />;
 };
 
 interface FormOverlayProps {
