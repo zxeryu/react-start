@@ -11,24 +11,26 @@ import { useComposeRequestActor } from "./request";
 import { useDomEvent } from "./render";
 import { getExecuteParams } from "./expression";
 
+export interface IConfigData {
+  initialState?: Record<string, any>;
+  registerStore?: string[];
+  //api name
+  registerMeta?: string[];
+  // request
+  registerRequest?: {
+    requestName: string;
+    //若不设置该字段，默认使用requestName
+    storeName?: string;
+    //如果设置该字段，会在状态中生成[loadingName]的boolean类型字段，表示网络请求状态
+    loadingName?: string;
+    //拓展，执行注册的逻辑
+    executeList?: TExecuteItem[];
+  }[];
+  page: ElementConfigBase | ElementConfigBase[];
+}
+
 export interface HighPageProps extends HighPageProviderProps {
-  configData: {
-    initialState?: Record<string, any>;
-    registerStore?: string[];
-    //api name
-    registerMeta?: string[];
-    // request
-    registerRequest?: {
-      requestName: string;
-      //若不设置该字段，默认使用requestName
-      storeName?: string;
-      //如果设置该字段，会在状态中生成[loadingName]的boolean类型字段，表示网络请求状态
-      loadingName?: string;
-      //拓展，执行注册的逻辑
-      executeList?: TExecuteItem[];
-    }[];
-    page: ElementConfigBase | ElementConfigBase[];
-  };
+  configData: IConfigData;
   requestActorMap?: { [key: string]: IRequestActor };
 }
 

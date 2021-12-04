@@ -91,7 +91,7 @@ export const useHighPage = () => useContext(HighPageContext);
 
 export interface HighPageProviderProps {
   elementsMap?: HighProviderProps["elementsMap"];
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 // deal dynamic data

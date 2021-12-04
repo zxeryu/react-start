@@ -6,7 +6,7 @@ import { Space } from "antd";
 import { TablePaginationConfig } from "antd/lib/table/interface";
 import { EditableProTableProps } from "@ant-design/pro-table/es/components/EditableTable";
 import { useUrlSearchParams } from "@umijs/use-params";
-import { get, map, size, set } from "lodash";
+import { get, map, size, set, isString } from "lodash";
 import { ProColumns } from "@ant-design/pro-table/lib/typing";
 import { ProFormFieldItemProps } from "@ant-design/pro-form/lib/interface";
 
@@ -60,6 +60,20 @@ export const useColumnsWithOperate = (
             },
           );
         };
+      }
+      //form item rule pattern 转换：string转regexp对象
+      const rules = get(item, ["formItemProps", "rules"]);
+      if (rules && size(rules) > 0) {
+        set(
+          item,
+          ["formItemProps", "rules"],
+          map(rules, (rule) => {
+            if (isString(rule.pattern)) {
+              rule.pattern = new RegExp(rule.pattern);
+            }
+            return rule;
+          }),
+        );
       }
       return item;
     });
@@ -233,6 +247,7 @@ const EditTable = ({
   operateColumn,
   toolBarList,
   editable,
+  recordCreatorProps,
   ...otherProps
 }: EditTableProps) => {
   const { setDataToRef } = useHighPage();
@@ -283,7 +298,22 @@ const EditTable = ({
     };
   }, [editable]);
 
-  return <EditableProTable editable={reEditable} {...reOptions} {...otherProps} />;
+  const reRecordCreatorProps: EditTableProps["recordCreatorProps"] = useMemo(() => {
+    if (!recordCreatorProps) {
+      return recordCreatorProps;
+    }
+    return {
+      ...recordCreatorProps,
+      record: (index: number) => {
+        const rowKeyName = get(recordCreatorProps, ["record", "rowKeyName"], "id");
+        return { ...recordCreatorProps.record, [rowKeyName]: `edit-${index}` };
+      },
+    } as EditTableProps["recordCreatorProps"];
+  }, [recordCreatorProps]);
+
+  return (
+    <EditableProTable editable={reEditable} recordCreatorProps={reRecordCreatorProps} {...reOptions} {...otherProps} />
+  );
 };
 
 export interface HighEditTableProps extends EditTableProps, HighProps {}
