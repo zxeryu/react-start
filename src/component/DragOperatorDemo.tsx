@@ -1,368 +1,600 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  IElementItem,
-  Operator,
-  SelectSet,
-  IOperateElementItem,
-  useSetProp,
-  OperatePanelProps,
-} from "@react-start/cheng";
-import { Button } from "@material-ui/core";
-import { omit, get, reduce, pick } from "lodash";
+import React, { useState } from "react";
+import { map } from "lodash";
+import { IElement, ChengProvider, ConfigTree } from "@react-start/cheng";
+import { IConfigData } from "@react-start/cheng-high";
 
-const Menu = ({ label, ...otherProps }: { label: string }) => (
-  <div {...omit(otherProps, "style")} style={{ padding: "5px 8px", ...get(otherProps, "style") }}>
-    {label}
-  </div>
-);
+const LayoutElements: IElement[] = [
+  { name: "HighPageContainer", isContainer: true },
+  { name: "HighCard", isContainer: true },
+  { name: "HighCardTabPane", isContainer: true },
+  { name: "HighCardDivider" },
+  { name: "HighWaterMark" },
+];
 
-const OneElement: IOperateElementItem = {
-  menuElement: <Menu label={"ElementOne"} />,
-  props: {
-    showOne: true,
-    showTwo: true,
-    showThree: true,
-    size: 10,
-    text: "",
-    customValue: 0,
-  },
-  setProps: {
-    showOne: { name: "第一部分", type: "boolean" },
-    showTwo: { name: "第二部分", type: "boolean" },
-    showThree: { name: "第三部分", type: "boolean" },
-    size: { name: "数字", type: "number", inputType: "input" },
-    text: { name: "文本", type: "string", inputType: "input", rows: 5 },
-    customValue: { name: "自定义部分", type: "custom" },
-    element: { name: "元素", type: "element" },
-    elementList: { name: "元素集合", type: "elementList" },
-    footer: {
-      name: "footer",
-      type: "object",
-      subSetProp: {
-        showOne: { name: "第一部分", type: "boolean" },
-        showTwo: { name: "第二部分", type: "boolean" },
-        showThree: { name: "第三部分", type: "boolean" },
-        size: { name: "数字", type: "number", inputType: "input" },
-        text: { name: "文本", type: "string", inputType: "input", rows: 5 },
-        customValue: { name: "自定义部分", type: "custom" },
-        element: { name: "元素", type: "element" },
-        elementList: { name: "元素集合", type: "elementList" },
-        subFooter: {
-          name: "subFooter",
-          type: "object",
-          subSetProp: {
-            size: { name: "数字", type: "number", inputType: "input" },
-            text: { name: "文本", type: "string", inputType: "input", rows: 5 },
+const FormElements: IElement[] = [
+  { name: "HighForm", isContainer: true },
+  { name: "HighModalForm", isContainer: true },
+  { name: "HighDrawerForm", isContainer: true },
+  { name: "HighSearchForm", isContainer: true },
+  { name: "HighFormList", isContainer: true },
+  { name: "HighFormGroup", isContainer: true },
+  { name: "HighFormItem", isContainer: true },
+  { name: "HighFormText" },
+  { name: "HighFormTextArea" },
+  { name: "HighFormPassword" },
+  { name: "HighFormCaptcha" },
+  { name: "HighFormDigit" },
+  { name: "HighFormDatePicker" },
+  { name: "HighFormDateRangePicker" },
+  { name: "HighFormTimePicker" },
+  { name: "HighFormTimeRangePicker" },
+  { name: "HighFormDateTimePicker" },
+  { name: "HighFormDateTimeRangePicker" },
+  { name: "HighFormSelect" },
+  { name: "HighFormCheckbox" },
+  { name: "HighFormCheckboxGroup" },
+  { name: "HighFormRadioGroup" },
+  { name: "HighFormSwitch" },
+  { name: "HighFormRate" },
+  { name: "HighFormSlider" },
+  { name: "HighFormMoney" },
+];
+
+const TableElements: IElement[] = [
+  { name: "HighTable" },
+  { name: "HighEditTable" },
+  { name: "HighFormEditTableItem" },
+  { name: "HighTableDropdown" },
+];
+
+const elements: IElement[] = [
+  ...map(LayoutElements, (item) => ({ ...item, group: "Layout" })),
+  ...map(FormElements, (item) => ({ ...item, group: "Form" })),
+  ...map(TableElements, (item) => ({ ...item, group: "Table" })),
+];
+
+const data = {
+  page: {
+    oid: "HighForm-O",
+    elementType$: "HighForm",
+    elementProps$: {
+      formName: "edit-form",
+      style: {
+        backgroundColor: "white",
+        padding: "1em 1.5em",
+      },
+      highConfig: {
+        sendEventName: "form",
+        receiveStateList: [
+          { name: "safeData", mapName: "initialValues" },
+          {
+            name: "isEdit",
+            mapName: "readonly",
+            expression: {
+              funName: "isEqual",
+              funParams: [{ name: "value" }, false],
+            },
+          },
+          {
+            name: "haveData",
+            mapName: "submitter.resetButtonProps.style.display",
+            expression: {
+              funName: "ternary",
+              funParams: [{ name: "value" }, "block", "none"],
+            },
+          },
+          {
+            name: "isEdit",
+            mapName: "submitter.searchConfig.resetText",
+            expression: {
+              funName: "ternary",
+              funParams: [{ name: "value" }, "取消", "编辑"],
+            },
+          },
+          {
+            name: "isEdit",
+            mapName: "submitter.submitButtonProps.style.display",
+            expression: {
+              funName: "ternary",
+              funParams: [{ name: "value" }, "block", "none"],
+            },
+          },
+        ],
+        registerEventList: [
+          {
+            name: "onFinish",
+          },
+          {
+            name: "submitter.onReset",
+            executeList: [
+              {
+                execName: "dispatch",
+                execParams: [
+                  "isEdit",
+                  { funName: "ternary", funParams: [{ name: "isEdit", target: "state" }, false, true] },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    elementList: [
+      {
+        oid: "HighFormGroup-O",
+        elementType$: "HighFormGroup",
+        elementProps$: {},
+        elementList: [
+          {
+            oid: "HighFormSelect-fEnterprisesType",
+            elementType$: "HighFormSelect",
+            elementProps$: {
+              name: "fEnterprisesType",
+              label: "企业类型",
+              width: "sm",
+              highConfig: {
+                receiveStateList: [{ name: "enterpriseTypeOptions", mapName: "options" }],
+              },
+            },
+          },
+          {
+            oid: "HighFormSelect-fStandardizedGrade",
+            elementType$: "HighFormSelect",
+            elementProps$: {
+              name: "fStandardizedGrade",
+              label: "安全生产标准化等级",
+              width: "sm",
+              highConfig: {
+                receiveStateList: [{ name: "levelTypeOptions", mapName: "options" }],
+              },
+            },
+          },
+          {
+            oid: "HighFormRadioGroup-fFireAcceptance",
+            elementType$: "HighFormRadioGroup",
+            elementProps$: {
+              name: "fFireAcceptance",
+              label: "消防验收",
+              options: [
+                { label: "是", value: "YES" },
+                { label: "否", value: "NO" },
+              ],
+              fieldProps: {
+                style: { width: 216 },
+              },
+            },
+          },
+          {
+            oid: "HighFormRadioGroup-fRegularInspection",
+            elementType$: "HighFormRadioGroup",
+            elementProps$: {
+              name: "fRegularInspection",
+              label: "防雷验收或定期检查",
+              options: [
+                { label: "是", value: "YES" },
+                { label: "否", value: "NO" },
+              ],
+              highConfig: {
+                sendEventName: "inspection",
+                registerEventList: [
+                  {
+                    name: "fieldProps.onChange",
+                    executeList: [
+                      {
+                        execName: "dispatch",
+                        execParams: [
+                          "inspectionFileShow",
+                          { funName: "isEqual", funParams: ["YES", { name: "0.target.value" }] },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+          {
+            oid: "HighUploaderFormText-fRegularInspectionFile",
+            elementType$: "HighUploaderFormText",
+            elementProps$: {
+              name: "fRegularInspectionFile",
+              label: " ",
+              fieldProps: { single: true },
+              show: false,
+              highConfig: {
+                receiveStateList: [{ name: "inspectionFileShow", mapName: "show" }],
+              },
+            },
+          },
+        ],
+      },
+      {
+        oid: "HighFormGroup-Second",
+        elementType$: "HighFormGroup",
+        elementProps$: {},
+        elementList: [
+          {
+            oid: "HighFormDigit-fDangerousNumberPersonnel",
+            elementType$: "HighFormDigit",
+            elementProps$: {
+              name: "fDangerousNumberPersonnel",
+              label: "危险化学品作业人员数",
+              fieldProps: { precision: 0 },
+              width: "sm",
+            },
+          },
+          {
+            oid: "HighFormDigit-fPoisonousNumberPersonnel",
+            elementType$: "HighFormDigit",
+            elementProps$: {
+              name: "fPoisonousNumberPersonnel",
+              label: "剧毒化学作业人员数",
+              fieldProps: { precision: 0 },
+              width: "sm",
+            },
+          },
+          {
+            oid: "HighFormDigit-fSpecialNumberPersonnel",
+            elementType$: "HighFormDigit",
+            elementProps$: {
+              name: "fSpecialNumberPersonnel",
+              label: "特种作业人员数",
+              fieldProps: { precision: 0 },
+              width: "sm",
+            },
+          },
+          {
+            oid: "HighFormDigit-fSafetyNumberPersonnel",
+            elementType$: "HighFormDigit",
+            elementProps$: {
+              name: "fSafetyNumberPersonnel",
+              label: "专职安全管理人员数",
+              fieldProps: { precision: 0 },
+              width: "sm",
+            },
+          },
+        ],
+      },
+      {
+        oid: "HighFormGroup-Third",
+        elementType$: "HighFormGroup",
+        elementProps$: {
+          title: "安全设施“三同时”情况",
+        },
+      },
+      {
+        oid: "HighUploaderFormText-fSafetyReport",
+        elementType$: "HighUploaderFormText",
+        elementProps$: {
+          name: "fSafetyReport",
+          label: "安全预评价报告",
+          fieldProps: { single: true },
+        },
+      },
+      {
+        oid: "HighUploaderFormText-fDesignReport",
+        elementType$: "HighUploaderFormText",
+        elementProps$: {
+          name: "fDesignReport",
+          label: "设计安全报告",
+          fieldProps: { single: true },
+        },
+      },
+      {
+        oid: "HighUploaderFormText-fAcceptanceReport",
+        elementType$: "HighUploaderFormText",
+        elementProps$: {
+          name: "fAcceptanceReport",
+          label: "验收评价报告",
+          fieldProps: { single: true },
+        },
+      },
+      {
+        oid: "HighFormGroup-Fourth",
+        elementType$: "HighFormGroup",
+        elementProps$: {
+          title: "安全负责人信息",
+        },
+      },
+      {
+        oid: "HighFormEditTableItem-O",
+        elementType$: "HighFormEditTableItem",
+        elementProps$: {
+          name: "safetyDirectors",
+          fieldProps: {
+            rowKey: "id",
+            style: {
+              margin: "0 -20px",
+            },
+            columns: [
+              {
+                title: "序号",
+                dataIndex: "index",
+                valueType: "index",
+                width: 60,
+              },
+              {
+                title: "安全负责人姓名",
+                dataIndex: "enterpriseAccountId",
+                editElement: {
+                  oid: "HighUserTreeSelect-userName",
+                  elementType$: "HighUserTreeSelect",
+                  elementProps$: {
+                    placeholder: "请选择",
+                  },
+                },
+              },
+              {
+                title: "安全负责人类型",
+                dataIndex: "safetyType",
+                valueType: "select",
+                editElement: {
+                  oid: "HighSelect-safetyType",
+                  elementType$: "HighSelect",
+                  elementProps$: {
+                    placeholder: "请选择",
+                    highConfig: {
+                      receiveStateList: [
+                        {
+                          name: "safeTypeOptions",
+                          mapName: "options",
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+              {
+                title: "是否接收短信",
+                dataIndex: "sendMsg",
+                valueType: "switch",
+                tooltip: "若开启，在企业收到隐患整改通知时会给对应人员发送短信",
+              },
+            ],
+            operateList: [
+              {
+                oid: "HighA-edit",
+                elementType$: "HighA",
+                elementProps$: {
+                  children: "编辑",
+                  highConfig: {
+                    sendEventName: "edit",
+                    registerEventList: [{ name: "onClick" }],
+                  },
+                },
+              },
+            ],
+            recordCreatorProps: {
+              record: {
+                rowKeyName: "id",
+              },
+            },
           },
         },
       },
-    },
-    test: {
-      name: "test",
-      type: "array",
-      subSetProp: {
-        aaa: { name: "aaa", type: "string", inputType: "input" },
-        bbb: { name: "bbb", type: "string", inputType: "input" },
+      {
+        oid: "HighFormGroup-Fifth",
+        elementType$: "HighFormGroup",
+        elementProps$: {
+          title: "机构设置",
+        },
       },
-    },
-    arraySingleTest: {
-      name: "数组（single）",
-      type: "arraySingle",
-      subSetProp: {
-        value: { name: "value", type: "number", inputType: "input" },
+      {
+        oid: "HighFormRadioGroup-fSafetyCommitteeSetup",
+        elementType$: "HighFormRadioGroup",
+        elementProps$: {
+          name: "fSafetyCommitteeSetup",
+          label: "安全委员会",
+          options: [
+            { label: "已设置", value: "YES" },
+            { label: "未设置", value: "NO" },
+          ],
+        },
       },
-    },
-  },
-  elementList: [],
-  isContainer: true,
-  canDelete: true,
-  name: "ElementOne",
-  canDrag: true,
-  id: "ElementOne",
-  oid: "ElementOne-O",
-};
-
-//自定义设置Item
-
-const TestValueSet = (props: any) => {
-  return (
-    <div>
-      <SelectSet
-        name={"选择值"}
-        propKey={"selectValue"}
-        {...props}
-        // chooseValue={[1, 2, 3]}
-        chooseValue={[
-          { label: "label-1", value: 1 },
-          { label: "label-2", value: 2 },
-          { label: "label-3", value: 3 },
-        ]}
-      />
-    </div>
-  );
-};
-
-const TwoElement: IOperateElementItem = {
-  menuElement: <Menu label={"ElementTwo"} />,
-  props: { selectValue: 1 },
-  setProps: {
-    selectValue: {
-      element: <TestValueSet />,
-    },
-  },
-  name: "ElementTwo",
-  canEditName: true,
-  // canDrag: true,
-  id: "ElementTwo",
-  oid: "ElementTwo-O",
-};
-
-//自定义设置页面
-
-const TestPageSet = ({ data }: { data?: IOperateElementItem }) => {
-  const { setProp } = useSetProp();
-  return (
-    <div>
-      自定义设置view
-      <div>
-        <div>当前值：{data?.props?.customValue}</div>
-        <Button onClick={() => setProp("customValue", 1)}>设置值 1</Button>
-        <Button onClick={() => setProp("customValue", 2)}>设置值 2</Button>
-        <Button onClick={() => setProp("customValue", 3)}>设置值 3</Button>
-        <div css={{ height: "90vh", backgroundColor: "grey" }} />
-      </div>
-    </div>
-  );
-};
-
-const ThreeElement: IOperateElementItem = {
-  menuElement: <Menu label={"ElementThree"} />,
-  setElement: <TestPageSet />,
-  name: "ElementThree",
-  canDrag: true,
-  canDelete: true,
-  canEditName: true,
-  id: "ElementThree",
-  oid: "ElementThree-O",
-};
-
-const FourElement: IOperateElementItem = {
-  menuElement: <Menu label={"ElementFour"} />,
-  name: "ElementFour",
-  canDrag: true,
-  id: "ElementFour",
-  oid: "ElementFour-O",
-};
-
-/************************** extra ***********************/
-
-const colorInputProps = {
-  type: "string",
-  inputType: "input",
-};
-
-const ColorOperateItem = {
-  id: "color",
-  oid: "color",
-  directShow: false,
-  menuElement: <Menu label={"颜色"} />,
-  name: "颜色",
-  setProps: {
-    //general
-    generalTitle: { type: "title", name: "General" },
-    heading: { name: "Heading", ...colorInputProps },
-    bodyText: { name: "Body Text", ...colorInputProps },
-    bodyTextLight: { name: "Body Text Light", ...colorInputProps },
-    link: { name: "Link", ...colorInputProps },
-    background: { name: "Background", ...colorInputProps },
-    backgroundLight: { name: "Background Light", ...colorInputProps },
-    price: { name: "Price", ...colorInputProps },
-    buttonTitle: { type: "title", name: "Button" },
-    buttonBackground: { name: "Background", ...colorInputProps },
-    buttonText: { name: "Text", ...colorInputProps },
-    headerTitle: { type: "title", name: "Header" },
-    headerBackground: { name: "Background", ...colorInputProps },
-    headerHeading: { name: "Heading and icons", ...colorInputProps },
-    headerLight: { name: "Text Light", ...colorInputProps },
-    footerTitle: { type: "title", name: "Footer" },
-    footerBackground: { name: "Background", ...colorInputProps },
-    footerHeading: { name: "Heading", ...colorInputProps },
-    footerLight: { name: "Text Light", ...colorInputProps },
-  },
-  isExtra: true,
-};
-
-const ComposeOperateItem = {
-  id: "compose",
-  oid: "compose",
-  directShow: false,
-  menuElement: <Menu label={"组合"} />,
-  name: "组合",
-  isExtra: true,
-  elementList: [ColorOperateItem],
-};
-
-/************************** card ***********************/
-
-const CardElement: IElementItem = {
-  menuElement: <Menu label={"Card"} />,
-  props: {
-    title: "",
-    subTile: "",
-    content: "",
-    img: "",
-  },
-  setProps: {
-    title: { name: "标题", type: "string", inputType: "input" },
-    subTile: { name: "副标题", type: "string", inputType: "input" },
-    content: { name: "内容", type: "string", inputType: "input", rows: 5 },
-  },
-  name: "Card",
-  canDrag: true,
-  id: "Card",
-};
-
-const elements: IElementItem[] = [
-  OneElement,
-  TwoElement,
-  ThreeElement,
-  CardElement,
-  {
-    id: "HighButton",
-    name: "Button",
-    canDrag: true,
-    setProps: {
-      children: {
-        name: "内容",
-        type: "string",
-        inputType: "input",
+      {
+        oid: "HighFormRadioGroup-fSafetyManager",
+        elementType$: "HighFormRadioGroup",
+        elementProps$: {
+          name: "fSafetyManager",
+          label: "安全生产管理机构或安全生产管理人员",
+          options: [
+            { label: "已设置", value: "YES" },
+            { label: "未设置", value: "NO" },
+          ],
+        },
       },
-    },
-  },
-];
-
-const OElements: IOperateElementItem[] = [OneElement, TwoElement, ThreeElement, FourElement];
-
-/************************** 自定义设置组件 ***********************/
-
-const CustomSet = (props: any) => {
-  const { setProp } = useSetProp();
-
-  const [value, setValue] = useState<number>(props.value || 1);
-
-  return (
-    <div>
-      Custom Set {value}
-      <button
-        onClick={() => {
-          if (props.propKey) {
-            const next = value + 1;
-            setValue(next);
-            setProp(props.propKey, next);
-          }
-        }}>
-        add
-      </button>
-    </div>
-  );
-};
-
-const ExtraSetElementMap: OperatePanelProps["extraSetElementMap"] = {
-  custom: CustomSet,
-};
-
-export const DragOperatorDemo = () => {
-  const [mode, setMode] = useState<"pc" | "mobile">("pc");
-
-  const frameRef = useRef<HTMLIFrameElement | null>(null);
-
-  useEffect(() => {
-    const initData = reduce(
-      OElements,
-      (pair, item) => {
-        return {
-          ...pair,
-          [item.id!]: pick(item, "props"),
-        };
+      {
+        oid: "HighFormRadioGroup-fHealthAdministrator",
+        elementType$: "HighFormRadioGroup",
+        elementProps$: {
+          name: "fHealthAdministrator",
+          label: "职业卫生管理机构或职业卫生管理人员",
+          options: [
+            { label: "已设置", value: "YES" },
+            { label: "未设置", value: "NO" },
+          ],
+        },
       },
-      {},
-    );
-    setTimeout(() => {
-      frameRef.current?.contentWindow?.postMessage({ type: "compose", data: initData }, "*");
-    }, 1000);
-  }, []);
-
-  return (
-    <div>
-      <Button onClick={() => setMode("pc")}>pc</Button>
-      <Button onClick={() => setMode("mobile")}>mobile</Button>
-      <Button
-        onClick={() => {
-          frameRef.current?.contentWindow?.postMessage({ type: "update" }, "*");
-        }}>
-        update
-      </Button>
-
-      <Operator
-        css={{
-          ".LeftArea": {
-            border: "1px solid #eee",
-            padding: "10px 10px 10px",
-          },
-          ".NormalItem": {
-            padding: "6px 0",
-          },
-          ".OperatePanel": {
-            padding: "0 10px",
-          },
-          ".RightArea .OperatePanel": {
-            border: "1px solid #eee",
-          },
-
-          ".LeftArea .LeftAreaBottom": {
-            minHeight: 300,
-          },
-          ".LeftArea .LeftAreaBottom .NormalItem": {
-            color: "red",
-          },
-        }}
-        style={{ height: "80vh" }}
-        elements={elements}
-        operateElements={OElements}
-        extraOperateElements={[ComposeOperateItem as any]}
-        extraSetElementMap={ExtraSetElementMap}
-        onChange={(data) => {
-          const composeData = reduce(
-            data,
-            (pair, item) => {
-              return {
-                ...pair,
-                [item.oid!]: pick(item, "props"),
-              };
+      {
+        oid: "HighFormGroup-Sixth",
+        elementType$: "HighFormGroup",
+        elementProps$: {
+          title: "持证上岗人员",
+        },
+      },
+      {
+        oid: "HighFormEditTableItem-O-member",
+        elementType$: "HighFormEditTableItem",
+        elementProps$: {
+          name: "safetyInformationPersonnels",
+          fieldProps: {
+            rowKey: "fId",
+            style: {
+              margin: "0 -20px",
             },
-            {},
-          );
+            columns: [
+              {
+                title: "序号",
+                dataIndex: "index",
+                valueType: "index",
+                width: 60,
+              },
+              {
+                title: "姓名",
+                dataIndex: "fUserName",
+                valueType: "text",
+                formItemProps: {
+                  rules: [{ required: true, message: "请输入姓名" }],
+                },
+              },
+              {
+                title: "手机号",
+                dataIndex: "fPhone",
+                formItemProps: {
+                  rules: [
+                    { required: true, message: "请输入手机号" },
+                    {
+                      pattern: "^1[3456789]\\d{9}$",
+                      message: "请输入正确手机号",
+                    },
+                  ],
+                },
+              },
+              {
+                title: "证件类型",
+                dataIndex: "fCertificateType",
+                formItemProps: {
+                  rules: [{ required: true, message: "请输入姓名" }],
+                },
+                editElement: {
+                  oid: "HighSelect-fCertificateType",
+                  elementType$: "HighSelect",
+                  elementProps$: {
+                    placeholder: "请选择",
+                    highConfig: {
+                      sendEventName: "certificateType",
+                      receiveStateList: [
+                        {
+                          name: "credentialsTypeOptions",
+                          mapName: "options",
+                        },
+                      ],
+                      registerEventList: [
+                        {
+                          name: "onChange",
+                          executeList: [
+                            {
+                              execName: "dispatch",
+                              execParams: [
+                                "credentialsGroupOptions",
+                                {
+                                  funName: "get",
+                                  funParams: [{ name: "credentialsMap", target: "dataRef" }, { name: 0 }],
+                                },
+                              ],
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+              {
+                title: "证件分类",
+                dataIndex: "fCertificateGroup",
+                editElement: {
+                  oid: "HighSelect-fCertificateGroup",
+                  elementType$: "HighSelect",
+                  elementProps$: {
+                    placeholder: "请选择",
+                    allowClear: true,
+                    highConfig: {
+                      receiveStateList: [
+                        {
+                          name: "credentialsGroupOptions",
+                          mapName: "options",
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+              {
+                title: "证件生效时间",
+                dataIndex: "fEffectiveDate",
+                formItemProps: {
+                  rules: [{ required: true, message: "请输入时间" }],
+                },
+                editElement: {
+                  oid: "HighDatePicker-fEffectiveDate",
+                  elementType$: "HighDatePicker",
+                  elementProps$: {},
+                },
+              },
+              {
+                title: "证件失效时间",
+                dataIndex: "fFailureDate",
+                formItemProps: {
+                  rules: [{ required: true, message: "请输入时间" }],
+                },
+                editElement: {
+                  oid: "HighDatePicker-fFailureDate",
+                  elementType$: "HighDatePicker",
+                  elementProps$: {},
+                },
+              },
+              {
+                title: "PDF扫描件",
+                dataIndex: "fScanFiles",
+                editElement: {
+                  oid: "HighUploaderText-fScanFiles",
+                  elementType$: "HighUploaderText",
+                  elementProps$: {
+                    single: true,
+                    buttonProps: { type: "link" },
+                    fileType: "image",
+                  },
+                },
+              },
+            ],
+            operateList: [
+              {
+                oid: "HighA-edit",
+                elementType$: "HighA",
+                elementProps$: {
+                  children: "编辑",
+                  highConfig: {
+                    sendEventName: "member-edit",
+                    registerEventList: [{ name: "onClick" }],
+                  },
+                },
+              },
+            ],
+            recordCreatorProps: {
+              record: {
+                rowKeyName: "fId",
+              },
+            },
+          },
+        },
+      },
+    ],
+  },
+};
+export const DragOperatorDemo = () => {
+  const [configData, setConfigData] = useState<IConfigData>(data);
 
-          console.log("@@@@@@@@@@", composeData);
-
-          // frameRef.current?.contentWindow?.postMessage({ type: "compose", data: composeData }, "*");
-        }}
-        onExtraChange={(id, key, value) => {
-          console.log("@@@@@@@@@", id, key, value);
-        }}
-        onItemClick={(oel) => {
-          console.log("#######", oel);
-        }}
-        // header={<div>Header</div>}
-        // footer={<div>Footer</div>}
-      >
-        <iframe
-          style={{ border: 0 }}
-          ref={frameRef}
-          src={"/DragShowPage"}
-          css={{ ...(mode === "pc" ? { flex: 1 } : { width: 375 }), height: "80vh" }}
-        />
-      </Operator>
+  return (
+    <div>
+      <ChengProvider
+        elements={elements}
+        configData={configData}
+        onConfigChange={(configData) => {
+          setConfigData(configData);
+        }}>
+        <ConfigTree />
+      </ChengProvider>
     </div>
   );
 };

@@ -24,17 +24,10 @@
   "bugs": {
     "url": "https://github.com/zxeryu/react-start/issues"
   },
-  "dependencies": {
-    "@dnd-kit/core": "^3.1.1",
-    "@dnd-kit/sortable": "^4.0.0",
-    "@dnd-kit/utilities": "^2.0.0"
-  },
   "peerDependencies": {
     "@emotion/react": "^11.x",
-    "@emotion/styled": "^11.x",
-    "@material-ui/core": "^5.x",
-    "@material-ui/icons": "^5.x",
     "@react-start/hooks": "*",
+    "antd": "^4.17.x",
     "lodash": "^4.x"
   }
 }

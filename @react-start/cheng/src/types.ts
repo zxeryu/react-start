@@ -22,8 +22,6 @@ export interface IElementItem {
   menuElement?: ReactNode;
   //set element
   setElement?: ReactNode;
-  //真正渲染的组件
-  showElement?: ReactNode;
   //可设置的属性
   setProps?: ISetProps;
   //props 根据setProps生成的属性
@@ -44,20 +42,10 @@ export interface IElementItem {
   isContainer?: boolean;
 }
 
-export interface IOperateElementItem extends IElementItem {
-  oid: string;
-  //
-  elementList?: IOperateElementItem[];
-}
-
-export interface TreeItem extends IOperateElementItem {
-  collapsed?: boolean;
-}
-
-export type TreeItems = TreeItem[];
-
-export interface FlattenedItem extends TreeItem {
-  parentId: null | string;
-  depth: number;
-  index: number;
+export interface IElement {
+  name: string;
+  //是否是容器，可以添加子元素标识，添加元素的时候设置elementList
+  isContainer?: boolean;
+  //分组显示
+  group?: string;
 }
