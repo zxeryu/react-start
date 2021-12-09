@@ -86,7 +86,7 @@ export interface ModalFormProps extends Omit<FormProps, "title">, FormOverlayPro
   modalProps?: Omit<ModalProps, "visible">;
 }
 
-const ModalForm = ({
+export const ModalForm = ({
   children,
   //
   visible,
@@ -209,9 +209,10 @@ export interface SearchFormProps extends ProFormProps {
   initEmit?: boolean;
 }
 
-const SearchForm = ({
+export const SearchForm = ({
   submitterStyle,
   mode = "button",
+  layout = "inline",
   debounceKeys = [],
   debounceTime = 600,
   initEmit,
@@ -245,6 +246,7 @@ const SearchForm = ({
 
   return (
     <Form
+      layout={layout}
       {...otherProps}
       onValuesChange={handleValuesChange}
       style={{ padding: "0 24px", ...otherProps.style }}
@@ -255,9 +257,7 @@ const SearchForm = ({
           if (mode !== "button") {
             return null;
           }
-          return (
-            <div style={{ display: "flex", flexDirection: "row-reverse", flexGrow: 1, ...submitterStyle }}>{dom}</div>
-          );
+          return <div style={{ ...submitterStyle }}>{dom}</div>;
         },
         ...otherProps.submitter,
       }}

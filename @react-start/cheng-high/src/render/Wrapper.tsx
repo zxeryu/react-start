@@ -97,13 +97,15 @@ export const ComponentWrapper = ({
     targetProps = omit(targetProps, ...map(highConfig.omitProps, (item) => item.name));
   }
 
+  const realStateProps = omit(stateProps, "show", "hidden");
+
   if (noChild) {
-    return <Component {...targetProps} {...propsProps} {...stateProps} />;
+    return <Component {...targetProps} {...propsProps} {...realStateProps} />;
   }
 
   return (
-    <Component {...targetProps} {...propsProps} {...stateProps}>
-      {stateProps?.children || propsProps?.children || targetProps.children}
+    <Component {...targetProps} {...propsProps} {...realStateProps}>
+      {realStateProps?.children || propsProps?.children || targetProps.children}
       {render(get(highConfig, ["highInject", "elementList"]))}
     </Component>
   );

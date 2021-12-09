@@ -12,10 +12,16 @@ import { ProFormFieldItemProps } from "@ant-design/pro-form/lib/interface";
 
 type ParamsType = Record<string, any>;
 
-interface TableProps extends Omit<ProTableProps<any, ParamsType>, "actionRef"> {
+export interface TableProps extends Omit<ProTableProps<any, ParamsType>, "actionRef"> {
   syncPageToUrl?: boolean;
   actionRef?: React.MutableRefObject<ActionType | undefined>;
+  tableName?: string;
+  toolBarList?: ElementConfigBase[];
+  operateList?: ElementConfigBase[];
+  operateColumn?: ProColumns<any, ParamsType>;
 }
+
+export interface HighTableProps extends TableProps, HighProps {}
 
 export const useColumnsWithOperate = (
   columns?: HighTableProps["columns"],
@@ -108,7 +114,47 @@ export const useColumnsWithOperate = (
   }, [columns, operateList, operateColumn]);
 };
 
-const Table = ({ actionRef: actionRefOrigin, syncPageToUrl, pagination, ...otherProps }: TableProps) => {
+const useHighTableOptions = ({
+  tableName,
+  actionRef: actionRefOrigin,
+  columns,
+  operateList,
+  operateColumn,
+  toolBarList,
+}: Pick<HighTableProps, "tableName" | "actionRef" | "columns" | "operateList" | "operateColumn" | "toolBarList">) => {
+  const { setDataToRef, render } = useHighPage();
+  const actionRef = useRef<ActionType>();
+
+  useEffect(() => {
+    tableName && setDataToRef(tableName, actionRefOrigin ? actionRefOrigin.current : actionRef.current);
+  }, []);
+
+  const reColumns = useColumnsWithOperate(columns, operateList, operateColumn);
+
+  const handleToolBarRender: any = useCallback(() => {
+    if (!toolBarList) {
+      return null;
+    }
+    return render(toolBarList);
+  }, [toolBarList]);
+
+  return {
+    actionRef: actionRefOrigin || actionRef,
+    columns: reColumns,
+    toolBarRender: handleToolBarRender,
+  };
+};
+
+export const Table = ({
+  tableName,
+  columns,
+  operateList,
+  operateColumn,
+  toolBarList,
+  syncPageToUrl,
+  pagination,
+  ...otherProps
+}: TableProps) => {
   const actionRef = useRef<ActionType>();
 
   const [urlState, setUrlState] = useUrlSearchParams(
@@ -122,7 +168,7 @@ const Table = ({ actionRef: actionRefOrigin, syncPageToUrl, pagination, ...other
 
   const handlePageChange: TablePaginationConfig["onChange"] = useCallback((page, pageSize) => {
     //todo:: pro-table bug 执行两次
-    const pageInfo = get(actionRefOrigin || actionRef, ["current", "pageInfo"]);
+    const pageInfo = get(actionRef, ["current", "pageInfo"]);
     if (pageInfo?.current === page && pageInfo?.pageSize === pageSize) {
       return;
     }
@@ -135,7 +181,7 @@ const Table = ({ actionRef: actionRefOrigin, syncPageToUrl, pagination, ...other
 
   const handleShowSizeChange: TablePaginationConfig["onShowSizeChange"] = useCallback((page, pageSize) => {
     //todo:: pro-table bug 不改变也会执行
-    const pageInfo = get(actionRefOrigin || actionRef, ["current", "pageInfo"]);
+    const pageInfo = get(actionRef, ["current", "pageInfo"]);
     if (pageInfo?.current === page && pageInfo?.pageSize === pageSize) {
       return;
     }
@@ -159,66 +205,20 @@ const Table = ({ actionRef: actionRefOrigin, syncPageToUrl, pagination, ...other
     };
   }, [pagination, urlState]);
 
-  return <ProTable actionRef={actionRefOrigin || actionRef} search={false} pagination={rePagination} {...otherProps} />;
-};
-
-export interface HighTableProps extends TableProps, HighProps {
-  tableName?: string;
-  toolBarList?: ElementConfigBase[];
-  operateList?: ElementConfigBase[];
-  operateColumn?: ProColumns<any, ParamsType>;
-}
-
-const useHighTableOptions = ({
-  tableName,
-  actionRef: actionRefOrigin,
-  columns,
-  operateList,
-  operateColumn,
-  toolBarList,
-}: Pick<HighTableProps, "tableName" | "actionRef" | "columns" | "operateList" | "operateColumn" | "toolBarList">) => {
-  const { setDataToRef, render } = useHighPage();
-  const actionRef = useRef<ActionType>();
-
-  useEffect(() => {
-    tableName && setDataToRef(tableName, actionRefOrigin ? actionRefOrigin.current : actionRef.current);
-  }, []);
-
-  const reColumns = useColumnsWithOperate(columns, operateList, operateColumn);
-
-  const handleToolBarRender = useCallback(() => {
-    if (!toolBarList) {
-      return null;
-    }
-    return render(toolBarList);
-  }, [toolBarList]);
-
-  return {
-    actionRef: actionRefOrigin || actionRef,
-    columns: reColumns,
-    toolBarRender: handleToolBarRender,
-  };
-};
-
-export const HighTable = ({
-  tableName,
-  actionRef: actionRefOrigin,
-  columns,
-  operateList,
-  operateColumn,
-  toolBarList,
-  ...otherProps
-}: HighTableProps) => {
   const reOptions = useHighTableOptions({
     tableName,
-    actionRef: actionRefOrigin,
+    actionRef,
     columns,
     operateList,
     operateColumn,
     toolBarList,
   });
 
-  return <ComponentWrapper Component={Table} {...reOptions} {...otherProps} />;
+  return <ProTable {...reOptions} search={false} pagination={rePagination} {...otherProps} />;
+};
+
+export const HighTable = (props: HighTableProps) => {
+  return <ComponentWrapper Component={Table} {...props} />;
 };
 
 interface EditTableProps extends Omit<EditableProTableProps<any, ParamsType>, "actionRef" | "editable"> {
