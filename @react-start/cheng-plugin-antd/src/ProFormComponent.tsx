@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import ProForm, {
   ProFormText,
   ProFormTextArea,
@@ -36,13 +36,30 @@ import { ProFormDigitProps } from "@ant-design/pro-form/es/components/Digit";
 import { RangePickerProps } from "antd/lib/date-picker";
 import { useFormContext } from "./ProForm";
 
-import { isBoolean } from "lodash";
+import { isBoolean, map, isString, get, set } from "lodash";
 import { TextAreaProps } from "antd/es/input";
 
 //处理readonly
 const FormFieldWrapper = (props: ComponentWrapperProps) => {
   const { readonly } = useFormContext();
   return <ComponentWrapper noChild {...props} readonly={isBoolean(props.readonly) ? props.readonly : readonly} />;
+};
+
+export const FormItem = ({ rules, children, ...otherProps }: ProFormItemProps) => {
+  const reRules = useMemo(() => {
+    return map(rules, (rule) => {
+      const pattern = get(rule, "pattern");
+      if (isString(pattern)) {
+        set(rule, "pattern", new RegExp(pattern));
+      }
+      return rule;
+    });
+  }, [rules]);
+  return (
+    <ProForm.Item rules={reRules} {...otherProps}>
+      {children}
+    </ProForm.Item>
+  );
 };
 
 export interface HighFormGroupProps extends GroupProps, HighProps {}

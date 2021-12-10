@@ -1,6 +1,6 @@
 import { HConfig, HighProps } from "../types";
 import { useHighPage } from "../HighPageProvider";
-import React, { useCallback } from "react";
+import React from "react";
 import { get, omit, isUndefined, size, map } from "lodash";
 
 type ShowHiddenType = boolean | undefined;
@@ -68,18 +68,14 @@ export const ComponentWrapper = ({
 
   const highConfig: HConfig | undefined = get(otherProps, "highConfig");
 
-  //重写props属性
-  const transProps = useCallback(
-    (props: any) => {
-      //替换（注册）事件
-      const registerEventProps = getRegisterEventProps(highConfig?.registerEventList, props, registerEventList);
-      //替换UI
-      return getTransformElementProps(highConfig?.transformElementList, registerEventProps, transformElementList);
-    },
-    [getTransformElementProps],
+  //替换（注册）事件
+  const registerEventProps = getRegisterEventProps(highConfig?.registerEventList, otherProps, registerEventList);
+  //替换UI
+  const rewriteProps = getTransformElementProps(
+    highConfig?.transformElementList,
+    registerEventProps,
+    transformElementList,
   );
-
-  const rewriteProps = transProps(otherProps);
 
   //props转换
   const propsProps = getPropsValues(highConfig?.receivePropsList, rewriteProps);
@@ -99,13 +95,17 @@ export const ComponentWrapper = ({
 
   const realStateProps = omit(stateProps, "show", "hidden");
 
+  const css = realStateProps?.css || propsProps?.css || targetProps?.css;
+
   if (noChild) {
-    return <Component {...targetProps} {...propsProps} {...realStateProps} />;
+    return <Component css={css} {...targetProps} {...propsProps} {...realStateProps} />;
   }
 
+  const children = realStateProps?.children || propsProps?.children || targetProps.children;
+
   return (
-    <Component {...targetProps} {...propsProps} {...realStateProps}>
-      {realStateProps?.children || propsProps?.children || targetProps.children}
+    <Component css={css} {...targetProps} {...propsProps} {...realStateProps}>
+      {children}
       {render(get(highConfig, ["highInject", "elementList"]))}
     </Component>
   );
