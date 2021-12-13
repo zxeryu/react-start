@@ -23,6 +23,7 @@ export interface ElementConfigBase {
   elementProps$: any;
   oid: string;
   elementList?: ElementConfigBase[];
+  highConfig?: HConfig;
 }
 
 export type TDataType = "state" | "dataRef" | "arguments";

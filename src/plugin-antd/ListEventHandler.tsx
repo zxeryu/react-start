@@ -208,10 +208,10 @@ export const ListEventHandler = () => {
         dispatch({ type: "loading", payload: false });
         dispatch({ type: "listData", payload: action.payload });
         break;
-      case "table:pagination:onChange":
+      case "table:tableProps:pagination:onChange":
         dispatch({ type: "loading", payload: true });
         getData({
-          params: { page: action.payload.page, pageSize: action.payload.pageSize },
+          params: { page: action.payload[0], pageSize: action.payload[1] },
           actionType: "server.listData",
           sendEvent,
         });

@@ -23,6 +23,7 @@ import {
   HighPageContainer,
   HighEditTable,
   HighFormEditTableItem,
+  HighCURD,
 } from "@react-start/cheng-plugin-antd";
 import { List } from "./List";
 
@@ -62,6 +63,7 @@ const ElementMap = {
   HighPageContainer,
   HighEditTable,
   HighFormEditTableItem,
+  HighCURD,
 };
 
 const requestActorMap = {
