@@ -1,6 +1,6 @@
 import { SyntheticEvent } from "react";
 import { ElementConfigBase } from "@react-start/cheng-high";
-import { findIndex, forEach, isArray, size } from "lodash";
+import { findIndex, forEach, isArray, size, get } from "lodash";
 import { MenuClickEventHandler } from "rc-menu/lib/interface";
 
 export const generateId = () => {
@@ -30,6 +30,13 @@ export const withoutMenuItemBubble = (cb: () => void): MenuClickEventHandler => 
     e.domEvent.stopPropagation();
     cb();
   };
+};
+
+export const isElementConfig = (obj: Object) => {
+  if (!obj) {
+    return false;
+  }
+  return !!get(obj, "elementType$");
 };
 
 export const findTarget = (
