@@ -79,7 +79,7 @@ const objectToTree = (obj: Object, parent: string): DataNode[] => {
 };
 
 const Structure = ({ nodeData, onStructureSelect }: Pick<ITreeExtraProps, "nodeData" | "onStructureSelect">) => {
-  const treeData = useMemo(() => objectToTree(nodeData.elementProps$ || {}, ""), [nodeData]);
+  const treeData = useMemo(() => objectToTree(nodeData.elementProps$ || {}, "elementProps$"), [nodeData]);
 
   if (size(treeData) <= 0) {
     return null;
