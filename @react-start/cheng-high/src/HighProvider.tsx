@@ -92,6 +92,9 @@ export const HighProvider = ({
     return {
       ...c.elementProps$,
       highConfig: {
+        //新的注册highConfig方式
+        ...c.highConfig,
+        //旧方式优先级高
         ...c.elementProps$?.highConfig,
         highInject,
       },

@@ -1,4 +1,4 @@
-import _, { get, has, isObject, map } from "lodash";
+import _, { get, has, isObject, join, map, tail } from "lodash";
 import { TDataType, TExecuteItem, TGetValue, TParam } from "../types";
 import { enumToOptions, listToCompose, optionsToEnum } from "../util";
 
@@ -27,6 +27,12 @@ export const lodash = (funcName: string, ...e: any): any => {
   // !
   if (funcName === "not") {
     return !e[0];
+  }
+  //字符串拼接
+  if (funcName === "joinStr") {
+    const strSymbol = e[0];
+    const strList = tail(e);
+    return join(strList, strSymbol);
   }
 
   //lodash方法

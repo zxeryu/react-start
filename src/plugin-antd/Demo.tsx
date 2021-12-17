@@ -9,6 +9,8 @@ import {
   HighDrawerForm,
   HighSearchForm as HighSearchFormOrigin,
   HighSearchFormProps,
+  HighFormList,
+  HighFormGroup,
   HighFormItem,
   HighFormText,
   HighFormSelect,
@@ -21,6 +23,7 @@ import {
   HighPageContainer,
   HighEditTable,
   HighFormEditTableItem,
+  HighCURD,
 } from "@react-start/cheng-plugin-antd";
 import { List } from "./List";
 
@@ -47,6 +50,8 @@ const ElementMap = {
   HighModalForm,
   HighDrawerForm,
   HighSearchForm,
+  HighFormList,
+  HighFormGroup,
   HighFormText,
   HighFormSelect,
   HighFormDigit,
@@ -58,6 +63,7 @@ const ElementMap = {
   HighPageContainer,
   HighEditTable,
   HighFormEditTableItem,
+  HighCURD,
 };
 
 const requestActorMap = {
