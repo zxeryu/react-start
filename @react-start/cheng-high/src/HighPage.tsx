@@ -1,6 +1,6 @@
 import { HighPageProvider, HighPageProviderProps, useHighPage } from "./HighPageProvider";
 import React, { useCallback, useEffect, useMemo } from "react";
-import { ElementConfigBase, TDataType, TExecuteItem, TExecuteType } from "./types";
+import { ElementConfigBase, TDataType, TExecuteItem, TExecuteType, TGetValue } from "./types";
 import { uniq, filter, get, concat, size, reduce, forEach, keys } from "lodash";
 import { useStore, shallowEqual } from "@reactorx/core";
 import { tap as rxTap } from "rxjs";
@@ -9,10 +9,16 @@ import { useHigh } from "./HighProvider";
 import { useRequestContext, IRequestActor } from "@react-start/request";
 import { useComposeRequestActor } from "./request";
 import { useDomEvent } from "./render";
-import { getExecuteParams } from "./expression";
+import { getExecuteParams, getLodashResult } from "./expression";
 
 export interface IConfigData {
+  //初始状态
   initialState?: Record<string, any>;
+  //初始状态（表达式）
+  initialExpressionList?: {
+    stateName: string;
+    expression: TGetValue;
+  }[];
   registerStore?: string[];
   //api name
   registerMeta?: string[];
@@ -20,7 +26,7 @@ export interface IConfigData {
   registerRequest?: {
     requestName: string;
     //若不设置该字段，默认使用requestName
-    storeName?: string;
+    stateName?: string;
     //如果设置该字段，会在状态中生成[loadingName]的boolean类型字段，表示网络请求状态
     loadingName?: string;
     //拓展，执行注册的逻辑
@@ -49,7 +55,22 @@ const Content = ({ configData, requestActorMap }: Omit<HighPageProps, "elementsM
   }, []);
 
   useEffect(() => {
-    configData.initialState && dispatch({ type: "compose", payload: configData.initialState });
+    if (configData.initialState) {
+      dispatch({ type: "compose", payload: configData.initialState });
+    }
+    if (configData.initialExpressionList) {
+      const eState = reduce(
+        configData.initialExpressionList,
+        (pair, item) => {
+          return {
+            ...pair,
+            [item.stateName]: getLodashResult(item.expression),
+          };
+        },
+        {},
+      );
+      dispatch({ type: "compose", payload: eState });
+    }
   }, []);
 
   /******************************** 执行注册的逻辑 ************************************/
@@ -159,7 +180,7 @@ const Content = ({ configData, requestActorMap }: Omit<HighPageProps, "elementsM
     onStart: (actor) => {
       const loadingName = get(requestMap, [actor.name, "loadingName"]);
       if (loadingName) {
-        dispatchStore(loadingName, true);
+        dispatch({ type: loadingName, payload: true });
       }
     },
     onSuccess: (actor) => {
@@ -169,15 +190,15 @@ const Content = ({ configData, requestActorMap }: Omit<HighPageProps, "elementsM
         execute(executeList, getDataTarget);
         return;
       }
-      const storeName = get(requestMap, [actor.name, "storeName"]);
-      if (storeName) {
-        dispatchStore(storeName, actor.res?.data);
+      const stateName = get(requestMap, [actor.name, "stateName"]);
+      if (stateName) {
+        dispatch({ type: stateName, payload: actor.res?.data });
       }
     },
     onFinish: (actor) => {
       const loadingName = get(requestMap, [actor.name, "loadingName"]);
       if (loadingName) {
-        dispatchStore(loadingName, false);
+        dispatch({ type: loadingName, payload: false });
       }
     },
   });

@@ -92,6 +92,7 @@ const Structure = ({ nodeData, onStructureSelect }: Pick<ITreeExtraProps, "nodeD
           <Tree
             style={{ paddingRight: 10 }}
             treeData={treeData}
+            selectedKeys={[]}
             onSelect={(selectedKeys) => {
               onStructureSelect(selectedKeys[0] as string);
             }}

@@ -1,15 +1,51 @@
-import React, { ReactNode, useCallback, useRef, useState } from "react";
+import React, { ReactNode, useCallback, useMemo, useRef, useState } from "react";
 import { useCheng } from "./Cheng";
 import { Tree, Button, TreeProps } from "antd";
-import { isEmpty, isArray } from "lodash";
+import { isEmpty, isArray, map, set, get } from "lodash";
 import { ElementConfigBase } from "@react-start/cheng-high";
 import { ElementsModal } from "./Elements";
 import { addElement, findTarget, generateId, removeElement } from "./util";
 import { IElement } from "./types";
 import { TreeExtra } from "./ConfigMenu";
+import { DataNode } from "rc-tree/lib/interface";
+
+const convertToNode = (elements: ElementConfigBase[]) => {
+  return map(elements, (element) => {
+    const item: DataNode = {
+      key: element.oid,
+      title: element.elementType$,
+    };
+    set(item, "props", element.elementProps$);
+    if (isArray(element.elementList)) {
+      item.children = convertToNode(element.elementList);
+    }
+    return item;
+  });
+};
+
+// const convertToElement = (nodes: DataNode[]) => {
+//   return map(nodes, (nodeData) => {
+//     const item: ElementConfigBase = {
+//       oid: nodeData.key as string,
+//       elementType$: nodeData.title as string,
+//       elementProps$: get(nodeData, "props"),
+//     };
+//     if (isArray(nodeData.children)) {
+//       item.elementList = convertToElement(nodeData.children);
+//     }
+//     return item;
+//   });
+// };
 
 export const ConfigTree = ({ treeWidth = 320, extra }: { treeWidth?: string | number; extra?: ReactNode }) => {
   const { configData, onConfigChange, setCurrentElement } = useCheng();
+
+  const treeData = useMemo(() => {
+    if (!configData) {
+      return undefined;
+    }
+    return convertToNode(isArray(configData.page) ? configData.page : [configData.page]);
+  }, [configData]);
 
   const [addVisible, setAddVisible] = useState<boolean>(false);
   const targetElementOid = useRef<string | undefined>();
@@ -148,14 +184,17 @@ export const ConfigTree = ({ treeWidth = 320, extra }: { treeWidth?: string | nu
           marginTop: 10,
         }}
         draggable
-        treeData={isArray(configData.page) ? configData.page : ([configData.page] as any)}
-        fieldNames={{
-          key: "oid",
-          title: "elementType$",
-          children: "elementList",
-        }}
+        treeData={treeData}
         onDrop={handleDrop}
-        titleRender={(nodeData: ElementConfigBase | any) => {
+        titleRender={(node: DataNode) => {
+          const nodeData: ElementConfigBase = {
+            oid: node.key as string,
+            elementType$: node.title as string,
+            elementProps$: get(node, "props"),
+          };
+          if (isArray(node.children)) {
+            nodeData.elementList = [];
+          }
           return (
             <div
               css={{ display: "flex" }}

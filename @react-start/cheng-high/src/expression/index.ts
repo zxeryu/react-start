@@ -1,9 +1,25 @@
 import _, { get, has, isObject, map } from "lodash";
 import { TDataType, TExecuteItem, TGetValue, TParam } from "../types";
+import { enumToOptions, listToCompose, optionsToEnum } from "../util";
 
 /************************************ fun **************************************/
 
 export const lodash = (funcName: string, ...e: any): any => {
+  //listToCompose
+  if (funcName === "listToCompose") {
+    return listToCompose(e[0], e[1]);
+  }
+
+  //optionsToEnum
+  if (funcName === "optionsToEnum") {
+    return optionsToEnum(e[0]);
+  }
+
+  //enumToOptions
+  if (funcName === "enumToOptions") {
+    return enumToOptions(e[0]);
+  }
+
   //三元表达式
   if (funcName === "ternary") {
     return e[0] ? e[1] : e[2];
@@ -37,20 +53,20 @@ const isLodashDesc = (desc: TExecuteItem["execParams"]) => {
   return isObject(desc) && has(desc, "funName");
 };
 
-export const getLodashResult = (valueOrDesc: TGetValue, getDataTarget: (type: TDataType) => any) => {
+export const getLodashResult = (valueOrDesc: TGetValue, getDataTarget?: (type: TDataType) => any) => {
   const funName = get(valueOrDesc, "funName");
   const funParamsList = get(valueOrDesc, "funParams");
   const funParams = map(funParamsList, (v) => {
     //如果为表达式（直接取值）
     if (isValueDesc(v)) {
-      return getValue(v, getDataTarget);
+      return getDataTarget ? getValue(v, getDataTarget) : undefined;
     }
     return v;
   });
   return lodash(funName, ...funParams);
 };
 
-export const getExecuteParams = (item: TExecuteItem, getDataTarget: (type: TDataType) => any) => {
+export const getExecuteParams = (item: TExecuteItem, getDataTarget?: (type: TDataType) => any) => {
   const execParamsList = get(item, "execParams");
   return map(execParamsList, (valueOrDesc) => {
     //如果为表达式（lodash方法）
@@ -59,7 +75,7 @@ export const getExecuteParams = (item: TExecuteItem, getDataTarget: (type: TData
     }
     //如果为表达式（直接取值）
     if (isValueDesc(valueOrDesc)) {
-      return getValue(valueOrDesc, getDataTarget);
+      return getDataTarget ? getValue(valueOrDesc, getDataTarget) : undefined;
     }
     return valueOrDesc;
   });
