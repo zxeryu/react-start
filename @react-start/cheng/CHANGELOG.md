@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.1](https://github.com/zxeryu/react-start/compare/@react-start/cheng@0.3.0...@react-start/cheng@0.3.1) (2021-12-22)
+
+### Bug Fixes
+
+- **cheng:** convert tree node to element ([73bda35](https://github.com/zxeryu/react-start/commit/73bda359cbb8c9371de300614a27178de2c27410))
+- **cheng:** draggable bug ([a855ba7](https://github.com/zxeryu/react-start/commit/a855ba7d8c399442f8e748c3051e3b1299e3c85a))
+- **cheng:** structure name ([23bc12d](https://github.com/zxeryu/react-start/commit/23bc12dd0d1669363797a22fa429b41766a29525))
+- **cheng:** tree draggable && structure ([1ceb313](https://github.com/zxeryu/react-start/commit/1ceb313753f8076884307605cf76e7ab512098c7))
+
 # [0.3.0](https://github.com/zxeryu/react-start/compare/@react-start/cheng@0.2.1...@react-start/cheng@0.3.0) (2021-10-04)
 
 ### Bug Fixes
