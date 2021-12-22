@@ -23,19 +23,19 @@ const convertToNode = (elements: ElementConfigBase[]) => {
   });
 };
 
-// const convertToElement = (nodes: DataNode[]) => {
-//   return map(nodes, (nodeData) => {
-//     const item: ElementConfigBase = {
-//       oid: nodeData.key as string,
-//       elementType$: nodeData.title as string,
-//       elementProps$: get(nodeData, "props"),
-//     };
-//     if (isArray(nodeData.children)) {
-//       item.elementList = convertToElement(nodeData.children);
-//     }
-//     return item;
-//   });
-// };
+const convertToElement = (nodes: DataNode[]) => {
+  return map(nodes, (nodeData) => {
+    const item: ElementConfigBase = {
+      oid: nodeData.key as string,
+      elementType$: nodeData.title as string,
+      elementProps$: get(nodeData, "props"),
+    };
+    if (isArray(nodeData.children)) {
+      item.elementList = convertToElement(nodeData.children);
+    }
+    return item;
+  });
+};
 
 export const ConfigTree = ({ treeWidth = 320, extra }: { treeWidth?: string | number; extra?: ReactNode }) => {
   const { configData, onConfigChange, setCurrentElement } = useCheng();
@@ -199,7 +199,11 @@ export const ConfigTree = ({ treeWidth = 320, extra }: { treeWidth?: string | nu
             <div
               css={{ display: "flex" }}
               onClick={() => {
-                setCurrentElement(nodeData);
+                const realNodeData = { ...nodeData };
+                if (isArray(node.children)) {
+                  realNodeData.elementList = convertToElement(node.children);
+                }
+                setCurrentElement(realNodeData);
               }}>
               {nodeData.elementType$}
 
