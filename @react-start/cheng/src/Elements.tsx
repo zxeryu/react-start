@@ -23,9 +23,9 @@ export const Elements = ({ onSelect }: { onSelect: (item: IElement) => void }) =
 
   return (
     <>
-      {(!elements || size(elements) <= 0) && <Empty css={{ margin: "2em auto" }} />}
+      {(!elements || size(elements) <= 0) && <Empty style={{ margin: "2em auto" }} />}
 
-      <div css={{ maxHeight: "60vh", overflowY: "auto" }}>
+      <div style={{ maxHeight: "60vh", overflowY: "auto" }}>
         {map(keys(groupElements), (key) => {
           const group = get(groupElements, [key, 0, "group"]);
           const elements = get(groupElements, key);

@@ -5,19 +5,31 @@ import { withoutMenuItemBubble } from "./util";
 import { DataNode } from "antd/es/tree";
 import React, { useMemo } from "react";
 
-const Operate = ({ nodeData, onAddChild, onRemove }: Pick<ITreeExtraProps, "nodeData" | "onAddChild" | "onRemove">) => {
+const Operate = ({ nodeData, onOperate }: Pick<ITreeExtraProps, "nodeData" | "onOperate">) => {
+  const menus = useMemo(() => {
+    const menuList: { value: string; label: string }[] = [];
+
+    isArray(nodeData.elementList) && menuList.push({ value: "addSub", label: "添加子元素" });
+    menuList.push({ value: "delete", label: "删除" });
+    menuList.push({ value: "jsonShow", label: "Json数据" });
+    menuList.push({ value: "jsonEdit", label: "Json编辑" });
+
+    return menuList;
+  }, [nodeData]);
+
   return (
     <Dropdown
       overlay={
         <Menu>
-          {isArray(nodeData.elementList) && (
-            <Menu.Item key={"addSub"} onClick={withoutMenuItemBubble(onAddChild)}>
-              添加子元素
+          {map(menus, (menu) => (
+            <Menu.Item
+              key={menu.value}
+              onClick={withoutMenuItemBubble(() => {
+                onOperate(menu.value);
+              })}>
+              {menu.label}
             </Menu.Item>
-          )}
-          <Menu.Item key={"delete"} onClick={withoutMenuItemBubble(onRemove)}>
-            删除
-          </Menu.Item>
+          ))}
         </Menu>
       }>
       <a
@@ -50,10 +62,7 @@ const objectToTree = (obj: Object, parent: string): DataNode[] => {
 
   const validList = filter(keys(obj), (key) => {
     const value = get(obj, key);
-    if (isObject(value)) {
-      return true;
-    }
-    return false;
+    return isObject(value);
   });
 
   return map(validList, (key) => {
@@ -113,12 +122,12 @@ const Structure = ({ nodeData, onStructureSelect }: Pick<ITreeExtraProps, "nodeD
 
 export interface ITreeExtraProps {
   nodeData: ElementConfigBase;
-  onAddChild: () => void;
-  onRemove: () => void;
   onStructureSelect: (path: string) => void;
+
+  onOperate: (operateKey: string) => void;
 }
 
-export const TreeExtra = ({ nodeData, onAddChild, onRemove, onStructureSelect }: ITreeExtraProps) => {
+export const TreeExtra = ({ nodeData, onOperate, onStructureSelect }: ITreeExtraProps) => {
   return (
     <div
       css={{ position: "absolute", right: 0 }}
@@ -128,7 +137,7 @@ export const TreeExtra = ({ nodeData, onAddChild, onRemove, onStructureSelect }:
       }}>
       <Space>
         <Structure nodeData={nodeData} onStructureSelect={onStructureSelect} />
-        <Operate nodeData={nodeData} onAddChild={onAddChild} onRemove={onRemove} />
+        <Operate nodeData={nodeData} onOperate={onOperate} />
       </Space>
     </div>
   );

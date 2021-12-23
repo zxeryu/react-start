@@ -1,7 +1,27 @@
 import React, { useState } from "react";
 import { map } from "lodash";
-import { IElement, ChengProvider, ConfigTree, ElementFormModal } from "@react-start/cheng";
+import { IElement, ChengProvider, ConfigTree, ElementFormModal, JsonCodeModal, useCheng } from "@react-start/cheng";
 import { IConfigData } from "@react-start/cheng-high";
+import { HighSettingConfig } from "../../@react-start/cheng/src/setting/high-config";
+
+// {
+//   name: "compose",
+//     label: "复杂结构",
+//   groupType: "object",
+//   children: [
+//   { name: "属性1", valueType: "text" },
+//   { name: "属性2", valueType: "text" },
+//   {
+//     name: "属性3",
+//     valueType: "select",
+//     options: [
+//       { label: "option1", value: "option" },
+//       { label: "option2", value: "option2" },
+//       { label: "option3", value: "option3" },
+//     ],
+//   },
+// ],
+// },
 
 const LayoutElements: IElement[] = [
   { name: "HighPageContainer", isContainer: true },
@@ -46,24 +66,7 @@ const FormElements: IElement[] = [
           { name: "value", valueType: "text" },
         ],
       },
-      {
-        name: "compose",
-        label: "复杂结构",
-        groupType: "object",
-        children: [
-          { name: "属性1", valueType: "text" },
-          { name: "属性2", valueType: "text" },
-          {
-            name: "属性3",
-            valueType: "select",
-            options: [
-              { label: "option1", value: "option" },
-              { label: "option2", value: "option2" },
-              { label: "option3", value: "option3" },
-            ],
-          },
-        ],
-      },
+      HighSettingConfig,
     ],
   },
   { name: "HighFormCheckbox" },
@@ -168,6 +171,7 @@ const data = {
               label: "企业类型",
               width: "sm",
               highConfig: {
+                sendEventName: "123",
                 receiveStateList: [{ name: "enterpriseTypeOptions", mapName: "options" }],
               },
             },
@@ -618,6 +622,16 @@ const data = {
   },
 };
 
+const EditModal = () => {
+  const { editType } = useCheng();
+  if (editType === "jsonShow") {
+    return <JsonCodeModal mode={"read"} />;
+  } else if (editType === "jsonEdit") {
+    return <JsonCodeModal mode={"edit"} />;
+  }
+  return <ElementFormModal />;
+};
+
 export const DragOperatorDemo = () => {
   const [configData, setConfigData] = useState<IConfigData>(data);
 
@@ -630,7 +644,8 @@ export const DragOperatorDemo = () => {
           setConfigData(configData);
         }}>
         <ConfigTree />
-        <ElementFormModal />
+
+        <EditModal />
       </ChengProvider>
     </div>
   );

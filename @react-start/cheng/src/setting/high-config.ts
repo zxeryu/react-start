@@ -1,6 +1,6 @@
 import { SetGroupProp } from "../types";
 
-export const HighConfigSetProps: SetGroupProp = {
+export const HighSettingConfig: SetGroupProp = {
   name: "highConfig",
   groupType: "object",
   children: [

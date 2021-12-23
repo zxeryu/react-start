@@ -47,6 +47,7 @@ export const ConfigTree = ({ treeWidth = 320, extra }: { treeWidth?: string | nu
     return convertToNode(isArray(configData.page) ? configData.page : [configData.page]);
   }, [configData]);
 
+  //添加
   const [addVisible, setAddVisible] = useState<boolean>(false);
   const targetElementOid = useRef<string | undefined>();
 
@@ -209,12 +210,15 @@ export const ConfigTree = ({ treeWidth = 320, extra }: { treeWidth?: string | nu
 
               <TreeExtra
                 nodeData={nodeData}
-                onAddChild={() => {
-                  targetElementOid.current = nodeData.oid;
-                  setAddVisible(true);
-                }}
-                onRemove={() => {
-                  handleRemoveElement(nodeData.oid);
+                onOperate={(operateKey) => {
+                  if (operateKey === "addSub") {
+                    targetElementOid.current = nodeData.oid;
+                    setAddVisible(true);
+                  } else if (operateKey === "delete") {
+                    handleRemoveElement(nodeData.oid);
+                  } else if (operateKey === "jsonShow" || operateKey === "jsonEdit") {
+                    setCurrentElement(nodeData, undefined, operateKey);
+                  }
                 }}
                 onStructureSelect={(path) => {
                   setCurrentElement(nodeData, path);
