@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Modal, ModalProps, Input, message } from "antd";
 import { useCheng } from "../Cheng";
 import { TextAreaProps } from "antd/lib/input/TextArea";
-import { updateElement } from "../util";
+import { formatJson, updateElement } from "../util";
 import { isArray } from "lodash";
 
 export const JsonCodeModal = ({
@@ -18,7 +18,7 @@ export const JsonCodeModal = ({
     if (!currentElement || !currentElement.elementProps$) {
       return;
     }
-    setValue(JSON.stringify(currentElement.elementProps$, null, "\t"));
+    setValue(formatJson(currentElement.elementProps$));
   }, [currentElement]);
 
   const handleSubmit = useCallback(() => {
@@ -81,7 +81,7 @@ export const JsonCodeModal = ({
             overflowY: "auto",
           }}>
           <pre>
-            <code>{JSON.stringify(currentElement.elementProps$, null, "\t")}</code>
+            <code>{formatJson(currentElement.elementProps$)}</code>
           </pre>
         </div>
       )}

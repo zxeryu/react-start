@@ -32,6 +32,12 @@ export const withoutMenuItemBubble = (cb: () => void): MenuClickEventHandler => 
   };
 };
 
+export const formatJson = (content: object) => {
+  return JSON.stringify(content, null, "  ");
+};
+
+/***************************** element *************************************/
+
 export const isElementConfig = (obj: Object) => {
   if (!obj) {
     return false;
@@ -42,6 +48,8 @@ export const isElementConfig = (obj: Object) => {
 export const isGroupSetting = (config: any) => {
   return !!get(config, "groupType");
 };
+
+/***************************** tree *************************************/
 
 export const findTarget = (
   list: ElementConfigBase[],
