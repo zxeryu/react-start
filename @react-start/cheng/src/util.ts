@@ -39,6 +39,10 @@ export const isElementConfig = (obj: Object) => {
   return !!get(obj, "elementType$");
 };
 
+export const isGroupSetting = (config: any) => {
+  return !!get(config, "groupType");
+};
+
 export const findTarget = (
   list: ElementConfigBase[],
   oid: string,

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { map } from "lodash";
-import { IElement, ChengProvider, ConfigTree } from "@react-start/cheng";
+import { IElement, ChengProvider, ConfigTree, ElementFormModal } from "@react-start/cheng";
 import { IConfigData } from "@react-start/cheng-high";
 
 const LayoutElements: IElement[] = [
@@ -30,7 +30,42 @@ const FormElements: IElement[] = [
   { name: "HighFormTimeRangePicker" },
   { name: "HighFormDateTimePicker" },
   { name: "HighFormDateTimeRangePicker" },
-  { name: "HighFormSelect" },
+  {
+    name: "HighFormSelect",
+    setProps: [
+      { name: "name", valueType: "text" },
+      { name: "label", valueType: "text" },
+      { name: "placeholder", valueType: "text" },
+      {
+        name: "options",
+        label: "options",
+        valueType: "text",
+        groupType: "array",
+        children: [
+          { name: "label", valueType: "text" },
+          { name: "value", valueType: "text" },
+        ],
+      },
+      {
+        name: "compose",
+        label: "复杂结构",
+        groupType: "object",
+        children: [
+          { name: "属性1", valueType: "text" },
+          { name: "属性2", valueType: "text" },
+          {
+            name: "属性3",
+            valueType: "select",
+            options: [
+              { label: "option1", value: "option" },
+              { label: "option2", value: "option2" },
+              { label: "option3", value: "option3" },
+            ],
+          },
+        ],
+      },
+    ],
+  },
   { name: "HighFormCheckbox" },
   { name: "HighFormCheckboxGroup" },
   { name: "HighFormRadioGroup" },
@@ -582,11 +617,12 @@ const data = {
     ],
   },
 };
+
 export const DragOperatorDemo = () => {
   const [configData, setConfigData] = useState<IConfigData>(data);
 
   return (
-    <div>
+    <div css={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
       <ChengProvider
         elements={elements}
         configData={configData}
@@ -594,6 +630,7 @@ export const DragOperatorDemo = () => {
           setConfigData(configData);
         }}>
         <ConfigTree />
+        <ElementFormModal />
       </ChengProvider>
     </div>
   );
