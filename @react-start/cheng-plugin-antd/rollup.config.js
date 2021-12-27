@@ -42,7 +42,7 @@ export default [
     ],
   },
   {
-    input: "../../.tmp/@react-start/cheng-high/index.d.ts",
+    input: "../../.tmp/@react-start/cheng-plugin-antd/index.d.ts",
     output: [{ file: "dist/index.d.ts", format: "es" }],
     plugins: [dts()],
   },

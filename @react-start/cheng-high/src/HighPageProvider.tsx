@@ -8,6 +8,7 @@ import React, {
   useRef,
   MutableRefObject,
   isValidElement,
+  useMemo,
 } from "react";
 import {
   get,
@@ -257,7 +258,7 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
 
   /************************** 事件处理 *****************************/
 
-  const subject$ = new Subject<Action>();
+  const subject$ = useMemo(() => new Subject<Action>(), []);
 
   const sendEvent = useCallback((action: Action) => {
     subject$.next(action);

@@ -1,7 +1,7 @@
 import { HighPageProvider, HighPageProviderProps, useHighPage } from "./HighPageProvider";
 import React, { useCallback, useEffect, useMemo } from "react";
 import { ElementConfigBase, TDataType, TExecuteItem, TExecuteType, TGetValue } from "./types";
-import { uniq, filter, get, concat, size, reduce, forEach, keys } from "lodash";
+import { uniq, filter, get, concat, size, reduce, forEach, keys, cloneDeep } from "lodash";
 import { useStore, shallowEqual } from "@reactorx/core";
 import { tap as rxTap } from "rxjs";
 import { map as rxOperatorMap, distinctUntilChanged } from "rxjs/operators";
@@ -216,7 +216,12 @@ const Content = ({ configData, requestActorMap }: Omit<HighPageProps, "elementsM
     execute(action.executeList, getDataTarget);
   });
 
-  return <>{render(configData.page)}</>;
+  /**
+   * 防止初始化对象修改而影响状态 如：组件再hidden和show切换之后会保留之前注册的事件对象
+   */
+  const renderPageData = useMemo(() => cloneDeep(configData.page), []);
+
+  return <>{render(renderPageData)}</>;
 };
 
 //处理 store store-meta

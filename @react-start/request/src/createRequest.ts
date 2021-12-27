@@ -19,7 +19,8 @@ import {
 
 export interface IRequestActor<TReq = any, TRes = any, TErr = any> {
   name: string;
-  requestFromReq: (req: TReq) => AxiosRequestConfig;
+  requestFromReq?: (req: TReq) => AxiosRequestConfig;
+  requestConfig?: AxiosRequestConfig;
   label?: string;
   req?: TReq;
   res?: AxiosResponse<TRes>;
@@ -104,7 +105,10 @@ export const createRequestFactory = (client: AxiosInstance) => {
   };
 
   return (actor: IRequestActor) => {
-    const axiosRequestConfig = actor.requestFromReq(actor.req);
+    let axiosRequestConfig = actor.requestConfig!;
+    if (actor.requestFromReq) {
+      axiosRequestConfig = actor.requestFromReq(actor.req);
+    }
 
     const uri = axiosRequestConfig.method?.toLowerCase() === "get" && client.getUri(axiosRequestConfig);
 

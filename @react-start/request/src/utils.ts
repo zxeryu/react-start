@@ -1,5 +1,6 @@
 import { isObject, forEach, isArray } from "lodash";
 import { stringify } from "querystring";
+import { IRequestActor } from "./createRequest";
 
 const getContentType = (headers: any = {}) => headers["Content-Type"] || headers["content-type"] || "";
 
@@ -80,6 +81,15 @@ export const transformResponse = (data: any, headers: any) => {
     return JSON.parse(data);
   }
   return data;
+};
+
+export const toUrl = (actor: IRequestActor, baseUrl = "") => {
+  let axiosConfig = actor.requestConfig;
+  if (actor.requestFromReq) {
+    axiosConfig = actor.requestFromReq(actor.req);
+  }
+
+  return `${baseUrl || axiosConfig?.baseURL || ""}${axiosConfig?.url || ""}?${paramsSerializer(axiosConfig?.params)}`;
 };
 
 export const generateId = () => {
