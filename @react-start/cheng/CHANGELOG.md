@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.4.0](https://github.com/zxeryu/react-start/compare/@react-start/cheng@0.3.1...@react-start/cheng@0.4.0) (2021-12-27)
+
+### Bug Fixes
+
+- **cheng:** json code style ([3e394be](https://github.com/zxeryu/react-start/commit/3e394be3a6ef65f7bee30a619d1084ace4dbbf0d))
+
+### Features
+
+- **cheng:** json code ([5de1e3b](https://github.com/zxeryu/react-start/commit/5de1e3bee95ba64a6b87d6e21a544c09eda59f92))
+- **cheng:** setting ([6e885ce](https://github.com/zxeryu/react-start/commit/6e885cec3ccee6900545aa5bc1dd9788fcd0926e))
+
 ## [0.3.1](https://github.com/zxeryu/react-start/compare/@react-start/cheng@0.3.0...@react-start/cheng@0.3.1) (2021-12-22)
 
 ### Bug Fixes

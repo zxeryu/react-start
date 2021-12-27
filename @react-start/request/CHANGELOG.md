@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.1](https://github.com/zxeryu/react-start/compare/@react-start/request@0.1.0...@react-start/request@0.1.1) (2021-12-27)
+
+### Performance Improvements
+
+- ~ ([f4e5651](https://github.com/zxeryu/react-start/commit/f4e56519124ac3518784144ea120a290eb081bd6))
+
 # 0.1.0 (2021-11-25)
 
 ### Bug Fixes
