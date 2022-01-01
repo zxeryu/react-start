@@ -194,17 +194,13 @@ export const ConfigTree = ({ treeWidth = 320, extra }: { treeWidth?: string | nu
             elementProps$: get(node, "props"),
           };
           if (isArray(node.children)) {
-            nodeData.elementList = [];
+            nodeData.elementList = convertToElement(node.children);
           }
           return (
             <div
               css={{ display: "flex" }}
               onClick={() => {
-                const realNodeData = { ...nodeData };
-                if (isArray(node.children)) {
-                  realNodeData.elementList = convertToElement(node.children);
-                }
-                setCurrentElement(realNodeData);
+                setCurrentElement(nodeData);
               }}>
               {nodeData.elementType$}
 
