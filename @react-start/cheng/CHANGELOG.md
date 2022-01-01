@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.1](https://github.com/zxeryu/react-start/compare/@react-start/cheng@0.4.0...@react-start/cheng@0.4.1) (2022-01-01)
+
+### Bug Fixes
+
+- **cheng:** tree children ([de78301](https://github.com/zxeryu/react-start/commit/de7830136838496996d16c20a8fac6b0e2a30583))
+
 # [0.4.0](https://github.com/zxeryu/react-start/compare/@react-start/cheng@0.3.1...@react-start/cheng@0.4.0) (2021-12-27)
 
 ### Bug Fixes
