@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.3](https://github.com/zxeryu/react-start/compare/@react-start/cheng-high@0.4.2...@react-start/cheng-high@0.4.3) (2022-01-01)
+
+### Bug Fixes
+
+- **cheng-high:** initExecuteList for HighPage ([be77f29](https://github.com/zxeryu/react-start/commit/be77f2918a4e38a96c1170d68ad27cc1bbbb0618))
+
 ## [0.4.2](https://github.com/zxeryu/react-start/compare/@react-start/cheng-high@0.4.1...@react-start/cheng-high@0.4.2) (2021-12-27)
 
 ### Performance Improvements
