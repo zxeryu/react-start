@@ -84,19 +84,21 @@ interface HighPageContextProps {
       defaultSend?: boolean;
     },
   ) => void;
+  //发送请求by name
+  dispatchRequestByName?: (requestName: string, params: any) => void;
 }
 
 const HighPageContext = createContext<HighPageContextProps>({} as any);
 
 export const useHighPage = () => useContext(HighPageContext);
 
-export interface HighPageProviderProps {
+export interface HighPageProviderProps extends Pick<HighPageContextProps, "dispatchRequestByName"> {
   elementsMap?: HighProviderProps["elementsMap"];
   children?: ReactNode;
 }
 
 // deal dynamic data
-export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProviderProps) => {
+export const HighPageProvider = ({ children, elementsMap = {}, dispatchRequestByName }: HighPageProviderProps) => {
   const { render: renderOrigin } = useHigh();
 
   const render = useCallback(
@@ -347,6 +349,8 @@ export const HighPageProvider = ({ children, elementsMap = {} }: HighPageProvide
         subject$,
         sendEvent,
         sendEventSimple,
+        //
+        dispatchRequestByName,
       }}>
       {children}
     </HighPageContext.Provider>

@@ -6,7 +6,7 @@ import {
   useRequestContext,
 } from "@react-start/request";
 import { useEffect, useMemo } from "react";
-import { filter as rxFilter, tap as rxTap } from "rxjs";
+import { merge as rxMerge, filter as rxFilter, tap as rxTap } from "rxjs";
 
 const createUseRequestActor = (isFilterActor: (actor: IRequestActor) => boolean) => {
   return (requestNameList: string[], callback: (actor: IRequestActor) => void) => {
@@ -57,16 +57,16 @@ export const useComposeRequestActor = (
   const nameSet = useMemo(() => new Set(requestNameList || []), []);
 
   useEffect(() => {
-    const sub = requestSubject$
-      .pipe(
+    const sub = rxMerge(
+      requestSubject$.pipe(
         rxFilter(isPreRequestActor),
         rxTap((actor) => {
           if (nameSet.has(actor.name)) {
             options.onStart && options.onStart(actor);
           }
         }),
-      )
-      .pipe(
+      ),
+      requestSubject$.pipe(
         rxFilter(isDoneRequestActor),
         rxTap((actor) => {
           if (nameSet.has(actor.name)) {
@@ -74,8 +74,8 @@ export const useComposeRequestActor = (
             options.onFinish && options.onFinish(actor);
           }
         }),
-      )
-      .pipe(
+      ),
+      requestSubject$.pipe(
         rxFilter(isFailedRequestActor),
         rxTap((actor) => {
           if (nameSet.has(actor.name)) {
@@ -83,8 +83,8 @@ export const useComposeRequestActor = (
             options.onFinish && options.onFinish(actor);
           }
         }),
-      )
-      .subscribe();
+      ),
+    ).subscribe();
 
     return () => {
       sub.unsubscribe();

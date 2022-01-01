@@ -14,11 +14,13 @@ import { getExecuteParams, getLodashResult } from "./expression";
 export interface IConfigData {
   //初始状态
   initialState?: Record<string, any>;
-  //初始状态（表达式）
+  //初始状态（表达式），后续都使用initExecuteList
   initialExpressionList?: {
     stateName: string;
     expression: TGetValue;
   }[];
+  //初始化执行方法
+  initExecuteList?: TExecuteItem[];
   registerStore?: string[];
   //api name
   registerMeta?: string[];
@@ -37,41 +39,13 @@ export interface IConfigData {
 
 export interface HighPageProps extends HighPageProviderProps {
   configData: IConfigData;
-  requestActorMap?: { [key: string]: IRequestActor };
+  requestActorList?: IRequestActor[];
 }
 
-const Content = ({ configData, requestActorMap }: Omit<HighPageProps, "elementsMap" | "children">) => {
+const Content = ({ configData }: Omit<HighPageProps, "elementsMap" | "children">) => {
   const store$ = useStore();
-  const { dispatchRequest } = useRequestContext();
-  const { requestActorMap: baseRequestActorMap, dispatchStore, dispatchMeta } = useHigh();
-  const { render, dispatch, stateRef, dataRef, setDataToRef } = useHighPage();
-
-  const dispatchRequestByName = useCallback((requestName: string, params: Record<string, any>) => {
-    const requestActor = get(requestActorMap, requestName) || get(baseRequestActorMap, requestName);
-    if (!requestActor) {
-      return;
-    }
-    dispatchRequest(requestActor, params);
-  }, []);
-
-  useEffect(() => {
-    if (configData.initialState) {
-      dispatch({ type: "compose", payload: configData.initialState });
-    }
-    if (configData.initialExpressionList) {
-      const eState = reduce(
-        configData.initialExpressionList,
-        (pair, item) => {
-          return {
-            ...pair,
-            [item.stateName]: getLodashResult(item.expression),
-          };
-        },
-        {},
-      );
-      dispatch({ type: "compose", payload: eState });
-    }
-  }, []);
+  const { dispatchStore, dispatchMeta } = useHigh();
+  const { render, dispatch, stateRef, dataRef, setDataToRef, dispatchRequestByName } = useHighPage();
 
   /******************************** 执行注册的逻辑 ************************************/
 
@@ -122,7 +96,7 @@ const Content = ({ configData, requestActorMap }: Omit<HighPageProps, "elementsM
           break;
         case "dispatchRequest":
           if (execParams[0] && execParams[1]) {
-            dispatchRequestByName(execParams[0], execParams[1]);
+            dispatchRequestByName!(execParams[0], execParams[1]);
           }
           break;
       }
@@ -216,6 +190,31 @@ const Content = ({ configData, requestActorMap }: Omit<HighPageProps, "elementsM
     execute(action.executeList, getDataTarget);
   });
 
+  /******************************** 初始化 ************************************/
+  useEffect(() => {
+    if (configData.initialState) {
+      dispatch({ type: "compose", payload: configData.initialState });
+    }
+    //初始化状态（表达式）
+    if (configData.initialExpressionList) {
+      const eState = reduce(
+        configData.initialExpressionList,
+        (pair, item) => {
+          return {
+            ...pair,
+            [item.stateName]: getLodashResult(item.expression),
+          };
+        },
+        {},
+      );
+      dispatch({ type: "compose", payload: eState });
+    }
+    //初始调用方法
+    if (configData.initExecuteList) {
+      execute(configData.initExecuteList, createGetDataTarget(undefined));
+    }
+  }, []);
+
   /**
    * 防止初始化对象修改而影响状态 如：组件再hidden和show切换之后会保留之前注册的事件对象
    */
@@ -225,9 +224,27 @@ const Content = ({ configData, requestActorMap }: Omit<HighPageProps, "elementsM
 };
 
 //处理 store store-meta
-export const HighPage = ({ elementsMap, children, ...otherProps }: HighPageProps) => (
-  <HighPageProvider elementsMap={elementsMap}>
-    <Content {...otherProps} />
-    {children}
-  </HighPageProvider>
-);
+export const HighPage = ({ elementsMap, children, requestActorList, ...otherProps }: HighPageProps) => {
+  const { dispatchRequest } = useRequestContext();
+  const { requestActorMap: baseRequestActorMap } = useHigh();
+
+  const requestActorMap = useMemo(
+    () => reduce(requestActorList, (pair, item) => ({ ...pair, [item.name]: item }), {}),
+    [],
+  );
+
+  const dispatchRequestByName = useCallback((requestName: string, params: Record<string, any>) => {
+    const requestActor = get(requestActorMap, requestName) || get(baseRequestActorMap, requestName);
+    if (!requestActor) {
+      return;
+    }
+    dispatchRequest(requestActor, params);
+  }, []);
+
+  return (
+    <HighPageProvider elementsMap={elementsMap} dispatchRequestByName={dispatchRequestByName}>
+      <Content {...otherProps} />
+      {children}
+    </HighPageProvider>
+  );
+};
