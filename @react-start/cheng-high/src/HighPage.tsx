@@ -96,7 +96,7 @@ const Content = ({ configData }: Omit<HighPageProps, "elementsMap" | "children">
           break;
         case "dispatchRequest":
           if (execParams[0] && execParams[1]) {
-            dispatchRequestByName!(execParams[0], execParams[1]);
+            dispatchRequestByName!(execParams[0], execParams[1], execParams[2]);
           }
           break;
       }

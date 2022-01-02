@@ -8,7 +8,7 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
-import { get, set, pick, map, isArray, reduce, keys } from "lodash";
+import { get, pick, map, isArray, reduce, keys, filter } from "lodash";
 import { ElementConfigBase, BaseHighProps, HighProps } from "./types";
 import { useUpdateStateHandle } from "./store/store";
 import { IRequestActor, useRequestContext, isDoneRequestActor } from "@react-start/request";
@@ -19,19 +19,7 @@ type ElementType = FunctionComponent | ForwardRefRenderFunction<any, any>;
 
 type ElementsMap = { [key: string]: ElementType };
 
-export type TDispatchMeta = (
-  storeName: string,
-  options?: {
-    reGetData: boolean;
-    params?: Record<string, any>;
-  },
-) => void;
-
-export interface IStoreRequestActor extends IRequestActor {
-  opts?: {
-    storeName?: string;
-  };
-}
+export type TDispatchMeta = (requestName: string, req?: IRequestActor["req"], extra?: IRequestActor["extra"]) => void;
 
 export interface HighContextProps {
   name?: string;
@@ -51,13 +39,7 @@ export interface HighContextProps {
   requestActorMap?: { [key: string]: IRequestActor };
   //修改Store
   dispatchStore: (key: string, value: any) => void;
-  //request
-  metaList?: {
-    requestName: string;
-    initialParams?: Record<string, any>;
-    //状态中的key
-    storeName?: string;
-  }[];
+  //发送全局meta
   dispatchMeta: TDispatchMeta;
 }
 
@@ -65,9 +47,9 @@ const HighContext = createContext<HighContextProps>({} as any);
 
 export const useHigh = () => useContext(HighContext);
 
-export interface HighProviderProps
-  extends Pick<HighContextProps, "name" | "elementsMap" | "iconMap" | "metaList" | "requestActorMap"> {
+export interface HighProviderProps extends Pick<HighContextProps, "name" | "elementsMap" | "iconMap"> {
   children: ReactNode;
+  requestActorList?: IRequestActor[];
 }
 
 export const HighProvider = ({
@@ -75,8 +57,7 @@ export const HighProvider = ({
   name = "webapp",
   elementsMap,
   iconMap,
-  requestActorMap,
-  metaList,
+  requestActorList,
 }: HighProviderProps) => {
   const store$ = useStore();
   const { dispatchRequest, requestSubject$ } = useRequestContext();
@@ -136,17 +117,19 @@ export const HighProvider = ({
 
   const dispatchStore = useUpdateStateHandle();
 
-  const { metaMap, metaStoreMap } = useMemo(
-    () => ({
-      metaMap: reduce(metaList, (pair, item) => ({ ...pair, [item.requestName]: item }), {}),
-      metaStoreMap: reduce(metaList, (pair, item) => ({ ...pair, [item.storeName || item.requestName]: item }), {}),
-    }),
+  const requestActorMap: { [key: string]: IRequestActor } = useMemo(
+    () => reduce(requestActorList, (pair, item) => ({ ...pair, [item.name]: item }), {}),
     [],
   );
 
   //同步meta信息到store中
   useEffect(() => {
-    const metaKeySet = new Set(keys(metaMap));
+    const metaKeySet = new Set(
+      filter(keys(requestActorMap), (name) => {
+        const actor = requestActorMap[name];
+        return actor.req && actor.extra;
+      }),
+    );
     const sub = requestSubject$
       .pipe(
         rxFilter(isDoneRequestActor),
@@ -154,7 +137,7 @@ export const HighProvider = ({
           return metaKeySet.has(actor.name);
         }),
         rxTap((actor) => {
-          const key = get(actor, ["opts", "storeName"]) || actor.name;
+          const key = get(actor, ["extra", "storeName"]) || actor.name;
           dispatchStore(key, actor.res?.data);
         }),
       )
@@ -164,38 +147,40 @@ export const HighProvider = ({
     };
   }, []);
 
-  const dispatchMeta: TDispatchMeta = useCallback(
-    (storeName, options) => {
-      const metaData = get(metaStoreMap, storeName);
-      if (!metaData) {
-        return;
-      }
-      const requestActor = get(requestActorMap, metaData.requestName);
-      if (!requestActor) {
-        return;
-      }
-      const nextRequestActor: IStoreRequestActor = { ...requestActor };
-      if (metaData.storeName) {
-        set(nextRequestActor, ["opts", "storeName"], metaData.storeName);
-      }
-      //若标记是重新获取，直接发起请求
-      if (get(options, "reGetData")) {
-        dispatchRequest(nextRequestActor, get(options, "params") || metaData.initialParams);
-        return;
-      }
-      //状态中存储的值
-      const tempData = get(store$.value, storeName);
-      //若store中没值，发起请求；如果值已经存在，不用再发起请求
-      if (!tempData) {
-        dispatchRequest(nextRequestActor, metaData.initialParams);
-      }
-    },
-    [metaMap],
-  );
+  const dispatchMeta: TDispatchMeta = useCallback((requestName, req) => {
+    const requestActor = get(requestActorMap, requestName);
+    if (!requestActor) {
+      return;
+    }
+    const nextRequestActor = { ...requestActor };
+    //若标记是重新获取，直接发起请求
+    if (req) {
+      dispatchRequest(nextRequestActor, req, nextRequestActor.extra);
+      return;
+    }
+    //状态中存储的值
+    const storeName = get(nextRequestActor, ["extra", "storeName"]) || nextRequestActor.name;
+    const tempData = get(store$.value, storeName);
+    //若store中没值，发起请求；如果值已经存在，不用再发起请求
+    if (!tempData) {
+      dispatchRequest(nextRequestActor, nextRequestActor.req, nextRequestActor.extra);
+    }
+  }, []);
 
   return (
     <HighContext.Provider
-      value={{ name, elementsMap, getElement, iconMap, getIcon, getProps, render, dispatchStore, dispatchMeta }}>
+      value={{
+        name,
+        elementsMap,
+        getElement,
+        iconMap,
+        getIcon,
+        getProps,
+        render,
+        requestActorMap,
+        dispatchStore,
+        dispatchMeta,
+      }}>
       {children}
     </HighContext.Provider>
   );
