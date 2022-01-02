@@ -16,7 +16,15 @@ import {
   switchMap as rxOperatorSwitchMap,
   observeOn as rxOperatorObserveOn,
 } from "rxjs/operators";
+import { getRequestConfig } from "./utils";
 
+export type ReqType = { body?: Record<string, any>; [key: string]: any };
+
+/**
+ * 两种模式
+ * requestFromReq ：开发时候创建的
+ * requestConfig： 通过配置添加
+ */
 export interface IRequestActor<TReq = any, TRes = any, TErr = any> {
   name: string;
   requestFromReq?: (req: TReq) => AxiosRequestConfig;
@@ -27,6 +35,8 @@ export interface IRequestActor<TReq = any, TRes = any, TErr = any> {
   err?: TErr;
   stage?: "DONE" | "FAILED" | "CANCEL";
   id?: string;
+  //拓展 用于dispatchRequest
+  extra?: Record<string, any>;
 }
 
 export const isPreRequestActor = (actor: IRequestActor) => {
@@ -45,7 +55,7 @@ export const isDoneRequestActor = (actor: IRequestActor) => {
   return !!actor.stage && actor.stage === "DONE";
 };
 
-export const createRequestActor = <TReq, TRes>(
+export const createRequestActor = <TReq extends ReqType, TRes>(
   name: IRequestActor<TReq, TRes>["name"],
   requestFromReq: IRequestActor<TReq, TRes>["requestFromReq"],
   extra?: Pick<IRequestActor<TReq, TRes>, "label">,
@@ -105,10 +115,8 @@ export const createRequestFactory = (client: AxiosInstance) => {
   };
 
   return (actor: IRequestActor) => {
-    let axiosRequestConfig = actor.requestConfig!;
-    if (actor.requestFromReq) {
-      axiosRequestConfig = actor.requestFromReq(actor.req);
-    }
+    //prepare 发起请求的 config
+    const axiosRequestConfig = getRequestConfig(actor);
 
     const uri = axiosRequestConfig.method?.toLowerCase() === "get" && client.getUri(axiosRequestConfig);
 

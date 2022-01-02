@@ -1,4 +1,4 @@
-import { isObject, forEach, isArray } from "lodash";
+import { isObject, forEach, isArray, omit } from "lodash";
 import { stringify } from "querystring";
 import { IRequestActor } from "./createRequest";
 
@@ -83,11 +83,19 @@ export const transformResponse = (data: any, headers: any) => {
   return data;
 };
 
-export const toUrl = (actor: IRequestActor, baseUrl = "") => {
-  let axiosConfig = actor.requestConfig;
+export const getRequestConfig = (actor: IRequestActor) => {
+  let axiosRequestConfig = actor.requestConfig!;
   if (actor.requestFromReq) {
-    axiosConfig = actor.requestFromReq(actor.req);
+    axiosRequestConfig = actor.requestFromReq(actor.req || {});
+  } else if (actor.req) {
+    axiosRequestConfig.params = omit(actor.req, "body");
+    axiosRequestConfig.data = actor.req.body;
   }
+  return axiosRequestConfig;
+};
+
+export const toUrl = (actor: IRequestActor, baseUrl = "") => {
+  const axiosConfig = getRequestConfig(actor);
 
   return `${baseUrl || axiosConfig?.baseURL || ""}${axiosConfig?.url || ""}?${paramsSerializer(axiosConfig?.params)}`;
 };

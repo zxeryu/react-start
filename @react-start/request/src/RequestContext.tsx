@@ -8,7 +8,7 @@ import { createRequestObservable, IRequestActor } from "./createRequest";
 const RequestContext = createContext<{
   client: AxiosInstance;
   requestSubject$: Subject<IRequestActor>;
-  dispatchRequest: (actor: IRequestActor, params?: Record<string, any>) => void;
+  dispatchRequest: (actor: IRequestActor, params?: IRequestActor["req"], extra?: IRequestActor["extra"]) => void;
 }>({} as any);
 
 export const useRequestContext = () => useContext(RequestContext);
@@ -68,11 +68,15 @@ export const RequestProvider = ({
 
   const requestSubject$ = useMemo(() => new Subject<IRequestActor>(), []);
 
-  const dispatchRequest = useCallback((actor: IRequestActor, params?: Record<string, any>) => {
-    const operatorActor = clone(actor);
-    operatorActor.req = params;
-    requestSubject$.next(operatorActor);
-  }, []);
+  const dispatchRequest = useCallback(
+    (actor: IRequestActor, params?: IRequestActor["req"], extra?: IRequestActor["extra"]) => {
+      const operatorActor = clone(actor);
+      operatorActor.req = params;
+      operatorActor.extra = extra;
+      requestSubject$.next(operatorActor);
+    },
+    [],
+  );
 
   return (
     <RequestContext.Provider value={{ client, requestSubject$, dispatchRequest }}>

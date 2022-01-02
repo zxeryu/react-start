@@ -40,7 +40,7 @@ import { isBoolean, map, isString, get, set } from "lodash";
 import { TextAreaProps } from "antd/es/input";
 
 //处理readonly
-const FormFieldWrapper = (props: ComponentWrapperProps) => {
+export const FormFieldWrapper = (props: ComponentWrapperProps) => {
   const { readonly } = useFormContext();
   return <ComponentWrapper noChild {...props} readonly={isBoolean(props.readonly) ? props.readonly : readonly} />;
 };
