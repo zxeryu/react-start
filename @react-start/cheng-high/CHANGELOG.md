@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.4](https://github.com/zxeryu/react-start/compare/@react-start/cheng-high@0.4.3...@react-start/cheng-high@0.4.4) (2022-01-02)
+
+### Bug Fixes
+
+- **cheng-high:** request with extra ([177dd40](https://github.com/zxeryu/react-start/commit/177dd4068045d92fc75b20925aaf0008f4e8f11e))
+
 ## [0.4.3](https://github.com/zxeryu/react-start/compare/@react-start/cheng-high@0.4.2...@react-start/cheng-high@0.4.3) (2022-01-01)
 
 ### Bug Fixes
