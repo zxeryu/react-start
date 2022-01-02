@@ -1,6 +1,6 @@
 {
   "registerStore": ["store-test"],
-  "registerMeta": ["meta-test"],
+  "registerMeta": ["search"],
   "page": [
     {
       "oid": "HighPageContainer-O",

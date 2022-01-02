@@ -66,17 +66,7 @@ const ElementMap = {
   HighCURD,
 };
 
-const requestActorMap = {
-  [searchApi.name]: searchApi,
-};
-
-const metaList = [
-  {
-    requestName: "search",
-    initialParams: { q: "rxjs" },
-    storeName: "meta-test",
-  },
-];
+const requestActorList = [{ ...searchApi, req: { q: "rxjs" }, extra: { stateName: "meta-test" } }];
 
 const store$ = Store.create({});
 
@@ -84,7 +74,7 @@ export const AntdDemo = () => {
   return (
     <StoreProvider value={store$}>
       <RequestProvider>
-        <HighProvider elementsMap={ElementMap} requestActorMap={requestActorMap} metaList={metaList}>
+        <HighProvider elementsMap={ElementMap} requestActorList={requestActorList}>
           <List />
           {/*<RequestDemo />*/}
         </HighProvider>
