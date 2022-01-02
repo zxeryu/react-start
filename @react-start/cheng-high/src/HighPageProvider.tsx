@@ -85,7 +85,7 @@ interface HighPageContextProps {
     },
   ) => void;
   //发送请求by name
-  dispatchRequestByName?: (requestName: string, params: any) => void;
+  dispatchRequestByName?: (requestName: string, params?: any, extra?: any) => void;
 }
 
 const HighPageContext = createContext<HighPageContextProps>({} as any);

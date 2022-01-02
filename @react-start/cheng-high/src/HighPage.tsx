@@ -233,13 +233,16 @@ export const HighPage = ({ elementsMap, children, requestActorList, ...otherProp
     [],
   );
 
-  const dispatchRequestByName = useCallback((requestName: string, params: Record<string, any>) => {
-    const requestActor = get(requestActorMap, requestName) || get(baseRequestActorMap, requestName);
-    if (!requestActor) {
-      return;
-    }
-    dispatchRequest(requestActor, params);
-  }, []);
+  const dispatchRequestByName = useCallback(
+    (requestName: string, params?: IRequestActor["req"], extra?: IRequestActor["extra"]) => {
+      const requestActor = get(requestActorMap, requestName) || get(baseRequestActorMap, requestName);
+      if (!requestActor) {
+        return;
+      }
+      dispatchRequest(requestActor, params, extra);
+    },
+    [],
+  );
 
   return (
     <HighPageProvider elementsMap={elementsMap} dispatchRequestByName={dispatchRequestByName}>
