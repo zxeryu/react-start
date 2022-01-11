@@ -23,7 +23,7 @@ import {
   HighPageContainer,
   HighEditTable,
   HighFormEditTableItem,
-  HighCURD,
+  HighCURD as HighCURDOrigin,
 } from "@react-start/cheng-plugin-antd";
 import { List } from "./List";
 
@@ -37,6 +37,16 @@ import { searchApi } from "./RequestDemo";
 
 const HighSearchForm = (props: HighSearchFormProps) => {
   return <HighSearchFormOrigin css={{ "> *": { paddingBottom: 10 } }} {...props} />;
+};
+
+const TypeMap = {
+  text: "HighFormText",
+  select: "HighFormSelect",
+  date: "HighFormDatePicker",
+};
+
+const HighCURD = (props: any) => {
+  return <HighCURDOrigin elementTypeMap={TypeMap} {...props} />;
 };
 
 const ElementMap = {

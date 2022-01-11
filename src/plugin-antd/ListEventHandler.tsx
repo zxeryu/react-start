@@ -1,4 +1,4 @@
-import { useHighPage, HighAction, useDomEvent } from "@react-start/cheng-high";
+import { useHighPage, HighAction, useDomEvent, listToCompose } from "@react-start/cheng-high";
 import { useEffect } from "react";
 import { slice } from "lodash";
 
@@ -192,6 +192,28 @@ export const ListEventHandler = () => {
     setTimeout(() => {
       dispatch({ type: "testLoading", payload: false });
     }, 5000);
+
+    dispatch({
+      type: "statusType",
+      payload: listToCompose([
+        {
+          label: "全部",
+          value: "all",
+        },
+        {
+          label: "未解决",
+          value: "open",
+        },
+        {
+          label: "已解决",
+          value: "closed",
+        },
+        {
+          label: "解决中",
+          value: "processing",
+        },
+      ]),
+    });
   }, []);
 
   useDomEvent((action: HighAction) => {
