@@ -145,6 +145,7 @@ const RecommendFormDemo = () => {
         initialValues={{
           select: "",
           selectMulti: [],
+          "cascader-picker-mulitiple": ["id-1-1", "id-1-2"],
         }}
         validationSchema={validationSchema}
         onSubmit={(values) => {
@@ -211,6 +212,9 @@ const RecommendFormDemo = () => {
         </FormItem>
         <FormItem name={"cascader-picker"} label={"级联组件"} directChange trigger={"onConfirm"}>
           <CascaderModal title={"级联"} columns={TreeOptions} />
+        </FormItem>
+        <FormItem name={"cascader-picker-mulitiple"} label={"级联多选组件"} directChange trigger={"onConfirm"}>
+          <CascaderModal mode={"multiple"} title={"级联"} columns={TreeOptions} />
         </FormItem>
         <FormItem>
           <Button color="primary" variant="contained" fullWidth type="submit">
