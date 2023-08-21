@@ -2,22 +2,36 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNextEffect } from "../../../hooks";
 import { Cascader, CascaderProps } from "./Cascader";
 import { TextFieldProps, TextField, Drawer } from "@material-ui/core";
-import { isString, size, find, forEach } from "lodash";
+import { isString, size, find, forEach, includes, map } from "lodash";
 import { IOption } from "../type";
 
 const getOptionByValue = (
   columns: CascaderProps["columns"],
   value: CascaderProps["value"],
-  cb: (option: IOption) => void,
+  cb: (option: IOption | IOption[]) => void,
 ) => {
-  const target = find(columns, (item) => item.value === value);
-  if (target) {
-    cb(target);
-    return;
+  if (Array.isArray(value)) {
+    const result: CascaderProps["columns"] = [];
+    forEach(columns, (item) => {
+      if (includes(value, item.value)) {
+        result.push(item);
+      }
+      if (size(result) === size(value)) {
+        cb(result);
+        return;
+      }
+      size(item.children) > 0 && getOptionByValue(item.children!, value, cb);
+    });
+  } else {
+    const target = find(columns, (item) => item.value === value);
+    if (target) {
+      cb(target);
+      return;
+    }
+    forEach(columns, (item) => {
+      size(item.children) > 0 && getOptionByValue(item.children!, value, cb);
+    });
   }
-  forEach(columns, (item) => {
-    size(item.children) > 0 && getOptionByValue(item.children!, value, cb);
-  });
 };
 
 export const CascaderModal = ({
@@ -42,8 +56,12 @@ export const CascaderModal = ({
       return;
     }
     getOptionByValue(cascaderProps.columns, cascaderProps.value, (option) => {
-      console.log(option);
-      isString(option.label) && setTextValue(option.label);
+      console.log({ option });
+      if (Array.isArray(option)) {
+        setTextValue(map(option, (v) => v?.label).join(","));
+      } else {
+        isString(option?.label) && setTextValue(option?.label);
+      }
     });
   }, []);
 
@@ -72,7 +90,12 @@ export const CascaderModal = ({
             }}
             onConfirm={(v, option, options) => {
               cascaderProps.onConfirm && cascaderProps.onConfirm(v, option, options);
-              isString(option?.label) && setTextValue(option!.label);
+              if (Array.isArray(option)) {
+                setTextValue(map(option, (v) => v?.label).join(","));
+              } else {
+                isString(option?.label) && setTextValue(option?.label || "");
+              }
+              // isString(option?.label) && setTextValue(option!.label);
               setOpen(false);
             }}
           />

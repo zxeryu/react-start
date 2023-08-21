@@ -16,15 +16,15 @@ import {
 // import CloseIcon from "@material-ui/icons/Close";
 import { Check as CheckIcon, Close as CloseIcon } from "@material-ui/icons";
 
-import { IOption, ITreeOption } from "../type";
-import { map, omit, get, slice, set, size, join, last, findIndex, filter } from "lodash";
+import { IOption, ITreeOption, TValue } from "../type";
+import { map, omit, get, slice, set, size, join, last, findIndex, filter, some } from "lodash";
 import { Toolbar, ToolbarProps } from "../common/Toolbar";
 
-type ResultCallback = (v: IOption["value"], option?: IOption, options?: IOption[]) => void;
+type ResultCallback = (v: IOption["value"], option?: IOption | IOption[], options?: IOption[]) => void;
 
 export interface CascaderProps extends Omit<ToolbarProps, "onCancel" | "onSure"> {
   showToolbar?: boolean;
-  mode?: "child" | "parent";
+  mode?: "child" | "parent" | "multiple";
   loading?: boolean;
   columns: ITreeOption[];
   value?: IOption["value"];
@@ -33,8 +33,10 @@ export interface CascaderProps extends Omit<ToolbarProps, "onCancel" | "onSure">
   onConfirm?: ResultCallback;
 }
 
+type ChooseType = IOption & { index: number };
+
 interface ShowColumnOption {
-  choose?: IOption & { index: number };
+  choose?: ChooseType | ChooseType[];
   column: IOption[];
 }
 
@@ -104,7 +106,7 @@ export const Cascader = ({
     }
     //如果当前showColumns最后一列存在新children（from：columns），更新
     const path = join(
-      map(showColumnsRef.current, ({ choose }) => choose!.index),
+      map(showColumnsRef.current, ({ choose }) => (choose as ChooseType)!.index),
       ".children.",
     );
     const lastOption = get(columns, path);
@@ -129,9 +131,22 @@ export const Cascader = ({
     (tabIndex, itemIndex) => {
       const nextShowColumns = slice(showColumns, 0, tabIndex + 1);
       const targetOption = get(nextShowColumns, [tabIndex, "column", itemIndex]);
-      set(nextShowColumns[tabIndex], "choose", { ...targetOption, index: itemIndex });
+      if (mode === "multiple" && get(targetOption, "isLeaf")) {
+        const currentColumns = get(nextShowColumns, [tabIndex, "choose"], []) as ChooseType[];
+        const waitColumns = { ...targetOption, index: itemIndex };
+        const filterNextShowColumns = filter(currentColumns, (v) => v?.value === waitColumns?.value);
+        if (filterNextShowColumns.length > 0) {
+          set(nextShowColumns, "choose", [...filterNextShowColumns, waitColumns]);
+        } else {
+          set(nextShowColumns[tabIndex], "choose", [...currentColumns, waitColumns]);
+        }
+      } else {
+        set(nextShowColumns[tabIndex], "choose", { ...targetOption, index: itemIndex });
+      }
       const path = join(
-        map(nextShowColumns, ({ choose }) => choose!.index),
+        map(nextShowColumns, ({ choose }) => {
+          return (choose as ChooseType)?.index;
+        }),
         ".children.",
       );
       const targetTreeOption = get(columnsRef.current, path);
@@ -222,11 +237,22 @@ export const Cascader = ({
     const lastChoose = last(chooseList);
 
     return {
-      value: get(lastChoose, "value"),
+      value: mode === "multiple" ? lastChoose : get(lastChoose, "value"),
       option: lastChoose,
       options: chooseList,
     };
-  }, [showColumns]);
+  }, [showColumns, mode]);
+
+  const isCheck = useCallback(
+    (value: TValue) => {
+      if (mode === "multiple") {
+        return some(currentChoose, (v: ChooseType) => v?.value === value);
+      } else {
+        return (currentChoose as ChooseType)?.value === value;
+      }
+    },
+    [currentChoose, mode],
+  );
 
   return (
     <Stack>
@@ -259,10 +285,34 @@ export const Cascader = ({
           }}
         />
       )}
+      {showToolbar && mode === "multiple" && (
+        <Toolbar
+          title={title}
+          cancelButtonText={cancelButtonText}
+          confirmButtonText={confirmButtonText}
+          onCancel={() => {
+            onCancel && onCancel();
+          }}
+          onSure={() => {
+            const { value, option, options } = getValue();
+            if (value) {
+              onConfirm && onConfirm(value, option, options as any);
+            } else {
+              onCancel && onCancel();
+            }
+          }}
+        />
+      )}
 
       <Tabs variant={"scrollable"} scrollButtons={"auto"} value={currentTab} onChange={handleTabChange}>
         {map(showColumns, ({ choose }, index) => {
-          return <Tab key={choose?.value || index} label={choose ? choose.label : "请选择"} />;
+          const isArr = Array.isArray(choose);
+          return (
+            <Tab
+              key={isArr ? index : choose?.value || index}
+              label={isArr ? "多选" : choose ? choose.label : "请选择"}
+            />
+          );
         })}
       </Tabs>
 
@@ -289,7 +339,7 @@ export const Cascader = ({
             return (
               <ListItem
                 key={value}
-                secondaryAction={currentChoose?.value === value ? <CheckIcon color={"primary"} /> : null}
+                secondaryAction={isCheck(value) ? <CheckIcon color={"primary"} /> : null}
                 disablePadding
                 disabled={!!disable}>
                 <ListItemButton disabled={!!disable} onClick={() => selectItem(currentTab, index)}>
